@@ -15,6 +15,7 @@
 #define TARGET_SYSTEM     1
 
 TFT_eSPI display = TFT_eSPI(DISP_HEIGHT, DISP_WIDTH); 
+TFT_eSprite spr = TFT_eSprite(&display); // Invoke Sprite class
 Parameters parameters;
 uint32_t HB_count;
 
@@ -42,26 +43,35 @@ void setup(){
 }
 
 
+
+
 void loop(){
   wifi_work();
 
   mavlink_read(MAV_Serial); // Reading messages from quad
 
-  display_clear();
-  display.setTextSize(2); 
-  display.setTextColor(TFT_WHITE);
-  display.setCursor(10, 10);
-  display.printf("HB seq: %d", HB_count);
-  display.setCursor(10, 40);
-  display.printf("%d %s %0.3f", param_arr[0].param_index, param_arr[0].param_id, param_arr[0].param_value);
-  display.setCursor(10, 60);
-  display.printf("%d %s %0.3f", param_arr[1].param_index, param_arr[1].param_id, param_arr[1].param_value);
-  display.setCursor(10, 80);
-  display.printf("%d %s %0.3f", param_arr[2].param_index, param_arr[2].param_id, param_arr[2].param_value);
-  display.setCursor(10, 100);
-  display.printf("%d %s %0.3f", param_arr[3].param_index, param_arr[3].param_id, param_arr[3].param_value);
-  delay(20);
+  param_arr[0].param_value += 1.0;
 
+  //display_clear();
+  spr.createSprite(DISP_WIDTH, DISP_HEIGHT); // Create sprite  
+  spr.fillSprite(TFT_BLACK);
+
+  spr.setTextSize(2); 
+  spr.setTextColor(TFT_WHITE);
+  spr.setCursor(10, 10);
+  spr.printf("HB seq: %d", HB_count);
+  spr.setCursor(10, 40);
+  spr.printf("%d %s %0.3f", param_arr[0].param_index, param_arr[0].param_id, param_arr[0].param_value);
+  spr.setCursor(10, 60);
+  spr.printf("%d %s %0.3f", param_arr[1].param_index, param_arr[1].param_id, param_arr[1].param_value);
+  spr.setCursor(10, 80);
+  spr.printf("%d %s %0.3f", param_arr[2].param_index, param_arr[2].param_id, param_arr[2].param_value);
+  spr.setCursor(10, 100);
+  spr.printf("%d %s %0.3f", param_arr[3].param_index, param_arr[3].param_id, param_arr[3].param_value);
+
+  spr.pushSprite(0, 0); // Push sprite to its position
+
+  delay(20);
 
 }
 
