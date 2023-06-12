@@ -45,14 +45,14 @@ void setup(){
 
 
 
-void loop(){
+void loop() {
+  
   wifi_work();
 
   mavlink_read(MAV_Serial); // Reading messages from quad
 
   param_arr[0].param_value += 1.0;
-
-  //display_clear();
+  
   spr.createSprite(DISP_WIDTH, DISP_HEIGHT); // Create sprite  
   spr.fillSprite(TFT_BLACK);
 
