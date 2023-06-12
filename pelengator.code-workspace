@@ -1,0 +1,33 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"*.tcc": "cpp",
+			"memory": "cpp",
+			"fstream": "cpp",
+			"istream": "cpp",
+			"ostream": "cpp",
+			"sstream": "cpp",
+			"streambuf": "cpp",
+			"cmath": "cpp",
+			"cstring": "cpp",
+			"cstdio": "cpp",
+			"string": "cpp",
+			"optional": "cpp",
+			"system_error": "cpp",
+			"array": "cpp",
+			"functional": "cpp",
+			"tuple": "cpp",
+			"type_traits": "cpp",
+			"utility": "cpp",
+			"vector": "cpp",
+			"limits": "cpp"
+		},
+		"nrf-connect.toolchain.path": "${nrf-connect.toolchain:2.1.0-rc1}",
+		"nrf-connect.topdir": "${nrf-connect.sdk:2.1.0-rc1}"
+	}
+}

@@ -1,0 +1,14 @@
+{
+    "kconfig.zephyr.west": "c:\\Users\\vitas\\ncs\\v1.7.0\\toolchain\\opt\\bin\\Scripts\\west.exe",
+    "kconfig.zephyr.base": "c:\\Users\\vitas\\ncs\\v1.7.0\\zephyr",
+    "files.associations": {
+        "*.tcc": "cpp",
+        "memory": "cpp",
+        "fstream": "cpp",
+        "istream": "cpp",
+        "ostream": "cpp",
+        "sstream": "cpp",
+        "streambuf": "cpp",
+        "cmath": "cpp"
+    }
+}
