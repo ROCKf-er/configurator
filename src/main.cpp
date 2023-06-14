@@ -26,7 +26,7 @@ uint16_t rol_index = 0;
 
 
 void setup(){
-  //LOG_Serial.begin(115200);     // syslog 
+  LOG_Serial.begin(115200);     // syslog 
   MAV_Serial.begin(57600);      // mavlink
   MAV_Serial.setPins(MAV_RX_PIN, MAV_TX_PIN);
   
@@ -124,6 +124,7 @@ void mavlink_read(HardwareSerial &link){
           if (msg.compid == TARGET_COMPONENT) {
             mavlink_msg_param_value_decode(&msg, &param);
             param_arr[param.param_index] = param;
+            LOG_Serial.printf("%d: %s = %.2f\n", param.param_index, param.param_id, param.param_value);
           }  
           break;
         case MAVLINK_MSG_ID_HEARTBEAT: 
