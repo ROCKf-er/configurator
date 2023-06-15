@@ -11,7 +11,7 @@
 #include "PID.h"
 #include <ESP32Servo.h>
 
-#define TARGET_COMPONENT  191
+#define TARGET_COMPONENT  MAV_COMP_ID_ONBOARD_COMPUTER
 #define TARGET_SYSTEM     1
 
 TFT_eSPI display = TFT_eSPI(DISP_HEIGHT, DISP_WIDTH); 
@@ -167,7 +167,7 @@ void loop() {
 
   mavlink_read(MAV_Serial); // Reading messages from quad
 
-  param_arr[0].param_value += 1.0;
+  //param_arr[0].param_value += 1.0;
   
   spr.createSprite(DISP_WIDTH, DISP_HEIGHT); // Create sprite  
   spr.fillSprite(TFT_BLACK);

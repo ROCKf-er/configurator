@@ -62,7 +62,7 @@ void build_header(WiFiClient client) {
   //client.println("<br>");
   //client.println(header);
   //client.println("<br>");
-  client.println(p_str);
+  //client.println(p_str);
 }
 
 
