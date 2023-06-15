@@ -16,6 +16,7 @@ String p_str = "";
 extern mavlink_param_value_t param_arr[20];
 extern param_constraint param_costraint_arr[20];
 
+
 void wifi_init() {
   Serial.println("");
   Serial.println("Setting AP (Access Point)… ");
@@ -202,91 +203,18 @@ void wifi_work(){
             String get_string = "GET /par_";
             int8_t pos = header.indexOf(get_string);
 
-            if (header.indexOf("GET /default") >= 0) {eeprom_set_default();}           // reset to default
-            //if (header.indexOf("GET /noGPS") >= 0) {vehicle_mode = MODE_GUIDED_NOGPS;}  // Forced switch to Guided noGPS mode for debug
-            //if (header.indexOf("GET /GPS") >= 0) {vehicle_mode = MODE_GUIDED_GPS;}      // Forced switch to Guided noGPS mode for debug
-            
-/*
-            if (pos >= 0) {
-              char par_number = header[pos + get_string.length()];      // parameter number to change 0..9
-              char oper =       header[pos + get_string.length() + 2];  // Operator '+' or '-'
+            if (header.indexOf("GET /default") >= 0) {
+              // reset to default
+              eeprom_set_default();
+            }                       
 
-              switch (par_number) {
-                case '0': 
-                  param_change(param[0]->value, oper, 5, 10, 250);
-                  Serial.printf("threshold_lvl changed to %.d\n", parameters.threshold_lvl);
-                  break;  
-                case '1': 
-                  param_change(parameters.mav_msg_rate_ms, oper, 100, 100, 2000);
-                  Serial.printf("mav_msg_rate_ms changed to %.d\n", parameters.mav_msg_rate_ms);
-                  break;  
-                case '2':
-                  param_change(parameters.steering_max_speed, oper, 0.1, 0.1, 10);
-                  Serial.printf("steering_max_speed changed to %.2f\n", parameters.steering_max_speed);
-                  break;  
-                case '3': 
-                  param_change(parameters.steering_speed_coef, oper, 0.001, 0.001, 0.1);
-                  Serial.printf("steering_speed_coef changed to %.3f\n", parameters.steering_speed_coef);
-                  break;  
-                case '4':   
-                  param_change(parameters.max_angle, oper, 1.0, 1.0, 20.0);                
-                  Serial.printf("max_angle changed to %.1f\n", parameters.max_angle);
-                  break;  
-                case '5': 
-                  param_change(parameters.angle_coef, oper, 0.05, 0.0, 1.0);
-                  Serial.printf("angle_coef_kp changed to %.2f\n", parameters.angle_coef);
-                  break;  
-                case '6': 
-                  param_change(parameters.min_servo_pulse, oper, 50, 100, parameters.max_servo_pulse);
-                  html_log_add("Reboot!");
-                  Serial.printf("min_servo_pulse changed to %d\n", parameters.min_servo_pulse);
-                  break;  
-                case '7': 
-                  param_change(parameters.max_servo_pulse, oper, 50, parameters.min_servo_pulse, 5000);
-                  html_log_add("Reboot!");
-                  Serial.printf("max_servo_pulse changed to %d\n", parameters.max_servo_pulse);
-                  break;   
-                case '8': 
-                  param_change(parameters.lead_angle, oper, 5.0, -60, 60);
-                  Serial.printf("lead_angle changed to %d\n", parameters.lead_angle);
-                  break; 
-                case '9': 
-                  if (oper == '+') {
-                    servo.writeMicroseconds(SERVO_MAX_PULSE);
-                    LOG_Serial.println("OPEN");
-                  } else {
-                    servo.writeMicroseconds(SERVO_MIN_PULSE);
-                    LOG_Serial.println("CLOSE");
-                  }
-                  break; 
-                default: break; 
-              }  
-            }
-  */
-            
-            
-            // Display the HTML web page
-            client.println("<!DOCTYPE html><html>");
-            client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
-            client.println("<link rel=\"icon\" href=\"data:,\">");
-            // CSS to style the on/off buttons 
-            // Feel free to change the background-color and font-size attributes to fit your preferences
-            client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
-            client.println(".button { background-color: #4CAF50; border: none; color: white; padding: 5px 15px;");
-            client.println("text-decoration: none; font-size: 25px; margin: 2px; cursor: pointer;}");
-            client.println(".button2 {background-color: #555555;}</style></head>");
-            
-            // Web Page Heading
-           // client.println("<body><a href=\"/\"><h3>Pelengator Web Server</h3></a>");
+            if (header.indexOf("GET /?") >= 0) {
+              int b_index = header.indexOf("GET /?") + 6;
+              String vs = header.substring(b_index);
+              int e_index = vs.indexOf(" ");
+              vs = vs.substring(0, e_index);
 
-            client.println("<a href=\"/default\"> DEFAULT </a>");
-
-            // Param adjusting   
-
-            for (uint16_t i = 0; i < sizeof(param_arr) / sizeof(param_arr[0]); i++) {
-              client.printf("<p align=\"right\">%d: %s: %.2f", param_arr[i].param_index, param_arr[i].param_id, param_arr[i].param_value);
-              client.println("<a href=\"/par_0/-\"><button class=\"button\"> - </button></a>");
-              client.println("<a href=\"/par_0/+\"><button class=\"button\"> + </button></a></p>");
+              get_values_from_str(vs);
             }
 
             build_page(client);
