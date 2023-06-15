@@ -51,6 +51,7 @@ void build_header(WiFiClient client) {
   client.println("input { width: 8em; }");
   client.println("input:invalid { border: 1px dashed red; background-color: pink; }");  
   client.println("</style></head>");
+  client.println("<body>");
   build_set_buttons(client);
   client.println("<br>");
 }
