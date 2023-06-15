@@ -20,6 +20,7 @@ Parameters parameters;
 uint32_t HB_count;
 
 mavlink_param_value_t param_arr[20];
+param_constraint param_costraint_arr[20];
 
 uint16_t rol_index = 0;
 

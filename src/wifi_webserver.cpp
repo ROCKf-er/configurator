@@ -14,6 +14,7 @@ String header;
 String p_str = "";
 
 extern mavlink_param_value_t param_arr[20];
+extern param_constraint param_costraint_arr[20];
 
 void wifi_init() {
   Serial.println("");

@@ -69,6 +69,13 @@
     int16_t lead_angle;
   };
 
+  typedef struct {
+    float min_value;
+    float max_value;
+    float step_value;
+    float default_value;
+    char description[300];
+  } param_constraint;
  
   void mavlink_read(HardwareSerial &link);
   void mav_param_request(uint16_t index);
