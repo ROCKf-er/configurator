@@ -6,8 +6,8 @@
 #define MAV_DEFAULT_TARG_SYS 1
 #define MAV_DEFAULT_TARG_COMPONENT 1
 
-#define COMPONENT_ID 1
-#define SYSTEM_ID 191
+#define COMPONENT_ID    MAV_COMP_ID_TUNNEL_NODE
+#define SYSTEM_ID       1 
 
 /**
  * @brief Get mavlink message to enter guided mode
