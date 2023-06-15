@@ -30,6 +30,113 @@ void wifi_init() {
   server.begin();
 }
 
+
+void build_set_buttons(WiFiClient client) {
+  client.println("<button class=\"greenbutton\" onclick=\"upload_values();\">SET</button>");
+  client.println("<button class=\"redbutton\" onclick=\"if( confirm('This will return all values to their default values. Are you sure?') ){location.href = '/default';};\">SET DEFAULT</button>");  
+}
+
+
+void build_header(WiFiClient client) {
+  client.println("<!DOCTYPE html><html>");
+  client.println("<head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
+  client.println("<link rel=\"icon\" href=\"data:,\">");
+  client.println("<style>");
+  client.println("html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
+  client.println(".button { background-color: #4CAF50; border: none; color: white; padding: 5px 15px;");
+  client.println("text-decoration: none; font-size: 25px; margin: 2px; cursor: pointer;}");
+  client.println(".button2 {background-color: #555555;} table, th, td { border: 1px solid black; border-collapse: collapse; padding: 5px; text-align: left; } th { background-color: #D0D0D0; }");
+  client.println(".redbutton { background-color: #D09090; padding: 5px 5px; margin: 10px;}");
+  client.println(".greenbutton { background-color: #90D090; padding: 5px 50px; margin: 10px;}");
+  client.println("input { width: 8em; }");
+  client.println("</style></head>");
+  build_set_buttons(client);
+  client.println("<br>");
+}
+
+
+void build_table_rows(WiFiClient client) {
+  for (uint16_t i = 0; i < sizeof(param_arr) / sizeof(param_arr[0]); i++) {
+    client.println("<tr>");
+    client.printf("<td>%d</td>", param_arr[i].param_index);
+    client.printf("<td>%s</td>", param_arr[i].param_id);
+    // https://mavlink.io/en/messages/common.html#PARAM_VALUE
+    // MAV_PARAM_TYPE
+    // 1..8 - integer
+    // 9..10 - floar
+    if (param_arr[i].param_type <= 8) {
+      client.printf("<td><input type=number value=%.0f min=%.0f max=%.0f step=%.0f uploadname=\"v%d\" /></td>", 
+        param_arr[i].param_value, 
+        param_costraint_arr[i].min_value, 
+        param_costraint_arr[i].max_value, 
+        param_costraint_arr[i].step_value,
+        param_arr[i].param_index
+      );
+      client.printf("<td>%.0f</td>", param_costraint_arr[i].default_value);
+      client.printf("<td>%.0f..%.0f</td>", param_costraint_arr[i].min_value, param_costraint_arr[i].max_value);    
+    } else {    
+      client.printf("<td><input type=number value=%.2f min=%.2f max=%.2f step=%.2f /></td>", 
+        param_arr[i].param_value, 
+        param_costraint_arr[i].min_value, 
+        param_costraint_arr[i].max_value, 
+        param_costraint_arr[i].step_value 
+      );
+      client.printf("<td>%.2f</td>", param_costraint_arr[i].default_value);
+      client.printf("<td>%.2f..%.2f</td>", param_costraint_arr[i].min_value, param_costraint_arr[i].max_value);
+    }
+    client.printf("<td>%s</td>", param_costraint_arr[i].description);
+    client.printf("</tr>");
+  }     
+}
+
+
+void build_table(WiFiClient client) {
+  client.println("<table>");
+  client.println("<tr>");
+  client.println("<th>Index</th>");
+  client.println("<th>ID</th>");
+  client.println("<th>Value</th>");
+  client.println("<th>Default</th>");
+  client.println("<th>Range</th>");
+  client.println("<th>Description</th>");
+  client.println("</tr>");
+
+  build_table_rows(client);
+
+  client.println("</table>");
+}
+
+
+void build_footer(WiFiClient client) {
+  client.println("<br>");
+  build_set_buttons(client);
+  client.println("<br>");
+  client.println("<script>function upload_values() {var table = document.getElementsByTagName(\"table\")[0]; var inputs = document.getElementsByTagName(\"input\"); var params = \"/?\"; for (var i=0; i<inputs.length; i++) { var uploadname = inputs[i].getAttribute(\"uploadname\"); if (uploadname == null) { break; } if (i > 0) { params += \"&\"; } params += inputs[i].getAttribute(\"uploadname\") + \"=\" + inputs[i].value; } location.href = params; } </script>");
+  client.println("</body></html>");  
+  /*
+  client.println("<p></p>");           
+  client.println("<p>LOG</p>");
+  client.println("<p align = \"left\">");
+  for(uint8_t i = 0; i < HTML_LOG_LENGTH; i++){
+    client.println(html_log[i]);
+    client.println("<br>");
+  }
+  client.println("</p>");
+  client.println("</body></html>");            
+  */
+
+  // The HTTP response ends with another blank line
+  client.println();
+}
+
+
+void build_page(WiFiClient client) {
+  build_header(client);
+  build_table(client);
+  build_footer(client);
+}
+
+
 void wifi_work(){
   WiFiClient client = server.available();   // Listen for incoming clients
 
@@ -156,6 +263,11 @@ void wifi_work(){
             
             // The HTTP response ends with another blank line
             client.println();
+
+            */
+
+            build_page(client);
+
             // Break out of the while loop
             break;
           } else { // if you got a newline, then clear currentLine

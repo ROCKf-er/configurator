@@ -40,6 +40,121 @@ void setup(){
   delay(500);
 
   mav_param_request_list();
+
+
+  int n;
+  // G_ROLL_ANGLE
+  n = 0;
+  param_costraint_arr[n].min_value = -30;
+  param_costraint_arr[n].max_value = 30;
+  param_costraint_arr[n].step_value = 1;
+  param_costraint_arr[n].default_value = 25;
+  strcpy(param_costraint_arr[n].description, "Кут крену при пошуку цілі (при RSSI < THRESHOLD)");
+  // ANGLE_MIXER
+  n = 1;
+  param_costraint_arr[n].min_value = 0;
+  param_costraint_arr[n].max_value = 1;
+  param_costraint_arr[n].step_value = 0.01;
+  param_costraint_arr[n].default_value = 0.5;
+  strcpy(param_costraint_arr[n].description, "Відсоток від ROLL’у на руль повороту");
+  // P_COEF
+  n = 2;
+  param_costraint_arr[n].min_value = 0.2;
+  param_costraint_arr[n].max_value = 3;
+  param_costraint_arr[n].step_value = 0.01;
+  param_costraint_arr[n].default_value = 1.5;
+  strcpy(param_costraint_arr[n].description, "Пропорційний коефіцієнт");
+  // I_COEF
+  n = 3;
+  param_costraint_arr[n].min_value = 0;
+  param_costraint_arr[n].max_value = 0.1;
+  param_costraint_arr[n].step_value = 0.01;
+  param_costraint_arr[n].default_value = 0;
+  strcpy(param_costraint_arr[n].description, "Інтегральний коефіцієнт");
+  // D_COEF
+  n = 4;
+  param_costraint_arr[n].min_value = 0;
+  param_costraint_arr[n].max_value = 0.1;
+  param_costraint_arr[n].step_value = 0.01;
+  param_costraint_arr[n].default_value = 0;
+  strcpy(param_costraint_arr[n].description, "Диференціальний коефіцієнт");
+  // ANTENNA_ANGLE
+  n = 5;
+  param_costraint_arr[n].min_value = -90;
+  param_costraint_arr[n].max_value = 90;
+  param_costraint_arr[n].step_value = 1;
+  param_costraint_arr[n].default_value = -20;
+  strcpy(param_costraint_arr[n].description, "Кут встановлення антенного модуля (-20º – нормаль антени відхилена вниз від осі літака)");
+  // SERVO_CLOSE
+  n = 6;
+  param_costraint_arr[n].min_value = 1100;
+  param_costraint_arr[n].max_value = 1900;
+  param_costraint_arr[n].step_value = 1;
+  param_costraint_arr[n].default_value = 1900;
+  strcpy(param_costraint_arr[n].description, "Сигнал на закриття скиду");
+  // SERVO_OPEN
+  n = 7;
+  param_costraint_arr[n].min_value = 1100;
+  param_costraint_arr[n].max_value = 1900;
+  param_costraint_arr[n].step_value = 1;
+  param_costraint_arr[n].default_value = 1220;
+  strcpy(param_costraint_arr[n].description, "Сигнал на відкриття скиду");
+  // SERVO_CHANNEL
+  n = 8;
+  param_costraint_arr[n].min_value = 1;
+  param_costraint_arr[n].max_value = 8;
+  param_costraint_arr[n].step_value = 1;
+  param_costraint_arr[n].default_value = 7;
+  strcpy(param_costraint_arr[n].description, "Номер каналу для підключення механізму скидання");
+  // SCAN_ALT
+  n = 9;
+  param_costraint_arr[n].min_value = 100;
+  param_costraint_arr[n].max_value = 400;
+  param_costraint_arr[n].step_value = 1;
+  param_costraint_arr[n].default_value = 200;
+  strcpy(param_costraint_arr[n].description, "Висота пошуку цілі");
+  // SCAN_THRUST
+  n = 10;
+  param_costraint_arr[n].min_value = 0.3;
+  param_costraint_arr[n].max_value = 1;
+  param_costraint_arr[n].step_value = 0.01;
+  param_costraint_arr[n].default_value = 0.4;
+  strcpy(param_costraint_arr[n].description, "% газу при пошуку цілі");
+  // DROP_ALT
+  n = 11;
+  param_costraint_arr[n].min_value = 50;
+  param_costraint_arr[n].max_value = 200;
+  param_costraint_arr[n].step_value = 1;
+  param_costraint_arr[n].default_value = 100;
+  strcpy(param_costraint_arr[n].description, "Висота заходу на ціль");
+  // DROP_LVL
+  n = 12;
+  param_costraint_arr[n].min_value = -50;
+  param_costraint_arr[n].max_value = -80;
+  param_costraint_arr[n].step_value = 1;
+  param_costraint_arr[n].default_value = -70;
+  strcpy(param_costraint_arr[n].description, "Рівень сигналу при якому відбувається зниження до DROP_ALT");
+  // DROP_THRUST
+  n = 13;
+  param_costraint_arr[n].min_value = 0.3;
+  param_costraint_arr[n].max_value = 1;
+  param_costraint_arr[n].step_value = 0.01;
+  param_costraint_arr[n].default_value = 0.4;
+  strcpy(param_costraint_arr[n].description, "% газу при заході на ціль");
+  // DROP_ANGLE
+  n = 14;
+  param_costraint_arr[n].min_value = 0;
+  param_costraint_arr[n].max_value = -90;
+  param_costraint_arr[n].step_value = 1;
+  param_costraint_arr[n].default_value = -45;
+  strcpy(param_costraint_arr[n].description, "Кут на ціль відносно літака, при якому скидається вантаж");
+  // HEADING_APERTURE
+  n = 15;
+  param_costraint_arr[n].min_value = 1;
+  param_costraint_arr[n].max_value = 360;
+  param_costraint_arr[n].step_value = 1;
+  param_costraint_arr[n].default_value = 360;
+  strcpy(param_costraint_arr[n].description, "Після ввімкнення режиму Guided пошук цілі буде відбуватися у проміжку від (Heading –  HEADING_APERTURE / 2) до (Heading +  HEADING_APERTURE / 2)");
 }
 
 
