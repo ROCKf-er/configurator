@@ -207,6 +207,25 @@ void mav_param_request(uint16_t index){
   MAV_Serial.write(mav_msg_buf, mav_msg_len); 
 }
 
+
+void mav_param_set(uint16_t index, float value){
+  uint8_t mav_msg_buf[250];
+  uint32_t mav_msg_len;
+  mavlink_param_set_t com;
+  mavlink_message_t message;
+
+  com.param_value = value;
+  com.target_system = TARGET_SYSTEM;
+  com.target_component = TARGET_COMPONENT;
+  memcpy(com.param_id, param_arr[index].param_id, 16);
+  com.param_type = param_arr[index].param_type;
+  
+  mavlink_msg_param_set_encode(SYSTEM_ID,  COMPONENT_ID, &message, &com);
+  mav_msg_len = mavlink_msg_to_send_buffer(mav_msg_buf, &message);
+  MAV_Serial.write(mav_msg_buf, mav_msg_len); 
+}
+
+
 void mav_param_request_list(){
   uint8_t mav_msg_buf[250];
   uint32_t mav_msg_len;

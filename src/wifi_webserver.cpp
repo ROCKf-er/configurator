@@ -11,6 +11,8 @@ uint32_t board_ID = ESP.getEfuseMac() >> 32;
 String html_log[HTML_LOG_LENGTH];
 String header;
 
+String p_str = "";
+
 extern mavlink_param_value_t param_arr[20];
 
 void wifi_init() {
@@ -54,6 +56,11 @@ void build_header(WiFiClient client) {
   client.println("<body>");
   build_set_buttons(client);
   client.println("<br>");
+  //client.println("header");
+  //client.println("<br>");
+  //client.println(header);
+  //client.println("<br>");
+  client.println(p_str);
 }
 
 
@@ -143,6 +150,32 @@ void build_page(WiFiClient client) {
   build_header(client);
   build_table(client);
   build_footer(client);
+}
+
+
+void get_value_from_pair_str(String pair) {
+  int index_of_equal = pair.indexOf("=");
+  String index_str = pair.substring(0, index_of_equal);
+  int index = index_str.toInt();
+
+  String val_str = pair.substring(index_of_equal + 1);
+  float val = val_str.toFloat();
+
+  mav_param_set(index, val);
+}
+
+
+void get_values_from_str(String vs) {
+  p_str = vs;
+
+  int amp_index = vs.indexOf("&");
+  while (amp_index > 0) {
+    String pair = vs.substring(0, amp_index);
+    get_value_from_pair_str(pair);
+    vs = vs.substring(amp_index + 1);
+    amp_index = vs.indexOf("&");
+  }
+  get_value_from_pair_str(vs);
 }
 
 
@@ -254,26 +287,6 @@ void wifi_work(){
               client.println("<a href=\"/par_0/-\"><button class=\"button\"> - </button></a>");
               client.println("<a href=\"/par_0/+\"><button class=\"button\"> + </button></a></p>");
             }
-
-
-            client.println("<p></p>");
-           
-            client.println("<p>LOG</p>");
-            client.println("<p align = \"left\">");
-              for(uint8_t i = 0; i < HTML_LOG_LENGTH; i++){
-                client.println(html_log[i]);
-                client.println("<br>");
-              }
-            client.println("</p>");
-
-      
-
-            client.println("</body></html>");
-            
-            // The HTTP response ends with another blank line
-            client.println();
-
-            */
 
             build_page(client);
 
