@@ -129,8 +129,8 @@ void setup(){
   strcpy(param_costraint_arr[n].description, "Висота заходу на ціль");
   // DROP_LVL
   n = 12;
-  param_costraint_arr[n].min_value = -50;
-  param_costraint_arr[n].max_value = -80;
+  param_costraint_arr[n].min_value = -80;
+  param_costraint_arr[n].max_value = -50;
   param_costraint_arr[n].step_value = 1;
   param_costraint_arr[n].default_value = -70;
   strcpy(param_costraint_arr[n].description, "Рівень сигналу при якому відбувається зниження до DROP_ALT");
@@ -143,8 +143,8 @@ void setup(){
   strcpy(param_costraint_arr[n].description, "% газу при заході на ціль");
   // DROP_ANGLE
   n = 14;
-  param_costraint_arr[n].min_value = 0;
-  param_costraint_arr[n].max_value = -90;
+  param_costraint_arr[n].min_value = -90;
+  param_costraint_arr[n].max_value = 0;
   param_costraint_arr[n].step_value = 1;
   param_costraint_arr[n].default_value = -45;
   strcpy(param_costraint_arr[n].description, "Кут на ціль відносно літака, при якому скидається вантаж");

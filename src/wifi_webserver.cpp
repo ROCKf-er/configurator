@@ -49,6 +49,7 @@ void build_header(WiFiClient client) {
   client.println(".redbutton { background-color: #D09090; padding: 5px 5px; margin: 10px;}");
   client.println(".greenbutton { background-color: #90D090; padding: 5px 50px; margin: 10px;}");
   client.println("input { width: 8em; }");
+  client.println("input:invalid { border: 1px dashed red; background-color: pink; }");  
   client.println("</style></head>");
   build_set_buttons(client);
   client.println("<br>");
@@ -57,6 +58,9 @@ void build_header(WiFiClient client) {
 
 void build_table_rows(WiFiClient client) {
   for (uint16_t i = 0; i < sizeof(param_arr) / sizeof(param_arr[0]); i++) {
+    if (param_arr[i].param_id[0] == '\0') {
+      break;
+    }
     client.println("<tr>");
     client.printf("<td>%d</td>", param_arr[i].param_index);
     client.printf("<td>%s</td>", param_arr[i].param_id);
@@ -75,11 +79,12 @@ void build_table_rows(WiFiClient client) {
       client.printf("<td>%.0f</td>", param_costraint_arr[i].default_value);
       client.printf("<td>%.0f..%.0f</td>", param_costraint_arr[i].min_value, param_costraint_arr[i].max_value);    
     } else {    
-      client.printf("<td><input type=number value=%.2f min=%.2f max=%.2f step=%.2f /></td>", 
+      client.printf("<td><input type=number value=%.2f min=%.2f max=%.2f step=%.2f uploadname=\"v%d\" /></td>", 
         param_arr[i].param_value, 
         param_costraint_arr[i].min_value, 
         param_costraint_arr[i].max_value, 
-        param_costraint_arr[i].step_value 
+        param_costraint_arr[i].step_value,
+        param_arr[i].param_index
       );
       client.printf("<td>%.2f</td>", param_costraint_arr[i].default_value);
       client.printf("<td>%.2f..%.2f</td>", param_costraint_arr[i].min_value, param_costraint_arr[i].max_value);
@@ -111,7 +116,10 @@ void build_footer(WiFiClient client) {
   client.println("<br>");
   build_set_buttons(client);
   client.println("<br>");
-  client.println("<script>function upload_values() {var table = document.getElementsByTagName(\"table\")[0]; var inputs = document.getElementsByTagName(\"input\"); var params = \"/?\"; for (var i=0; i<inputs.length; i++) { var uploadname = inputs[i].getAttribute(\"uploadname\"); if (uploadname == null) { break; } if (i > 0) { params += \"&\"; } params += inputs[i].getAttribute(\"uploadname\") + \"=\" + inputs[i].value; } location.href = params; } </script>");
+  client.println("<script>");
+  client.println("function upload_values() {var table = document.getElementsByTagName(\"table\")[0]; var inputs = document.getElementsByTagName(\"input\"); var params = \"/?\"; for (var i=0; i<inputs.length; i++) { var uploadname = inputs[i].getAttribute(\"uploadname\"); if (uploadname == null) { break; } if (i > 0) { params += \"&\"; } params += inputs[i].getAttribute(\"uploadname\") + \"=\" + inputs[i].value; } location.href = params; }");
+  client.println("function docKeyup(){var table = document.getElementsByTagName(\"table\")[0];var inputs = document.getElementsByTagName(\"input\");var isAllValid = true;for (var i=0; i<inputs.length; i++) {if (!inputs[i].checkValidity()) {isAllValid = false;}}var buttons = document.getElementsByClassName(\"greenbutton\");for (var i=0; i<buttons.length; i++) {var b = buttons[i];b.disabled = !isAllValid;}}document.addEventListener(\"keyup\", docKeyup);document.onload = docKeyup();document.addEventListener(\"click\", docKeyup);");
+  client.println("</script>");
   client.println("</body></html>");  
   /*
   client.println("<p></p>");           
@@ -267,6 +275,8 @@ void wifi_work(){
             */
 
             build_page(client);
+
+            client.stop();
 
             // Break out of the while loop
             break;
