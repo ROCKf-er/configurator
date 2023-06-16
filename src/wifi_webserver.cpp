@@ -162,6 +162,7 @@ void get_value_from_pair_str(String pair) {
 
   String val_str = pair.substring(index_of_equal + 1);
   float val = val_str.toFloat();
+ // LOG_Serial.printf("String: %s, index = %d\n", pair, index);
 
   mav_param_set(index, val);
 }

@@ -206,6 +206,7 @@ void mav_param_request(uint16_t index){
   mavlink_msg_param_request_read_encode(SYSTEM_ID,  COMPONENT_ID, &message, &com);
   mav_msg_len = mavlink_msg_to_send_buffer(mav_msg_buf, &message);
   MAV_Serial.write(mav_msg_buf, mav_msg_len); 
+  LOG_Serial.printf("Param_request\n");
 }
 
 
@@ -224,6 +225,7 @@ void mav_param_set(uint16_t index, float value){
   mavlink_msg_param_set_encode(SYSTEM_ID,  COMPONENT_ID, &message, &com);
   mav_msg_len = mavlink_msg_to_send_buffer(mav_msg_buf, &message);
   MAV_Serial.write(mav_msg_buf, mav_msg_len); 
+  LOG_Serial.printf("SET %d: %.2f\n", index, value);
 }
 
 
@@ -239,6 +241,7 @@ void mav_param_request_list(){
   mavlink_msg_param_request_list_encode(SYSTEM_ID,  COMPONENT_ID, &message, &com);
   mav_msg_len = mavlink_msg_to_send_buffer(mav_msg_buf, &message);
   MAV_Serial.write(mav_msg_buf, mav_msg_len); 
+  LOG_Serial.printf("Param request list\n");
 }
 
 
@@ -259,7 +262,7 @@ void mavlink_read(HardwareSerial &link){
           if (msg.compid == TARGET_COMPONENT) {
             mavlink_msg_param_value_decode(&msg, &param);
             param_arr[param.param_index] = param;
-            LOG_Serial.printf("%d: %s = %.2f\n", param.param_index, param.param_id, param.param_value);
+            LOG_Serial.printf("GET %d: %s = %.2f\n", param.param_index, param.param_id, param.param_value);
           }  
           break;
         case MAVLINK_MSG_ID_HEARTBEAT: 
