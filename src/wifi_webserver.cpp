@@ -184,8 +184,6 @@ void get_values_from_str(String vs) {
 void wifi_work(){
   WiFiClient client = server.available();   // Listen for incoming clients
 
-  
-
   if (client) {                             // If a new client connects,
     String currentLine = "";                // make a String to hold incoming data from the client
     while (client.connected()) {            // loop while the client's connected
@@ -215,6 +213,7 @@ void wifi_work(){
               vs = vs.substring(0, e_index);
 
               get_values_from_str(vs);
+              
             }
 
             build_page(client);
@@ -234,7 +233,6 @@ void wifi_work(){
         client.stop();
         // Clear the header variable
         header = "";
-        Serial.println("");
       }
 
     }
