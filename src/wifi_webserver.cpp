@@ -157,12 +157,11 @@ void build_page(WiFiClient client) {
 
 void get_value_from_pair_str(String pair) {
   int index_of_equal = pair.indexOf("=");
-  String index_str = pair.substring(0, index_of_equal);
+  String index_str = pair.substring(1, index_of_equal);
   int index = index_str.toInt();
 
   String val_str = pair.substring(index_of_equal + 1);
   float val = val_str.toFloat();
- // LOG_Serial.printf("String: %s, index = %d\n", pair, index);
 
   mav_param_set(index, val);
 }
