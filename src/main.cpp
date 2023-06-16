@@ -42,7 +42,6 @@ void setup(){
 
   mav_param_request_list();
 
-
   int n;
   // G_ROLL_ANGLE
   n = 0;
@@ -167,27 +166,32 @@ void loop() {
 
   mavlink_read(MAV_Serial); // Reading messages from quad
 
+  //if (millis() % 2000 == 0)  mav_param_request_list();
+
   //param_arr[0].param_value += 1.0;
-  
-  spr.createSprite(DISP_WIDTH, DISP_HEIGHT); // Create sprite  
-  spr.fillSprite(TFT_BLACK);
 
-  spr.setTextSize(2); 
-  spr.setTextColor(TFT_WHITE);
-  spr.setCursor(10, 10);
-  spr.printf("HB seq: %d", HB_count);
-  spr.setCursor(10, 40);
-  spr.printf("%d %s %0.3f", param_arr[0].param_index, param_arr[0].param_id, param_arr[0].param_value);
-  spr.setCursor(10, 60);
-  spr.printf("%d %s %0.3f", param_arr[1].param_index, param_arr[1].param_id, param_arr[1].param_value);
-  spr.setCursor(10, 80);
-  spr.printf("%d %s %0.3f", param_arr[2].param_index, param_arr[2].param_id, param_arr[2].param_value);
-  spr.setCursor(10, 100);
-  spr.printf("%d %s %0.3f", param_arr[3].param_index, param_arr[3].param_id, param_arr[3].param_value);
+  #ifdef DISPLAY_ON
+    
+    spr.createSprite(DISP_WIDTH, DISP_HEIGHT); // Create sprite  
+    spr.fillSprite(TFT_BLACK);
 
-  spr.pushSprite(0, 0); // Push sprite to its position
+    spr.setTextSize(2); 
+    spr.setTextColor(TFT_WHITE);
+    spr.setCursor(10, 10);
+    spr.printf("HB seq: %d", HB_count);
+    spr.setCursor(10, 40);
+    spr.printf("%d %s %0.3f", param_arr[0].param_index, param_arr[0].param_id, param_arr[0].param_value);
+    spr.setCursor(10, 60);
+    spr.printf("%d %s %0.3f", param_arr[1].param_index, param_arr[1].param_id, param_arr[1].param_value);
+    spr.setCursor(10, 80);
+    spr.printf("%d %s %0.3f", param_arr[2].param_index, param_arr[2].param_id, param_arr[2].param_value);
+    spr.setCursor(10, 100);
+    spr.printf("%d %s %0.3f", param_arr[3].param_index, param_arr[3].param_id, param_arr[3].param_value);
 
-  delay(20);
+    spr.pushSprite(0, 0); // Push sprite to its position
+
+    delay(20);
+  #endif //DISPLAY_ON
 
 }
 

@@ -12,7 +12,7 @@
   //#define PITCH_LOCK
   //#define DROP_MECHANISM
   //#define NEW_PROTOCOL
-  #define DISPLAY_ON
+  //#define DISPLAY_ON
   //#define DEBUG
 
   /*DRONE_TYPE == MAV_TYPE_FIXED_WING*/
