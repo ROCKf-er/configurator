@@ -7,7 +7,7 @@ extern TFT_eSPI display;
 extern uint32_t board_ID;
 extern Parameters parameters;
 
-
+/*
 void set_log_text(data_r &data_radar_structure)
 {
   
@@ -23,6 +23,7 @@ void set_log_text(data_r &data_radar_structure)
 
   clear_println(data_radar_structure.level, 40 * TEXT_SIZE, 60 * TEXT_SIZE);
 }
+*/
 
 
 void view_alarm()

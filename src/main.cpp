@@ -8,11 +8,6 @@
 #include "wifi_webserver.h"
 #include <common/mavlink.h>
 #include "_eeprom.h"
-#include "PID.h"
-#include <ESP32Servo.h>
-
-#define TARGET_COMPONENT  MAV_COMP_ID_ONBOARD_COMPUTER
-#define TARGET_SYSTEM     1
 
 TFT_eSPI display = TFT_eSPI(DISP_HEIGHT, DISP_WIDTH); 
 TFT_eSprite spr = TFT_eSprite(&display); // Invoke Sprite class
@@ -24,15 +19,15 @@ param_constraint param_costraint_arr[20];
 
 uint16_t rol_index = 0;
 
-
-
 void setup(){
   LOG_Serial.begin(115200);     // syslog 
   MAV_Serial.begin(57600);      // mavlink
   MAV_Serial.setPins(MAV_RX_PIN, MAV_TX_PIN);
-  
-  display.init();
-  display.setRotation(1);
+
+  #ifdef DISPLAY_ON
+    display.init();
+    display.setRotation(1);
+  #endif //DISPLAY_ON
     
   eeprom_init();
   eeprom_get();
@@ -40,7 +35,7 @@ void setup(){
 
   delay(500);
 
-  mav_param_request_list();
+  update_parameters();
 
   int n;
   // G_ROLL_ANGLE
@@ -247,6 +242,20 @@ void mav_param_request_list(){
   MAV_Serial.write(mav_msg_buf, mav_msg_len); 
   LOG_Serial.printf("Param request list\n");
 }
+
+void update_parameters(void){
+  mav_param_request_list();                         //request for actual parameters
+  for (auto &item: param_arr) {                      //filling an array with zerros  
+    item.param_value = 0.0;
+    memcpy(item.param_id, "##############\0", 16); 
+  }
+
+  uint32_t now = millis();
+  const uint32_t timeout = 1000;
+  while((millis() - now) < timeout){                //waiting for new params
+    mavlink_read(MAV_Serial);
+  }
+} 
 
 
 

@@ -149,6 +149,8 @@ void build_footer(WiFiClient client) {
 
 
 void build_page(WiFiClient client) {
+  update_parameters();
+
   build_header(client);
   build_table(client);
   build_footer(client);
