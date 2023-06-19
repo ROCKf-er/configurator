@@ -19,6 +19,12 @@ param_constraint param_costraint_arr[20];
 
 uint16_t rol_index = 0;
 
+const uint32_t HEARTBEAT_TIMEOUT_MS = 1000;
+uint32_t heartbeat_last_time_ms = 0;
+
+uint32_t msg_msgid = 0;
+
+
 void setup(){
   LOG_Serial.begin(115200);     // syslog 
   MAV_Serial.begin(57600);      // mavlink
@@ -153,13 +159,48 @@ void setup(){
 }
 
 
+void send_heartbeat() {
+
+  uint32_t now = millis();
+  if (now - heartbeat_last_time_ms < HEARTBEAT_TIMEOUT_MS) {
+    return;
+  }
+  heartbeat_last_time_ms = now;
+
+
+  uint8_t mav_msg_buf[250];
+  uint32_t mav_msg_len;
+  //mavlink_param_set_t
+  mavlink_heartbeat_t com;
+  mavlink_message_t message;
+
+  //com.param_value = value;
+  //com.target_system = 1;
+  //com.target_component = MAV_COMP_ID_ALL;
+  //memcpy(com.param_id, param_arr[index].param_id, 16);
+  //com.param_type = param_arr[index].param_type;
+
+  com.custom_mode = 15; /*<  A bitfield for use for autopilot-specific flags*/
+  com.type = 1; /*<  Vehicle or component type. For a flight controller component the vehicle type (quadrotor, helicopter, etc.). For other components the component type (e.g. camera, gimbal, etc.). This should be used in preference to component id for identifying the component type.*/
+  com.autopilot = 3; /*<  Autopilot type / class. Use MAV_AUTOPILOT_INVALID for components that are not flight controllers.*/
+  com.base_mode = 217; /*<  System mode bitmap.*/
+  com.system_status = 4; /*<  System status flag.*/
+  com.mavlink_version = 3; 
+  
+  //mavlink_msg_param_set_encode(SYSTEM_ID,  COMPONENT_ID, &message, &com);
+  mavlink_msg_heartbeat_encode(SYSTEM_ID, MAV_COMP_ID_AUTOPILOT1, &message, &com);
+  mav_msg_len = mavlink_msg_to_send_buffer(mav_msg_buf, &message);
+  
+  LOG_Serial.write(mav_msg_buf, mav_msg_len); 
+}
 
 
 void loop() {
   
   wifi_work();
 
-  mavlink_read(MAV_Serial); // Reading messages from quad
+  //mavlink_read(MAV_Serial); // Reading messages from quad
+  mavlink_read(LOG_Serial);
 
   //if (millis() % 2000 == 0)  mav_param_request_list();
 
@@ -173,7 +214,8 @@ void loop() {
     spr.setTextSize(2); 
     spr.setTextColor(TFT_WHITE);
     spr.setCursor(10, 10);
-    spr.printf("HB seq: %d", HB_count);
+    //spr.printf("HB seq: %d", HB_count);
+    spr.printf("msg.msgid: %d", msg_msgid);
     spr.setCursor(10, 40);
     spr.printf("%d %s %0.3f", param_arr[0].param_index, param_arr[0].param_id, param_arr[0].param_value);
     spr.setCursor(10, 60);
@@ -183,11 +225,12 @@ void loop() {
     spr.setCursor(10, 100);
     spr.printf("%d %s %0.3f", param_arr[3].param_index, param_arr[3].param_id, param_arr[3].param_value);
 
-    spr.pushSprite(0, 0); // Push sprite to its position
+    spr.pushSprite(0, 0); // Push sprite to its position    
 
     delay(20);
   #endif //DISPLAY_ON
 
+  send_heartbeat();
 }
 
 
@@ -264,12 +307,15 @@ void mavlink_read(HardwareSerial &link){
   mavlink_message_t msg;
   mavlink_channel_t chan = MAVLINK_COMM_0;
   mavlink_param_value_t param;
+  mavlink_param_request_read_t read_param;
 
   while(link.available() > 0){
     uint8_t byte;
     link.readBytes(&byte, 1);
         
     if (mavlink_parse_char(chan, byte, &msg, &status)){
+      msg_msgid = msg.msgid;
+
       switch (msg.msgid) {
         case MAVLINK_MSG_ID_PARAM_VALUE:  
           if (msg.compid == TARGET_COMPONENT) {
@@ -281,9 +327,40 @@ void mavlink_read(HardwareSerial &link){
         case MAVLINK_MSG_ID_HEARTBEAT: 
           HB_count++;
           break;
-        default: break;
+        case MAVLINK_MSG_ID_PARAM_REQUEST_READ:
+          {
+            mavlink_msg_param_request_read_decode(&msg, &read_param);          
+            param = param_arr[read_param.param_index];
+            mavlink_message_t message;
+            mavlink_msg_param_value_encode(SYSTEM_ID,  MAV_COMP_ID_AUTOPILOT1, &message, &param);
+            uint8_t mav_msg_resp_buf[250];
+            uint16_t mav_msg_resp_len = mavlink_msg_to_send_buffer(mav_msg_resp_buf, &message);
+            LOG_Serial.write(mav_msg_resp_buf, mav_msg_resp_len);             
+          }
+          break;
+        case MAVLINK_MSG_ID_PARAM_REQUEST_LIST:
+          {
+            mavlink_param_request_list_t param_request_list;
+            mavlink_msg_param_request_list_decode(&msg, &param_request_list);
+            for (uint16_t i = 0; i < param_arr[0].param_count; i++) {  
+              mavlink_param_value_t param;
+              param.param_count = param_arr[i].param_count;
+              memcpy(param.param_id, param_arr[i].param_id, 16);
+              param.param_index = param_arr[i].param_index;
+              param.param_type = param_arr[i].param_type;
+              param.param_value = param_arr[i].param_value;
+              mavlink_message_t message;
+              mavlink_msg_param_value_encode(SYSTEM_ID,  MAV_COMP_ID_AUTOPILOT1, &message, &param);
+              uint8_t mav_msg_resp_buf[250];
+              uint16_t mav_msg_resp_len = mavlink_msg_to_send_buffer(mav_msg_resp_buf, &message);
+              LOG_Serial.write(mav_msg_resp_buf, mav_msg_resp_len);   
+              delay(500);
+            }
+          }
+          break;
+        default: 
+          break;
       }
-
     }
   }  
 }
