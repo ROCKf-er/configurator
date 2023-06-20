@@ -36,7 +36,8 @@ void wifi_init() {
 
 
 void build_set_buttons(WiFiClient client) {
-  client.println("<button class=\"greenbutton\" onclick=\"upload_values();\">SET</button>");
+  client.println("<button class=\"yellowbutton\" onclick=\"{location.href = '/';}\">GET</button>");
+  client.println("<button class=\"greenbutton\" onclick=\"upload_values();\">SET</button>");  
   client.println("<button class=\"redbutton\" onclick=\"if( confirm('This will return all values to their default values. Are you sure?') ){location.href = '/default';};\">SET DEFAULT</button>");  
 }
 
@@ -52,17 +53,13 @@ void build_header(WiFiClient client) {
   client.println(".button2 {background-color: #555555;} table, th, td { border: 1px solid black; border-collapse: collapse; padding: 5px; text-align: left; } th { background-color: #D0D0D0; }");
   client.println(".redbutton { background-color: #D09090; padding: 5px 5px; margin: 10px;}");
   client.println(".greenbutton { background-color: #90D090; padding: 5px 50px; margin: 10px;}");
+  client.println(".yellowbutton { background-color: #D0D090; padding: 5px 50px; margin: 10px;}");
   client.println("input { width: 8em; }");
   client.println("input:invalid { border: 1px dashed red; background-color: pink; }");  
   client.println("</style></head>");
   client.println("<body>");
   build_set_buttons(client);
   client.println("<br>");
-  //client.println("header");
-  //client.println("<br>");
-  //client.println(header);
-  //client.println("<br>");
-  //client.println(p_str);
 }
 
 
@@ -73,7 +70,12 @@ void build_table_rows(WiFiClient client) {
     }
     client.println("<tr>");
     client.printf("<td>%d</td>", param_arr[i].param_index);
-    client.printf("<td>%s</td>", param_arr[i].param_id);
+
+    char param_id[17];
+    strncpy(param_id, param_arr[i].param_id, 16);
+    param_id[16] = '\0';
+    client.printf("<td>%s</td>", param_id);
+    
     // https://mavlink.io/en/messages/common.html#PARAM_VALUE
     // MAV_PARAM_TYPE
     // 1..8 - integer
@@ -183,6 +185,13 @@ void get_values_from_str(String vs) {
 }
 
 
+void set_default() {
+  for (uint16_t i = 0; i < sizeof(param_arr) / sizeof(param_arr[0]); i++) {    
+    mav_param_set(i, param_costraint_arr[i].default_value);
+  }
+}
+
+
 void wifi_work(){
   WiFiClient client = server.available();   // Listen for incoming clients
 
@@ -205,7 +214,8 @@ void wifi_work(){
 
             if (header.indexOf("GET /default") >= 0) {
               // reset to default
-              eeprom_set_default();
+              //eeprom_set_default();
+              set_default();
             }                       
 
             if (header.indexOf("GET /?") >= 0) {
@@ -221,6 +231,8 @@ void wifi_work(){
             build_page(client);
 
             client.stop();
+
+            header = "";
 
             // Break out of the while loop
             break;

@@ -354,7 +354,7 @@ void mavlink_read(HardwareSerial &link){
               uint8_t mav_msg_resp_buf[250];
               uint16_t mav_msg_resp_len = mavlink_msg_to_send_buffer(mav_msg_resp_buf, &message);
               LOG_Serial.write(mav_msg_resp_buf, mav_msg_resp_len);   
-              delay(500);
+              //delay(500);
             }
           }
           break;
