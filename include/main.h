@@ -54,6 +54,7 @@
     float step_value;
     float default_value;
     char description[300];
+    bool actual;
   } param_constraint;
  
   void mavlink_read(HardwareSerial &link);

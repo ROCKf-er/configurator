@@ -72,7 +72,11 @@ void build_table_rows(WiFiClient client) {
     client.printf("<td>%d</td>", param_arr[i].param_index);
 
     char param_id[17];
-    strncpy(param_id, param_arr[i].param_id, 16);
+    if (param_costraint_arr[i].actual) {
+      strncpy(param_id, param_arr[i].param_id, 16);
+    } else {
+      strncpy(param_id, "################", 16);
+    }
     param_id[16] = '\0';
     client.printf("<td>%s</td>", param_id);
     
