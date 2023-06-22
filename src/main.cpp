@@ -167,10 +167,8 @@ void send_heartbeat() {
   }
   heartbeat_last_time_ms = now;
 
-
   uint8_t mav_msg_buf[250];
   uint32_t mav_msg_len;
-  //mavlink_param_set_t
   mavlink_heartbeat_t com;
   mavlink_message_t message;
 
@@ -186,9 +184,8 @@ void send_heartbeat() {
   com.base_mode = 217; /*<  System mode bitmap.*/
   com.system_status = 4; /*<  System status flag.*/
   com.mavlink_version = 3; 
-  
-  //mavlink_msg_param_set_encode(SYSTEM_ID,  COMPONENT_ID, &message, &com);
-  mavlink_msg_heartbeat_encode(SYSTEM_ID, MAV_COMP_ID_AUTOPILOT1, &message, &com);
+
+  mavlink_msg_heartbeat_encode(SYSTEM_ID, COMPONENT_ID, &message, &com);
   mav_msg_len = mavlink_msg_to_send_buffer(mav_msg_buf, &message);
   
   LOG_Serial.write(mav_msg_buf, mav_msg_len); 
@@ -199,8 +196,8 @@ void loop() {
   
   wifi_work();
 
-  //mavlink_read(MAV_Serial); // Reading messages from quad
-  mavlink_read(LOG_Serial);
+  mavlink_read(MAV_Serial); // Reading messages from quad
+  //mavlink_read(LOG_Serial);
 
   //if (millis() % 2000 == 0)  mav_param_request_list();
 
@@ -329,6 +326,7 @@ void mavlink_read(HardwareSerial &link){
           break;
         case MAVLINK_MSG_ID_PARAM_REQUEST_READ:
           {
+            /*
             mavlink_msg_param_request_read_decode(&msg, &read_param);          
             param = param_arr[read_param.param_index];
             mavlink_message_t message;
@@ -336,10 +334,11 @@ void mavlink_read(HardwareSerial &link){
             uint8_t mav_msg_resp_buf[250];
             uint16_t mav_msg_resp_len = mavlink_msg_to_send_buffer(mav_msg_resp_buf, &message);
             LOG_Serial.write(mav_msg_resp_buf, mav_msg_resp_len);             
+            */
           }
           break;
         case MAVLINK_MSG_ID_PARAM_REQUEST_LIST:
-          {
+          {/*
             mavlink_param_request_list_t param_request_list;
             mavlink_msg_param_request_list_decode(&msg, &param_request_list);
             for (uint16_t i = 0; i < param_arr[0].param_count; i++) {  
@@ -356,6 +355,7 @@ void mavlink_read(HardwareSerial &link){
               LOG_Serial.write(mav_msg_resp_buf, mav_msg_resp_len);   
               //delay(500);
             }
+          */
           }
           break;
         default: 
