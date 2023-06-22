@@ -121,41 +121,42 @@ void setup(){
   param_costraint_arr[n].step_value = 0.01;
   param_costraint_arr[n].default_value = 0.4;
   strcpy(param_costraint_arr[n].description, "% газу при пошуку цілі");
-  // DROP_ALT
+  // SCAN_SECTOR
   n = 11;
+  param_costraint_arr[n].min_value = 1;
+  param_costraint_arr[n].max_value = 360;
+  param_costraint_arr[n].step_value = 1;
+  param_costraint_arr[n].default_value = 360;
+  strcpy(param_costraint_arr[n].description, "Після ввімкнення режиму Guided пошук цілі буде відбуватися у проміжку від (Heading –  SCAN_SECTOR / 2) до (Heading +  SCAN_SECTOR / 2)");
+  // DROP_ALT
+  n = 12;
   param_costraint_arr[n].min_value = 50;
   param_costraint_arr[n].max_value = 200;
   param_costraint_arr[n].step_value = 1;
   param_costraint_arr[n].default_value = 100;
   strcpy(param_costraint_arr[n].description, "Висота заходу на ціль");
   // DROP_LVL
-  n = 12;
+  n = 13;
   param_costraint_arr[n].min_value = -80;
   param_costraint_arr[n].max_value = -50;
   param_costraint_arr[n].step_value = 1;
   param_costraint_arr[n].default_value = -70;
   strcpy(param_costraint_arr[n].description, "Рівень сигналу при якому відбувається зниження до DROP_ALT");
   // DROP_THRUST
-  n = 13;
+  n = 14;
   param_costraint_arr[n].min_value = 0.3;
   param_costraint_arr[n].max_value = 1;
   param_costraint_arr[n].step_value = 0.01;
   param_costraint_arr[n].default_value = 0.4;
   strcpy(param_costraint_arr[n].description, "% газу при заході на ціль");
   // DROP_ANGLE
-  n = 14;
+  n = 15;
   param_costraint_arr[n].min_value = -90;
   param_costraint_arr[n].max_value = 0;
   param_costraint_arr[n].step_value = 1;
   param_costraint_arr[n].default_value = -45;
   strcpy(param_costraint_arr[n].description, "Кут на ціль відносно літака, при якому скидається вантаж");
-  // HEADING_APERTURE
-  n = 15;
-  param_costraint_arr[n].min_value = 1;
-  param_costraint_arr[n].max_value = 360;
-  param_costraint_arr[n].step_value = 1;
-  param_costraint_arr[n].default_value = 360;
-  strcpy(param_costraint_arr[n].description, "Після ввімкнення режиму Guided пошук цілі буде відбуватися у проміжку від (Heading –  HEADING_APERTURE / 2) до (Heading +  HEADING_APERTURE / 2)");
+
 }
 
 
@@ -188,7 +189,7 @@ void send_heartbeat() {
   mavlink_msg_heartbeat_encode(SYSTEM_ID, COMPONENT_ID, &message, &com);
   mav_msg_len = mavlink_msg_to_send_buffer(mav_msg_buf, &message);
   
-  LOG_Serial.write(mav_msg_buf, mav_msg_len); 
+  MAV_Serial.write(mav_msg_buf, mav_msg_len); 
 }
 
 
@@ -214,13 +215,13 @@ void loop() {
     //spr.printf("HB seq: %d", HB_count);
     spr.printf("msg.msgid: %d", msg_msgid);
     spr.setCursor(10, 40);
-    spr.printf("%d %s %0.3f", param_arr[0].param_index, param_arr[0].param_id, param_arr[0].param_value);
+    spr.printf("%d %s %0.3f", param_arr[10].param_index, param_arr[10].param_id, param_arr[10].param_value);
     spr.setCursor(10, 60);
-    spr.printf("%d %s %0.3f", param_arr[1].param_index, param_arr[1].param_id, param_arr[1].param_value);
+    spr.printf("%d %s %0.3f", param_arr[11].param_index, param_arr[11].param_id, param_arr[11].param_value);
     spr.setCursor(10, 80);
-    spr.printf("%d %s %0.3f", param_arr[2].param_index, param_arr[2].param_id, param_arr[2].param_value);
+    spr.printf("%d %s %0.3f", param_arr[12].param_index, param_arr[12].param_id, param_arr[12].param_value);
     spr.setCursor(10, 100);
-    spr.printf("%d %s %0.3f", param_arr[3].param_index, param_arr[3].param_id, param_arr[3].param_value);
+    spr.printf("%d %s %0.3f", param_arr[13].param_index, param_arr[13].param_id, param_arr[13].param_value);
 
     spr.pushSprite(0, 0); // Push sprite to its position    
 
@@ -264,7 +265,7 @@ void mav_param_set(uint16_t index, float value){
   mavlink_msg_param_set_encode(SYSTEM_ID,  COMPONENT_ID, &message, &com);
   mav_msg_len = mavlink_msg_to_send_buffer(mav_msg_buf, &message);
   MAV_Serial.write(mav_msg_buf, mav_msg_len); 
-  LOG_Serial.printf("SET %d: %.2f\n", index, value);
+  LOG_Serial.printf("SET %s %d: %.2f\n", param_arr[index].param_id, index, value);
 }
 
 
@@ -285,9 +286,10 @@ void mav_param_request_list(){
 
 void update_parameters(void){
   mav_param_request_list();                         //request for actual parameters
-  for (auto &item: param_arr) {                      //filling an array with zerros  
-    item.param_value = 0.0;
-    memcpy(item.param_id, "##############\0", 16); 
+  for (auto &item: param_costraint_arr) {                      //filling an array with zerros  
+    //item.param_value = 0.0;
+    //memcpy(item.param_id, "##############\0", 16); 
+    item.actual = false;
   }
 
   uint32_t now = millis();
@@ -318,6 +320,7 @@ void mavlink_read(HardwareSerial &link){
           if (msg.compid == TARGET_COMPONENT) {
             mavlink_msg_param_value_decode(&msg, &param);
             param_arr[param.param_index] = param;
+            param_costraint_arr[param.param_index].actual = true;
             LOG_Serial.printf("GET %d: %s = %.2f\n", param.param_index, param.param_id, param.param_value);
           }  
           break;
