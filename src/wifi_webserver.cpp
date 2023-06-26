@@ -171,7 +171,9 @@ void get_value_from_pair_str(String pair) {
   String val_str = pair.substring(index_of_equal + 1);
   float val = val_str.toFloat();
 
-  mav_param_set(index, val);
+  for(uint8_t i = 0; i < 5; i++) {
+    if (mav_param_set(index, val)) break;
+  }
 }
 
 

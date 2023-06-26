@@ -41,6 +41,8 @@ void setup(){
 
   delay(500);
 
+
+
   update_parameters();
 
   int n;
@@ -250,7 +252,7 @@ void mav_param_request(uint16_t index){
 }
 
 
-void mav_param_set(uint16_t index, float value){
+bool mav_param_set(uint16_t index, float value){
   uint8_t mav_msg_buf[250];
   uint32_t mav_msg_len;
   mavlink_param_set_t com;
@@ -264,8 +266,19 @@ void mav_param_set(uint16_t index, float value){
   
   mavlink_msg_param_set_encode(SYSTEM_ID,  COMPONENT_ID, &message, &com);
   mav_msg_len = mavlink_msg_to_send_buffer(mav_msg_buf, &message);
-  MAV_Serial.write(mav_msg_buf, mav_msg_len); 
-  LOG_Serial.printf("SET %s %d: %.2f\n", param_arr[index].param_id, index, value);
+
+  for (uint8_t i = 0; i < 5; i++) {
+    MAV_Serial.write(mav_msg_buf, mav_msg_len); 
+    delay(10);
+    if (check_param(value, index)) {
+      LOG_Serial.printf("SET %s %d: %.2f\n", param_arr[index].param_id, index, value);
+      return true;
+    } else {
+      LOG_Serial.printf("SET %s %d: error\n", param_arr[index].param_id, index);
+      return false;
+    }
+  }
+
 }
 
 
@@ -284,6 +297,21 @@ void mav_param_request_list(){
   LOG_Serial.printf("Param request list\n");
 }
 
+void mav_param_request_read(uint16_t index){
+  uint8_t mav_msg_buf[250];
+  uint32_t mav_msg_len;
+  mavlink_param_request_read_t com;
+  mavlink_message_t message;
+
+  com.target_component = TARGET_COMPONENT;
+  com.target_system = TARGET_SYSTEM;
+  com.param_index = index;
+
+  mavlink_msg_param_request_read_encode(SYSTEM_ID,  COMPONENT_ID, &message, &com);
+  mav_msg_len = mavlink_msg_to_send_buffer(mav_msg_buf, &message);
+  MAV_Serial.write(mav_msg_buf, mav_msg_len); 
+}
+
 void update_parameters(void){
   mav_param_request_list();                         //request for actual parameters
   for (auto &item: param_costraint_arr) {                      //filling an array with zerros  
@@ -298,6 +326,25 @@ void update_parameters(void){
     mavlink_read(MAV_Serial);
   }
 } 
+
+bool check_param(float val, uint16_t index) {
+  mavlink_status_t status;
+  mavlink_message_t msg;
+  mavlink_channel_t chan = MAVLINK_COMM_0;
+  mavlink_param_value_t param;
+
+  mav_param_request_read(index); 
+  delay(10);
+  while(MAV_Serial.available() > 0){
+    uint8_t byte;
+    MAV_Serial.readBytes(&byte, 1);
+
+    if (mavlink_parse_char(chan, byte, &msg, &status) & (msg.msgid == MAVLINK_MSG_ID_PARAM_VALUE)){
+      mavlink_msg_param_value_decode(&msg, &param);
+      return ((abs(param.param_value - val) < 0.00001) & (param.param_index == index));
+    }
+  }
+}
 
 
 

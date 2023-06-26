@@ -59,9 +59,10 @@
  
   void mavlink_read(HardwareSerial &link);
   void mav_param_request(uint16_t index);
-  void mav_param_set(uint16_t index, float value);
+  bool mav_param_set(uint16_t index, float value);
   void mav_param_request_list();
   void update_parameters(void);
+  bool check_param(float val, uint16_t index);
 
 #endif // MAIN_H 
 
