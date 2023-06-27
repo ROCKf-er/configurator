@@ -14,8 +14,8 @@ TFT_eSprite spr = TFT_eSprite(&display); // Invoke Sprite class
 Parameters parameters;
 uint32_t HB_count;
 
-mavlink_param_value_t param_arr[20];
-param_constraint param_costraint_arr[20];
+mavlink_param_value_t param_arr[PARAM_COUNT];
+param_constraint param_costraint_arr[PARAM_COUNT];
 
 uint16_t rol_index = 0;
 
@@ -128,7 +128,7 @@ void setup(){
   param_costraint_arr[n].min_value = 1;
   param_costraint_arr[n].max_value = 360;
   param_costraint_arr[n].step_value = 1;
-  param_costraint_arr[n].default_value = 360;
+  param_costraint_arr[n].default_value = 120;
   strcpy(param_costraint_arr[n].description, "Після ввімкнення режиму Guided пошук цілі буде відбуватися у проміжку від (Heading –  SCAN_SECTOR / 2) до (Heading +  SCAN_SECTOR / 2)");
   // DROP_ALT
   n = 12;
@@ -253,6 +253,7 @@ void mav_param_request(uint16_t index){
 
 
 bool mav_param_set(uint16_t index, float value){
+  const uint8_t try_num = 5;
   uint8_t mav_msg_buf[250];
   uint32_t mav_msg_len;
   mavlink_param_set_t com;
@@ -267,9 +268,9 @@ bool mav_param_set(uint16_t index, float value){
   mavlink_msg_param_set_encode(SYSTEM_ID,  COMPONENT_ID, &message, &com);
   mav_msg_len = mavlink_msg_to_send_buffer(mav_msg_buf, &message);
 
-  for (uint8_t i = 0; i < 5; i++) {
+  for (uint8_t i = 0; i < try_num; i++) {
     MAV_Serial.write(mav_msg_buf, mav_msg_len); 
-    delay(10);
+    delay(20);
     if (check_param(value, index)) {
       LOG_Serial.printf("SET %s %d: %.2f\n", param_arr[index].param_id, index, value);
       return true;

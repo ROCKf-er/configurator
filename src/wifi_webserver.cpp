@@ -171,9 +171,11 @@ void get_value_from_pair_str(String pair) {
   String val_str = pair.substring(index_of_equal + 1);
   float val = val_str.toFloat();
 
-  for(uint8_t i = 0; i < 5; i++) {
-    if (mav_param_set(index, val)) break;
+  if (!equal(val, param_arr[index].param_value)) {
+    mav_param_set(index, val);
   }
+
+
 }
 
 
@@ -192,7 +194,7 @@ void get_values_from_str(String vs) {
 
 
 void set_default() {
-  for (uint16_t i = 0; i < sizeof(param_arr) / sizeof(param_arr[0]); i++) {    
+  for (uint16_t i = 0; i < PARAM_COUNT; i++) {    
     mav_param_set(i, param_costraint_arr[i].default_value);
   }
 }

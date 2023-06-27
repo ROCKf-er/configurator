@@ -35,6 +35,10 @@
   #define UART_OK 0
   #define UART_TIMEOUT 2
 
+  #define PARAM_COUNT 20
+
+  #define equal(a, b) (abs(a - b) < 0.0001)
+
 
   struct Parameters{
     uint16_t threshold_lvl;
