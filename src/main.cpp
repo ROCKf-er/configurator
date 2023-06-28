@@ -24,11 +24,18 @@ uint32_t heartbeat_last_time_ms = 0;
 
 uint32_t msg_msgid = 0;
 
+bool      heartbeat_received = false;
+uint32_t  heartbeat_received_ms = 0;
+
 
 void setup(){
   LOG_Serial.begin(115200);     // syslog 
   MAV_Serial.begin(57600);      // mavlink
   MAV_Serial.setPins(MAV_RX_PIN, MAV_TX_PIN);
+
+  pinMode(LED_1_PIN, OUTPUT);
+  pinMode(LED_2_PIN, OUTPUT);
+  LED_1_ON;
 
   #ifdef DISPLAY_ON
     display.init();
@@ -40,8 +47,6 @@ void setup(){
   wifi_init();
 
   delay(500);
-
-
 
   update_parameters();
 
@@ -192,6 +197,12 @@ void send_heartbeat() {
   mav_msg_len = mavlink_msg_to_send_buffer(mav_msg_buf, &message);
   
   MAV_Serial.write(mav_msg_buf, mav_msg_len); 
+
+    if (heartbeat_received) {
+    LED_2_TOGGLE; 
+  } else {
+    LED_2_OFF;
+  }
 }
 
 
@@ -200,11 +211,6 @@ void loop() {
   wifi_work();
 
   mavlink_read(MAV_Serial); // Reading messages from quad
-  //mavlink_read(LOG_Serial);
-
-  //if (millis() % 2000 == 0)  mav_param_request_list();
-
-  //param_arr[0].param_value += 1.0;
 
   #ifdef DISPLAY_ON
     
@@ -231,6 +237,7 @@ void loop() {
   #endif //DISPLAY_ON
 
   send_heartbeat();
+  if ((millis() - heartbeat_received_ms) > 5000) heartbeat_received = false;
 }
 
 
@@ -373,7 +380,10 @@ void mavlink_read(HardwareSerial &link){
           }  
           break;
         case MAVLINK_MSG_ID_HEARTBEAT: 
-          HB_count++;
+          if (msg.compid == MAV_COMP_ID_ONBOARD_COMPUTER) {
+            heartbeat_received = true;
+            heartbeat_received_ms = millis();
+          }
           break;
         case MAVLINK_MSG_ID_PARAM_REQUEST_READ:
           {
