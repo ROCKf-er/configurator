@@ -121,13 +121,13 @@ void setup(){
   param_costraint_arr[n].step_value = 1;
   param_costraint_arr[n].default_value = 200;
   strcpy(param_costraint_arr[n].description, "Висота пошуку цілі");
-  // SCAN_THRUST
+  // SCAN_SPEED
   n = 10;
   param_costraint_arr[n].min_value = 0.3;
-  param_costraint_arr[n].max_value = 1;
-  param_costraint_arr[n].step_value = 0.01;
-  param_costraint_arr[n].default_value = 0.4;
-  strcpy(param_costraint_arr[n].description, "% газу при пошуку цілі");
+  param_costraint_arr[n].max_value = 100;
+  param_costraint_arr[n].step_value = 0.1;
+  param_costraint_arr[n].default_value = 20;
+  strcpy(param_costraint_arr[n].description, "Швидкість м/с при пошуку цілі");
   // SCAN_SECTOR
   n = 11;
   param_costraint_arr[n].min_value = 1;
@@ -149,13 +149,13 @@ void setup(){
   param_costraint_arr[n].step_value = 1;
   param_costraint_arr[n].default_value = -70;
   strcpy(param_costraint_arr[n].description, "Рівень сигналу при якому відбувається зниження до DROP_ALT");
-  // DROP_THRUST
+  // DROP_SPEED
   n = 14;
   param_costraint_arr[n].min_value = 0.3;
-  param_costraint_arr[n].max_value = 1;
-  param_costraint_arr[n].step_value = 0.01;
-  param_costraint_arr[n].default_value = 0.4;
-  strcpy(param_costraint_arr[n].description, "% газу при заході на ціль");
+  param_costraint_arr[n].max_value = 100;
+  param_costraint_arr[n].step_value = 0.1;
+  param_costraint_arr[n].default_value = 25;
+  strcpy(param_costraint_arr[n].description, "Швидкість м/с при заході на ціль");
   // DROP_ANGLE
   n = 15;
   param_costraint_arr[n].min_value = -90;

@@ -6,7 +6,7 @@
   #define MAV_RX_PIN 26
   #define MAV_TX_PIN 27
   #define LED_1_PIN 13
-  #define LED_2_PIN 12
+  #define LED_2_PIN 2
 
   #define TARGET_COMPONENT  MAV_COMP_ID_ONBOARD_COMPUTER
   #define TARGET_SYSTEM     1
