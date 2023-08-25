@@ -111,6 +111,19 @@ void build_table_rows(WiFiClient client) {
 }
 
 
+void build_coords(WiFiClient client) {
+  client.println("<br>");
+  client.println('<label for="latinput">Lat</label>');
+  client.println('<input type="text" id="latinput" name="latinput" type="number" step="0.000001" value="0.0">');
+  client.println('<br>');
+  client.println('<label for="loninput">Lon</label>');
+  client.println('<input type="text" id="loninput" name="loninput" type="number" step="0.000001" value="0.0">');
+  client.println('<br>');
+  client.println('<button onclick="send_coords()">Send coords</button>');
+  client.println("<br>");
+}
+
+
 void build_table(WiFiClient client) {
   client.println("<table>");
   client.println("<tr>");
@@ -135,6 +148,7 @@ void build_footer(WiFiClient client) {
   client.println("<script>");
   client.println("function upload_values() {var table = document.getElementsByTagName(\"table\")[0]; var inputs = document.getElementsByTagName(\"input\"); var params = \"/?\"; for (var i=0; i<inputs.length; i++) { var uploadname = inputs[i].getAttribute(\"uploadname\"); if (uploadname == null) { break; } if (i > 0) { params += \"&\"; } params += inputs[i].getAttribute(\"uploadname\") + \"=\" + inputs[i].value; } location.href = params; }");
   client.println("function docKeyup(){var table = document.getElementsByTagName(\"table\")[0];var inputs = document.getElementsByTagName(\"input\");var isAllValid = true;for (var i=0; i<inputs.length; i++) {if (!inputs[i].checkValidity()) {isAllValid = false;}}var buttons = document.getElementsByClassName(\"greenbutton\");for (var i=0; i<buttons.length; i++) {var b = buttons[i];b.disabled = !isAllValid;}}document.addEventListener(\"keyup\", docKeyup);document.onload = docKeyup();document.addEventListener(\"click\", docKeyup);");
+  client.println("function send_coords() {var latinput = document.getElementById(\"latinput\");var loninput = document.getElementById(\"loninput\");var params = \"/?lat=\" + latinput.value + \"&lon=\" + loninput.value; location.href = params;}");
   client.println("</script>");
   client.println("</body></html>");  
   /*
@@ -158,6 +172,7 @@ void build_page(WiFiClient client) {
   update_parameters();
 
   build_header(client);
+  build_coords(client);
   build_table(client);
   build_footer(client);
 }
@@ -179,8 +194,25 @@ void get_value_from_pair_str(String pair) {
 }
 
 
+void get_coords_from_str(String vs) {
+  int lat_index = vs.indexOf("lat=");
+  int amp_index = vs.indexOf("&lon=");
+  String lat_str = vs.substring(4, amp_index - 1);
+  String lon_str = vs.substring(amp_index + 5);
+  
+  float lat = lat_str.toFloat();
+  float lon = lon_str.toFloat();
+}
+
+
 void get_values_from_str(String vs) {
   p_str = vs;
+
+  int lat_index = vs.indexOf("lat=");
+  if (lat_index >= 0) {
+    get_coords_from_str(vs);
+    return;
+  }
 
   int amp_index = vs.indexOf("&");
   while (amp_index > 0) {
