@@ -63,14 +63,14 @@ void setup(){
   param_costraint_arr[n].min_value = 0;
   param_costraint_arr[n].max_value = 1;
   param_costraint_arr[n].step_value = 0.01;
-  param_costraint_arr[n].default_value = 0.5;
+  param_costraint_arr[n].default_value = 0.75;
   strcpy(param_costraint_arr[n].description, "Відсоток від ROLL’у на руль повороту");
   // P_COEF
   n = 2;
   param_costraint_arr[n].min_value = 0.2;
   param_costraint_arr[n].max_value = 3;
   param_costraint_arr[n].step_value = 0.01;
-  param_costraint_arr[n].default_value = 1.5;
+  param_costraint_arr[n].default_value = 0.75;
   strcpy(param_costraint_arr[n].description, "Пропорційний коефіцієнт");
   // I_COEF
   n = 3;
@@ -99,21 +99,21 @@ void setup(){
   param_costraint_arr[n].max_value = 1900;
   param_costraint_arr[n].step_value = 1;
   param_costraint_arr[n].default_value = 1900;
-  strcpy(param_costraint_arr[n].description, "Сигнал на закриття скиду");
+  strcpy(param_costraint_arr[n].description, "Сигнал на закриття скиду. Режим БОМБЕР");
   // SERVO_OPEN
   n = 7;
   param_costraint_arr[n].min_value = 1100;
   param_costraint_arr[n].max_value = 1900;
   param_costraint_arr[n].step_value = 1;
   param_costraint_arr[n].default_value = 1220;
-  strcpy(param_costraint_arr[n].description, "Сигнал на відкриття скиду");
+  strcpy(param_costraint_arr[n].description, "Сигнал на відкриття скиду. Режим БОМБЕР");
   // SERVO_CHANNEL
   n = 8;
   param_costraint_arr[n].min_value = 1;
   param_costraint_arr[n].max_value = 8;
   param_costraint_arr[n].step_value = 1;
   param_costraint_arr[n].default_value = 7;
-  strcpy(param_costraint_arr[n].description, "Номер каналу для підключення механізму скидання");
+  strcpy(param_costraint_arr[n].description, "Номер каналу для підключення механізму скидання. Режим БОМБЕР");
   // SCAN_ALT
   n = 9;
   param_costraint_arr[n].min_value = 100;
@@ -127,7 +127,7 @@ void setup(){
   param_costraint_arr[n].max_value = 100;
   param_costraint_arr[n].step_value = 0.1;
   param_costraint_arr[n].default_value = 20;
-  strcpy(param_costraint_arr[n].description, "Швидкість м/с при пошуку цілі");
+  strcpy(param_costraint_arr[n].description, "Швидкість м/с при пошуку цілі. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу");
   // SCAN_SECTOR
   n = 11;
   param_costraint_arr[n].min_value = 1;
@@ -141,29 +141,42 @@ void setup(){
   param_costraint_arr[n].max_value = 200;
   param_costraint_arr[n].step_value = 1;
   param_costraint_arr[n].default_value = 100;
-  strcpy(param_costraint_arr[n].description, "Висота заходу на ціль");
+  strcpy(param_costraint_arr[n].description, "Висота заходу на ціль. Режим БОМБЕР");
   // DROP_LVL
   n = 13;
   param_costraint_arr[n].min_value = -80;
   param_costraint_arr[n].max_value = -50;
   param_costraint_arr[n].step_value = 1;
   param_costraint_arr[n].default_value = -70;
-  strcpy(param_costraint_arr[n].description, "Рівень сигналу при якому відбувається зниження до DROP_ALT");
+  strcpy(param_costraint_arr[n].description, "Рівень сигналу при якому відбувається зниження до DROP_ALT. Режим БОМБЕР");
   // DROP_SPEED
   n = 14;
   param_costraint_arr[n].min_value = 0.3;
   param_costraint_arr[n].max_value = 100;
   param_costraint_arr[n].step_value = 0.1;
   param_costraint_arr[n].default_value = 25;
-  strcpy(param_costraint_arr[n].description, "Швидкість м/с при заході на ціль");
+  strcpy(param_costraint_arr[n].description, "Швидкість м/с при заході на ціль. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу. Режим БОМБЕР");
   // DROP_ANGLE
   n = 15;
   param_costraint_arr[n].min_value = -90;
   param_costraint_arr[n].max_value = 0;
   param_costraint_arr[n].step_value = 1;
   param_costraint_arr[n].default_value = -45;
-  strcpy(param_costraint_arr[n].description, "Кут на ціль відносно літака, при якому скидається вантаж");
-
+  strcpy(param_costraint_arr[n].description, "Кут на ціль відносно літака, при якому скидається вантаж. Режим БОМБЕР");
+  // UAV_PURPOSE
+  n = 16;
+  param_costraint_arr[n].min_value = 0;
+  param_costraint_arr[n].max_value = 2;
+  param_costraint_arr[n].step_value = 1;
+  param_costraint_arr[n].default_value = 2;
+  strcpy(param_costraint_arr[n].description, "Тип застосування: 0 - БОМБЕР, 1 - БОМБЕР з поверненням додому, 2 - КАМІКАДЗЕ");
+  // DIVING_ANGLE
+  n = 17;
+  param_costraint_arr[n].min_value = -35;
+  param_costraint_arr[n].max_value = 0;
+  param_costraint_arr[n].step_value = 1;
+  param_costraint_arr[n].default_value = -15;
+  strcpy(param_costraint_arr[n].description, "Кут пікірування. Режим КАМІКАДЗЕ");
 }
 
 
