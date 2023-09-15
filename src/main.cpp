@@ -155,7 +155,7 @@ void setup(){
   param_costraint_arr[n].max_value = 100;
   param_costraint_arr[n].step_value = 0.1;
   param_costraint_arr[n].default_value = 25;
-  strcpy(param_costraint_arr[n].description, "Швидкість м/с при заході на ціль. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу. Режим БОМБЕР");
+  strcpy(param_costraint_arr[n].description, "Швидкість м/с при заході на ціль. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу");
   // DROP_ANGLE
   n = 15;
   param_costraint_arr[n].min_value = -90;
@@ -172,7 +172,7 @@ void setup(){
   strcpy(param_costraint_arr[n].description, "Тип застосування: 0 - БОМБЕР, 1 - БОМБЕР з поверненням додому, 2 - КАМІКАДЗЕ");
   // DIVING_ANGLE
   n = 17;
-  param_costraint_arr[n].min_value = -35;
+  param_costraint_arr[n].min_value = -45;
   param_costraint_arr[n].max_value = 0;
   param_costraint_arr[n].step_value = 1;
   param_costraint_arr[n].default_value = -15;
