@@ -61,28 +61,28 @@ void setup(){
   // ANGLE_MIXER
   n = 1;
   param_costraint_arr[n].min_value = 0;
-  param_costraint_arr[n].max_value = 1;
+  param_costraint_arr[n].max_value = 2;
   param_costraint_arr[n].step_value = 0.01;
   param_costraint_arr[n].default_value = 0.75;
   strcpy(param_costraint_arr[n].description, "Відсоток від ROLL’у на руль повороту");
   // P_COEF
   n = 2;
   param_costraint_arr[n].min_value = 0.2;
-  param_costraint_arr[n].max_value = 3;
+  param_costraint_arr[n].max_value = 5;
   param_costraint_arr[n].step_value = 0.01;
   param_costraint_arr[n].default_value = 0.75;
   strcpy(param_costraint_arr[n].description, "Пропорційний коефіцієнт");
   // I_COEF
   n = 3;
   param_costraint_arr[n].min_value = 0;
-  param_costraint_arr[n].max_value = 0.1;
+  param_costraint_arr[n].max_value = 3;
   param_costraint_arr[n].step_value = 0.01;
   param_costraint_arr[n].default_value = 0;
   strcpy(param_costraint_arr[n].description, "Інтегральний коефіцієнт");
   // D_COEF
   n = 4;
   param_costraint_arr[n].min_value = 0;
-  param_costraint_arr[n].max_value = 0.1;
+  param_costraint_arr[n].max_value = 3;
   param_costraint_arr[n].step_value = 0.01;
   param_costraint_arr[n].default_value = 0;
   strcpy(param_costraint_arr[n].description, "Диференціальний коефіцієнт");
@@ -172,11 +172,11 @@ void setup(){
   strcpy(param_costraint_arr[n].description, "Тип застосування: 0 - БОМБЕР, 1 - БОМБЕР з поверненням додому, 2 - КАМІКАДЗЕ");
   // DIVING_ANGLE
   n = 17;
-  param_costraint_arr[n].min_value = -45;
+  param_costraint_arr[n].min_value = -60;
   param_costraint_arr[n].max_value = 0;
   param_costraint_arr[n].step_value = 1;
   param_costraint_arr[n].default_value = -15;
-  strcpy(param_costraint_arr[n].description, "Кут пікірування. Режим КАМІКАДЗЕ");
+  strcpy(param_costraint_arr[n].description, "Кут пікірування. DIVING_ANGLE - ANTENNA_ANGLE >= -35.  Режим КАМІКАДЗЕ");
 }
 
 
