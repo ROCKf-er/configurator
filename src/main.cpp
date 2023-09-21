@@ -56,7 +56,7 @@ void setup(){
   param_costraint_arr[n].min_value = -30;
   param_costraint_arr[n].max_value = 30;
   param_costraint_arr[n].step_value = 1;
-  param_costraint_arr[n].default_value = 25;
+  param_costraint_arr[n].default_value = 10;
   strcpy(param_costraint_arr[n].description, "Кут крену при пошуку цілі (при RSSI < THRESHOLD)");
   // ANGLE_MIXER
   n = 1;
@@ -70,28 +70,28 @@ void setup(){
   param_costraint_arr[n].min_value = 0.2;
   param_costraint_arr[n].max_value = 5;
   param_costraint_arr[n].step_value = 0.01;
-  param_costraint_arr[n].default_value = 0.75;
+  param_costraint_arr[n].default_value = 1.0;
   strcpy(param_costraint_arr[n].description, "Пропорційний коефіцієнт");
   // I_COEF
   n = 3;
-  param_costraint_arr[n].min_value = 0;
-  param_costraint_arr[n].max_value = 3;
+  param_costraint_arr[n].min_value = -100;
+  param_costraint_arr[n].max_value = 100;
   param_costraint_arr[n].step_value = 0.01;
   param_costraint_arr[n].default_value = 0;
-  strcpy(param_costraint_arr[n].description, "Інтегральний коефіцієнт");
+  strcpy(param_costraint_arr[n].description, "Інтегральний коефіцієнт. Відладка");
   // D_COEF
   n = 4;
-  param_costraint_arr[n].min_value = 0;
-  param_costraint_arr[n].max_value = 3;
+  param_costraint_arr[n].min_value = -100;
+  param_costraint_arr[n].max_value = 100;
   param_costraint_arr[n].step_value = 0.01;
   param_costraint_arr[n].default_value = 0;
-  strcpy(param_costraint_arr[n].description, "Диференціальний коефіцієнт");
+  strcpy(param_costraint_arr[n].description, "Диференціальний коефіцієнт. Відладка");
   // ANTENNA_ANGLE
   n = 5;
-  param_costraint_arr[n].min_value = -90;
-  param_costraint_arr[n].max_value = 90;
+  param_costraint_arr[n].min_value = -45;
+  param_costraint_arr[n].max_value = 45;
   param_costraint_arr[n].step_value = 1;
-  param_costraint_arr[n].default_value = -20;
+  param_costraint_arr[n].default_value = 0;
   strcpy(param_costraint_arr[n].description, "Кут встановлення антенного модуля (-20º – нормаль антени відхилена вниз від осі літака)");
   // SERVO_CLOSE
   n = 6;
@@ -112,7 +112,7 @@ void setup(){
   param_costraint_arr[n].min_value = 1;
   param_costraint_arr[n].max_value = 8;
   param_costraint_arr[n].step_value = 1;
-  param_costraint_arr[n].default_value = 7;
+  param_costraint_arr[n].default_value = 8;
   strcpy(param_costraint_arr[n].description, "Номер каналу для підключення механізму скидання. Режим БОМБЕР");
   // SCAN_ALT
   n = 9;
@@ -155,7 +155,7 @@ void setup(){
   param_costraint_arr[n].max_value = 100;
   param_costraint_arr[n].step_value = 0.1;
   param_costraint_arr[n].default_value = 25;
-  strcpy(param_costraint_arr[n].description, "Швидкість м/с при заході на ціль. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу");
+  strcpy(param_costraint_arr[n].description, "Швидкість м/с при заході на ціль. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу. Режим БОМБЕР");
   // DROP_ANGLE
   n = 15;
   param_costraint_arr[n].min_value = -90;
@@ -175,8 +175,15 @@ void setup(){
   param_costraint_arr[n].min_value = -60;
   param_costraint_arr[n].max_value = 0;
   param_costraint_arr[n].step_value = 1;
-  param_costraint_arr[n].default_value = -15;
-  strcpy(param_costraint_arr[n].description, "Кут пікірування. DIVING_ANGLE - ANTENNA_ANGLE >= -35.  Режим КАМІКАДЗЕ");
+  param_costraint_arr[n].default_value = -30;
+  strcpy(param_costraint_arr[n].description, "Кут пікірування. DIVING_ANGLE - ANTENNA_ANGLE >= -30.  Режим КАМІКАДЗЕ");
+  // DIVING_SPEED
+  n = 18;
+  param_costraint_arr[n].min_value = 0.3;
+  param_costraint_arr[n].max_value = 100;
+  param_costraint_arr[n].step_value = 0.1;
+  param_costraint_arr[n].default_value = 30;
+  strcpy(param_costraint_arr[n].description, "Швидкість м/с при заході на ціль. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу.Режим КАМІКАДЗЕ");
 }
 
 
