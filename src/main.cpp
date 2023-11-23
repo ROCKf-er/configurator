@@ -218,7 +218,7 @@ void send_heartbeat() {
   
   MAV_Serial.write(mav_msg_buf, mav_msg_len); 
 
-    if (heartbeat_received) {
+  if (heartbeat_received) {
     LED_2_TOGGLE; 
   } else {
     LED_2_OFF;
@@ -257,7 +257,9 @@ void loop() {
   #endif //DISPLAY_ON
 
   send_heartbeat();
-  if ((millis() - heartbeat_received_ms) > 5000) heartbeat_received = false;
+  if ((millis() - heartbeat_received_ms) > 5000) {
+    heartbeat_received = false;
+  }
 }
 
 
@@ -367,7 +369,7 @@ bool check_param(float val, uint16_t index) {
     uint8_t byte;
     MAV_Serial.readBytes(&byte, 1);
 
-    if (mavlink_parse_char(chan, byte, &msg, &status) & (msg.msgid == MAVLINK_MSG_ID_PARAM_VALUE)){
+    if (mavlink_parse_char(chan, byte, &msg, &status) & (msg.msgid == MAVLINK_MSG_ID_PARAM_VALUE)) {
       mavlink_msg_param_value_decode(&msg, &param);
       return ((abs(param.param_value - val) < 0.00001) & (param.param_index == index));
     }
@@ -387,7 +389,7 @@ void mavlink_read(HardwareSerial &link){
     uint8_t byte;
     link.readBytes(&byte, 1);
         
-    if (mavlink_parse_char(chan, byte, &msg, &status)){
+    if (mavlink_parse_char(chan, byte, &msg, &status)) {
       msg_msgid = msg.msgid;
 
       switch (msg.msgid) {
