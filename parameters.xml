@@ -11,7 +11,7 @@
             <Type>MAV_PARAM_TYPE_INT16</Type>
         </G_ROLL_ANGLE>
         <ANGLE_MIXER>
-            <DisplayName></DisplayName>
+            <DisplayName> </DisplayName>
             <Description><![CDATA[[Відсоток від ROLL’у на руль повороту]]></Description>
             <Range>0.00 2.00</Range>
             <User>Standard</User>
@@ -21,7 +21,7 @@
             <Type>MAV_PARAM_TYPE_REAL32</Type>
         </ANGLE_MIXER>
         <P_COEF>
-            <DisplayName></DisplayName>
+            <DisplayName> </DisplayName>
             <Description><![CDATA[[Пропорційний коефіцієнт]]></Description>
             <Range>0.20 5.00</Range>
             <User>Standard</User>
@@ -31,7 +31,7 @@
             <Type>MAV_PARAM_TYPE_REAL32</Type>
         </P_COEF>
         <I_COEF>
-            <DisplayName></DisplayName>
+            <DisplayName> </DisplayName>
             <Description><![CDATA[[Інтегральний коефіцієнт. Відладка]]></Description>
             <Range>-100.00 100.00</Range>
             <User>Standard</User>
@@ -41,7 +41,7 @@
             <Type>MAV_PARAM_TYPE_REAL32</Type>
         </I_COEF>
         <D_COEF>
-            <DisplayName></DisplayName>
+            <DisplayName> </DisplayName>
             <Description><![CDATA[[Диференціальний коефіцієнт. Відладка]]></Description>
             <Range>-100.00 100.00</Range>
             <User>Standard</User>
@@ -51,7 +51,7 @@
             <Type>MAV_PARAM_TYPE_REAL32</Type>
         </D_COEF>
         <ANTENNA_ANGLE>
-            <DisplayName></DisplayName>
+            <DisplayName> </DisplayName>
             <Description><![CDATA[[Кут встановлення антенного модуля (-20º – нормаль антени відхилена вниз від осі літака)]]></Description>
             <Range>-45 45</Range>
             <User>Standard</User>
@@ -61,7 +61,7 @@
             <Type>MAV_PARAM_TYPE_INT16</Type>
         </ANTENNA_ANGLE>
         <SERVO_CLOSE>
-            <DisplayName></DisplayName>
+            <DisplayName> </DisplayName>
             <Description><![CDATA[[Сигнал на закриття скиду. Режим БОМБЕР]]></Description>
             <Range>1100 1100</Range>
             <User>Standard</User>
@@ -71,7 +71,7 @@
             <Type>MAV_PARAM_TYPE_INT16</Type>
         </SERVO_CLOSE>
         <SERVO_OPEN>
-            <DisplayName></DisplayName>
+            <DisplayName> </DisplayName>
             <Description><![CDATA[[Сигнал на відкриття скиду. Режим БОМБЕР]]></Description>
             <Range>1100 1900</Range>
             <User>Standard</User>
@@ -81,7 +81,7 @@
             <Type>MAV_PARAM_TYPE_INT16</Type>
         </SERVO_OPEN>
         <SERVO_CHANNEL>
-            <DisplayName></DisplayName>
+            <DisplayName> </DisplayName>
             <Description><![CDATA[[Номер каналу для підключення механізму скидання. Режим БОМБЕР]]></Description>
             <Range>1 8</Range>
             <User>Standard</User>
@@ -91,7 +91,7 @@
             <Type>MAV_PARAM_TYPE_UINT8</Type>
         </SERVO_CHANNEL>
         <SCAN_ALT>
-            <DisplayName></DisplayName>
+            <DisplayName> </DisplayName>
             <Description><![CDATA[[Висота пошуку цілі]]></Description>
             <Range>100 400</Range>
             <User>Standard</User>
@@ -101,7 +101,7 @@
             <Type>MAV_PARAM_TYPE_UINT16</Type>
         </SCAN_ALT>
         <SCAN_SPEED>
-            <DisplayName></DisplayName>
+            <DisplayName> </DisplayName>
             <Description><![CDATA[[Швидкість м/с при пошуку цілі. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу]]></Description>
             <Range>0.3 100.0</Range>
             <User>Standard</User>
@@ -111,7 +111,7 @@
             <Type>MAV_PARAM_TYPE_REAL32</Type>
         </SCAN_SPEED>
         <SCAN_SECTOR>
-            <DisplayName></DisplayName>
+            <DisplayName> </DisplayName>
             <Description><![CDATA[[Після ввімкнення режиму Guided пошук цілі буде відбуватися у проміжку від (Heading –  SCAN_SECTOR / 2) до (Heading +  SCAN_SECTOR / 2)]]></Description>
             <Range>1 360</Range>
             <User>Standard</User>
@@ -121,7 +121,7 @@
             <Type>MAV_PARAM_TYPE_UINT16</Type>
         </SCAN_SECTOR>
         <DROP_ALT>
-            <DisplayName></DisplayName>
+            <DisplayName> </DisplayName>
             <Description><![CDATA[[Висота заходу на ціль. Режим БОМБЕР]]></Description>
             <Range>50 200</Range>
             <User>Standard</User>
@@ -131,7 +131,7 @@
             <Type>MAV_PARAM_TYPE_UINT16</Type>
         </DROP_ALT>
         <DROP_LVL>
-            <DisplayName></DisplayName>
+            <DisplayName> </DisplayName>
             <Description><![CDATA[[Рівень сигналу при якому відбувається зниження до DROP_ALT. Режим БОМБЕР]]></Description>
             <Range>-80 -50</Range>
             <User>Standard</User>
@@ -141,7 +141,7 @@
             <Type>MAV_PARAM_TYPE_INT16</Type>
         </DROP_LVL>
         <DROP_SPEED>
-            <DisplayName></DisplayName>
+            <DisplayName> </DisplayName>
             <Description><![CDATA[[Швидкість м/с при заході на ціль. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу. Режим БОМБЕР]]></Description>
             <Range>0.3 100.0</Range>
             <User>Standard</User>
@@ -151,7 +151,7 @@
             <Type>MAV_PARAM_TYPE_REAL32</Type>
         </DROP_SPEED>
         <DROP_ANGLE>
-            <DisplayName></DisplayName>
+            <DisplayName> </DisplayName>
             <Description><![CDATA[[Кут на ціль відносно літака, при якому скидається вантаж. Режим БОМБЕР]]></Description>
             <Range>-90 0</Range>
             <User>Standard</User>
@@ -161,7 +161,7 @@
             <Type>MAV_PARAM_TYPE_INT16</Type>
         </DROP_ANGLE>
         <UAV_PURPOSE>
-            <DisplayName></DisplayName>
+            <DisplayName> </DisplayName>
             <Description><![CDATA[[Тип застосування: 0 - БОМБЕР, 1 - БОМБЕР з поверненням додому, 2 - КАМІКАДЗЕ]]></Description>
             <Range>0 2</Range>
             <User>Standard</User>
@@ -171,7 +171,7 @@
             <Type>MAV_PARAM_TYPE_INT16</Type>
         </UAV_PURPOSE>
         <DIVING_ANGLE>
-            <DisplayName></DisplayName>
+            <DisplayName> </DisplayName>
             <Description><![CDATA[[Кут пікірування. DIVING_ANGLE - ANTENNA_ANGLE >= -30.  Режим КАМІКАДЗЕ]]></Description>
             <Range>-60 0</Range>
             <User>Standard</User>
@@ -181,7 +181,7 @@
             <Type>MAV_PARAM_TYPE_INT16</Type>
         </DIVING_ANGLE>
         <DIVING_SPEED>
-            <DisplayName></DisplayName>
+            <DisplayName> </DisplayName>
             <Description><![CDATA[[Швидкість м/с при заході на ціль. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу.Режим КАМІКАДЗЕ]]></Description>
             <Range>0.3 100.0</Range>
             <User>Standard</User>
