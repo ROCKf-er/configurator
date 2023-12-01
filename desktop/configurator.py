@@ -7,23 +7,21 @@ from argparse import ArgumentParser
 from serial import SerialException
 from pymavlink import mavutil
 import time
+from xml.dom import minidom
+import os
+import sys
 
 
 IS_LOGS = True
 IS_LOGS_FOR_DEBUG = True
-IS_TEST_DATA_GENERATION = True
+IS_TEST_DATA_GENERATION = False
 
 WIDTH = 1500
 HEIGHT = 1500
 FONT_SIZE = 30
 FONT = "Areal 30"
 
-c_x = 100
-c_y = 100
-
-text_x = 200
-text_y = 200
-text_str = "a text"
+xml_file = None
 
 HEARTBEAT_TIMEOUT_S = 1
 
@@ -34,8 +32,10 @@ SELF_COMPONENT_ID = 25 # master.mav.MAV_COMP_ID_USER1
 CONNECT_PERIOD_S = 2
 WAIT_BEFORE_FIRST_SEND_S = 3
 MINIMAL_ASYNC_PAUSE_S = 0.01
+MAVLINK_MESSAGE_ID_PARAM_VALUE = 22
 
 # 0 based column numbers
+ID_COLUMN_NUMBER = 1
 VALUES_COLUMN_NUMBER = 2
 DESCRIPTION_COLUMN_NUMBER = 5
 
@@ -83,6 +83,8 @@ async def receaver():
                 if m_src_id == TARGET_COMPONENT_ID:
                     print(f">> id = {m.id} from {m_src_id}")
                     print(str(m))
+                    if m.id == MAVLINK_MESSAGE_ID_PARAM_VALUE:
+                        app.get_data_from_mavlink_message(m)
 
         await asyncio.sleep(MINIMAL_ASYNC_PAUSE_S)
 
@@ -145,6 +147,7 @@ class App(tk.Tk):
         self.tasks.append(loop.create_task(self.rotator(1 / 60, 2)))
         self.tasks.append(loop.create_task(self.updater(interval)))
         self.tasks.append(loop.create_task(main()))
+        self.is_new_line_odd = True
 
         if IS_TEST_DATA_GENERATION:
             self.tasks.append(loop.create_task(self.generate_test_tree_data()))
@@ -155,34 +158,12 @@ class App(tk.Tk):
         #self.root = tk.Tk()
 
     async def rotator(self, interval, d_per_tick):
-        # global c_x
-        # global c_y
-        # global text_x
-        # global text_y
-        # global text_str
-
         if IS_LOGS_FOR_DEBUG:
             print("Run rotator")
 
-        # canvas = tk.Canvas(self, height=HEIGHT, width=WIDTH)
-        # canvas.configure(bg='black')
-        # canvas.pack()
-        #
-        # color = "blue"
-        # self_circle = create_circle(c_x, c_y, 50, canvas, color)
-        #
-        # a_text = canvas.create_text(text_x, text_y, text=text_str, font=FONT, fill="lime")
         await self.init_gui()
 
         while await asyncio.sleep(interval, True):
-            # c_x = c_x + 1
-            # if c_x > 200:
-            #     c_x = 100
-            # c_r = 50
-            # canvas.coords(self_circle, c_x - c_r, c_y - c_r, c_x + c_r, c_y + c_r)
-            #
-            # text_str = "c_x = " + str(c_x)
-            # canvas.itemconfigure(a_text, text=text_str)
             pass
 
         await asyncio.sleep(1)
@@ -218,7 +199,7 @@ class App(tk.Tk):
 
         self.style.configure("Treeview.Heading", font=(None, 25))
         self.style.configure("Treeview", font=(None, 25))
-        self.style.configure('Treeview', rowheight=40)
+        self.style.configure('Treeview', rowheight=50)
 
         self.tree.heading(columns[0], text="Index")
         self.tree.column(columns[0], minwidth=0, width=150, stretch=tk.NO)
@@ -251,12 +232,13 @@ class App(tk.Tk):
         self.tree_frame.columnconfigure(0, weight=1)
         self.tree_frame.rowconfigure(0, weight=1)
 
+
     async def generate_test_tree_data(self):
         await asyncio.sleep(5)
 
         contacts = []
         for n in range(1, 50):
-            textbox = tk.Text()
+            #textbox = tk.Text()
             index_str = f'{n}'
             id_str = f'VALUE_{n}'
             value_str = f'{n}{n}{n}'
@@ -267,14 +249,39 @@ class App(tk.Tk):
             contacts.append((index_str, id_str, value_str, default_str, range_str, description_str))
 
         # add data to the treeview
-        is_odd_line = True
         for contact in contacts:
             tag = 'even'
-            if is_odd_line:
+            if self.is_new_line_odd:
                 tag = 'odd'
 
             self.tree.insert('', tk.END, values=contact, tags=(tag,))
-            is_odd_line = not is_odd_line
+            self.is_odd_line = not self.is_odd_line
+
+    def get_data_from_mavlink_message(self, m):
+        param_id = m.param_id
+        param_value = m.param_value
+        param_type = m.param_type
+        param_count = m.param_count
+        param_index = m.param_index
+
+        index_str = str(param_index)
+        id_str = str(param_id)
+        value_str = str(param_value)
+        parameter_xml = xml_file.getElementsByTagName(id_str)[0]
+        default_str = parameter_xml.getElementsByTagName('Default')[0].firstChild.data
+        range_str = parameter_xml.getElementsByTagName('Range')[0].firstChild.data
+        description_str = parameter_xml.getElementsByTagName('Description')[0].firstChild.data
+
+        row = (index_str, id_str, value_str, default_str, range_str, description_str)
+
+        tag = 'even'
+        if self.is_new_line_odd:
+            tag = 'odd'
+
+        self.tree.insert('', tk.END, values=row, tags=(tag,))
+        self.is_new_line_odd = not self.is_new_line_odd
+
+        self.tree.column("#0", stretch=False)
 
     def item_selected(self, event):
 
@@ -307,7 +314,8 @@ class App(tk.Tk):
 
         if self.column_index == DESCRIPTION_COLUMN_NUMBER:
             # show a message
-            showinfo(title='Information', message=record)
+            message_title = selected_values[ID_COLUMN_NUMBER]
+            showinfo(title=message_title, message=record)
         elif self.column_index == VALUES_COLUMN_NUMBER:
             entry_edit = ttk.Entry( width=column_box[2], font=self.myFont)
             tree_root_x = self.tree.winfo_x()
@@ -381,6 +389,13 @@ loop = asyncio.get_event_loop()
 
 if IS_LOGS_FOR_DEBUG:
     print("Run App...")
+
+# parse an xml file by name
+if getattr(sys, 'frozen', False):
+    # in case of run as one exe
+    xml_file = minidom.parse(file=os.path.join(sys._MEIPASS, 'files/parameters.xml'))
+else:
+    xml_file = minidom.parse('../parameters.xml')
 
 app = App(loop)
 loop.run_forever()
