@@ -12,7 +12,7 @@
         </G_ROLL_ANGLE>
         <ANGLE_MIXER>
             <DisplayName> </DisplayName>
-            <Description><![CDATA[[Відсоток від ROLL’у на руль повороту]]></Description>
+            <Description><![CDATA[Відсоток від ROLL’у на руль повороту]]></Description>
             <Range>0.00 2.00</Range>
             <User>Standard</User>
             <Default>0.75</Default>
@@ -22,7 +22,7 @@
         </ANGLE_MIXER>
         <P_COEF>
             <DisplayName> </DisplayName>
-            <Description><![CDATA[[Пропорційний коефіцієнт]]></Description>
+            <Description><![CDATA[Пропорційний коефіцієнт]]></Description>
             <Range>0.20 5.00</Range>
             <User>Standard</User>
             <Default>1.00</Default>
@@ -32,7 +32,7 @@
         </P_COEF>
         <I_COEF>
             <DisplayName> </DisplayName>
-            <Description><![CDATA[[Інтегральний коефіцієнт. Відладка]]></Description>
+            <Description><![CDATA[Інтегральний коефіцієнт. Відладка]]></Description>
             <Range>-100.00 100.00</Range>
             <User>Standard</User>
             <Default>0.00</Default>
@@ -42,7 +42,7 @@
         </I_COEF>
         <D_COEF>
             <DisplayName> </DisplayName>
-            <Description><![CDATA[[Диференціальний коефіцієнт. Відладка]]></Description>
+            <Description><![CDATA[Диференціальний коефіцієнт. Відладка]]></Description>
             <Range>-100.00 100.00</Range>
             <User>Standard</User>
             <Default>0.00</Default>
@@ -52,7 +52,7 @@
         </D_COEF>
         <ANTENNA_ANGLE>
             <DisplayName> </DisplayName>
-            <Description><![CDATA[[Кут встановлення антенного модуля (-20º – нормаль антени відхилена вниз від осі літака)]]></Description>
+            <Description><![CDATA[Кут встановлення антенного модуля (-20º – нормаль антени відхилена вниз від осі літака)]]></Description>
             <Range>-45 45</Range>
             <User>Standard</User>
             <Default>0</Default>
@@ -62,7 +62,7 @@
         </ANTENNA_ANGLE>
         <SERVO_CLOSE>
             <DisplayName> </DisplayName>
-            <Description><![CDATA[[Сигнал на закриття скиду. Режим БОМБЕР]]></Description>
+            <Description><![CDATA[Сигнал на закриття скиду. Режим БОМБЕР]]></Description>
             <Range>1100 1100</Range>
             <User>Standard</User>
             <Default>1900</Default>
@@ -72,7 +72,7 @@
         </SERVO_CLOSE>
         <SERVO_OPEN>
             <DisplayName> </DisplayName>
-            <Description><![CDATA[[Сигнал на відкриття скиду. Режим БОМБЕР]]></Description>
+            <Description><![CDATA[Сигнал на відкриття скиду. Режим БОМБЕР]]></Description>
             <Range>1100 1900</Range>
             <User>Standard</User>
             <Default>1220</Default>
@@ -82,7 +82,7 @@
         </SERVO_OPEN>
         <SERVO_CHANNEL>
             <DisplayName> </DisplayName>
-            <Description><![CDATA[[Номер каналу для підключення механізму скидання. Режим БОМБЕР]]></Description>
+            <Description><![CDATA[Номер каналу для підключення механізму скидання. Режим БОМБЕР]]></Description>
             <Range>1 8</Range>
             <User>Standard</User>
             <Default>8</Default>
@@ -92,7 +92,7 @@
         </SERVO_CHANNEL>
         <SCAN_ALT>
             <DisplayName> </DisplayName>
-            <Description><![CDATA[[Висота пошуку цілі]]></Description>
+            <Description><![CDATA[Висота пошуку цілі]]></Description>
             <Range>100 400</Range>
             <User>Standard</User>
             <Default>150</Default>
@@ -102,7 +102,7 @@
         </SCAN_ALT>
         <SCAN_SPEED>
             <DisplayName> </DisplayName>
-            <Description><![CDATA[[Швидкість м/с при пошуку цілі. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу]]></Description>
+            <Description><![CDATA[Швидкість м/с при пошуку цілі. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу]]></Description>
             <Range>0.3 100.0</Range>
             <User>Standard</User>
             <Default>20.0</Default>
@@ -112,7 +112,7 @@
         </SCAN_SPEED>
         <SCAN_SECTOR>
             <DisplayName> </DisplayName>
-            <Description><![CDATA[[Після ввімкнення режиму Guided пошук цілі буде відбуватися у проміжку від (Heading –  SCAN_SECTOR / 2) до (Heading +  SCAN_SECTOR / 2)]]></Description>
+            <Description><![CDATA[Після ввімкнення режиму Guided пошук цілі буде відбуватися у проміжку від (Heading –  SCAN_SECTOR / 2) до (Heading +  SCAN_SECTOR / 2)]]></Description>
             <Range>1 360</Range>
             <User>Standard</User>
             <Default>120</Default>
@@ -122,7 +122,7 @@
         </SCAN_SECTOR>
         <DROP_ALT>
             <DisplayName> </DisplayName>
-            <Description><![CDATA[[Висота заходу на ціль. Режим БОМБЕР]]></Description>
+            <Description><![CDATA[Висота заходу на ціль. Режим БОМБЕР]]></Description>
             <Range>50 200</Range>
             <User>Standard</User>
             <Default>100</Default>
@@ -132,7 +132,7 @@
         </DROP_ALT>
         <DROP_LVL>
             <DisplayName> </DisplayName>
-            <Description><![CDATA[[Рівень сигналу при якому відбувається зниження до DROP_ALT. Режим БОМБЕР]]></Description>
+            <Description><![CDATA[Рівень сигналу при якому відбувається зниження до DROP_ALT. Режим БОМБЕР]]></Description>
             <Range>-80 -50</Range>
             <User>Standard</User>
             <Default>-70</Default>
@@ -142,7 +142,7 @@
         </DROP_LVL>
         <DROP_SPEED>
             <DisplayName> </DisplayName>
-            <Description><![CDATA[[Швидкість м/с при заході на ціль. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу. Режим БОМБЕР]]></Description>
+            <Description><![CDATA[Швидкість м/с при заході на ціль. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу. Режим БОМБЕР]]></Description>
             <Range>0.3 100.0</Range>
             <User>Standard</User>
             <Default>25.0</Default>
@@ -152,7 +152,7 @@
         </DROP_SPEED>
         <DROP_ANGLE>
             <DisplayName> </DisplayName>
-            <Description><![CDATA[[Кут на ціль відносно літака, при якому скидається вантаж. Режим БОМБЕР]]></Description>
+            <Description><![CDATA[Кут на ціль відносно літака, при якому скидається вантаж. Режим БОМБЕР]]></Description>
             <Range>-90 0</Range>
             <User>Standard</User>
             <Default>-45</Default>
@@ -162,7 +162,7 @@
         </DROP_ANGLE>
         <UAV_PURPOSE>
             <DisplayName> </DisplayName>
-            <Description><![CDATA[[Тип застосування: 0 - БОМБЕР, 1 - БОМБЕР з поверненням додому, 2 - КАМІКАДЗЕ]]></Description>
+            <Description><![CDATA[Тип застосування: 0 - БОМБЕР, 1 - БОМБЕР з поверненням додому, 2 - КАМІКАДЗЕ]]></Description>
             <Range>0 2</Range>
             <User>Standard</User>
             <Default>2</Default>
@@ -172,7 +172,7 @@
         </UAV_PURPOSE>
         <DIVING_ANGLE>
             <DisplayName> </DisplayName>
-            <Description><![CDATA[[Кут пікірування. DIVING_ANGLE - ANTENNA_ANGLE >= -30.  Режим КАМІКАДЗЕ]]></Description>
+            <Description><![CDATA[Кут пікірування. DIVING_ANGLE - ANTENNA_ANGLE >= -30.  Режим КАМІКАДЗЕ]]></Description>
             <Range>-60 0</Range>
             <User>Standard</User>
             <Default>-30</Default>
@@ -182,7 +182,7 @@
         </DIVING_ANGLE>
         <DIVING_SPEED>
             <DisplayName> </DisplayName>
-            <Description><![CDATA[[Швидкість м/с при заході на ціль. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу.Режим КАМІКАДЗЕ]]></Description>
+            <Description><![CDATA[Швидкість м/с при заході на ціль. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу.Режим КАМІКАДЗЕ]]></Description>
             <Range>0.3 100.0</Range>
             <User>Standard</User>
             <Default>30.0</Default>
