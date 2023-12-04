@@ -1,4 +1,5 @@
 import asyncio
+import math
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font as tkfont
@@ -33,14 +34,42 @@ SELF_COMPONENT_ID = 25 # master.mav.MAV_COMP_ID_USER1
 CONNECT_PERIOD_S = 2
 WAIT_BEFORE_FIRST_SEND_S = 3
 MINIMAL_ASYNC_PAUSE_S = 0.01
+SEND_ASYNC_PAUSE_S = 0.05
 MAVLINK_MESSAGE_ID_PARAM_VALUE = 22
 
 # 0 based column numbers
 ID_COLUMN_NUMBER = 1
 VALUES_COLUMN_NUMBER = 2
+DEFAULT_COLUMN_NUMBER = 3
+RANGE_COLUMN_NUMBER = 4
 DESCRIPTION_COLUMN_NUMBER = 5
 
 HINT_TEX = "Double-click the Description cell to view the full text.   Double-click the Value cell to edit the value."
+
+sender_command = None
+COMMAND_REQUEST_LIST = "REQUEST_LIST"
+COMMAND_PARAM_SET = "PARAM_SET"
+param_to_set_list = []
+# param_to_set_list = [
+#     {
+#         "param_id": "VALUE_ID",
+#         "param_value": 0.0,
+#     },
+# ]
+param_types = {
+    "MAV_PARAM_TYPE_UINT8":     1,
+    "MAV_PARAM_TYPE_INT8":      2,
+    "MAV_PARAM_TYPE_UINT16":    3,
+    "MAV_PARAM_TYPE_INT16":     4,
+    "MAV_PARAM_TYPE_UINT32":    5,
+    "MAV_PARAM_TYPE_INT32":     6,
+    "MAV_PARAM_TYPE_UINT64":    7,
+    "MAV_PARAM_TYPE_INT64":     8,
+    "MAV_PARAM_TYPE_REAL32":    9,
+    "MAV_PARAM_TYPE_REAL64":    10
+}
+get_button_pressed_time_s = None
+GET_BUTTON_PRESSED_TIMEOUT_S = 3
 
 
 async def connect():
@@ -83,29 +112,60 @@ async def receaver():
                 if m is None: break  # No new message
 
                 m_src_id = m.get_srcComponent()
+                # print(f">> id = {m.id} from {m_src_id}")
+                # print(str(m))
                 if m_src_id == TARGET_COMPONENT_ID:
                     print(f">> id = {m.id} from {m_src_id}")
                     print(str(m))
                     if m.id == MAVLINK_MESSAGE_ID_PARAM_VALUE:
                         app.get_data_from_mavlink_message(m)
 
+                await asyncio.sleep(MINIMAL_ASYNC_PAUSE_S)
+
         await asyncio.sleep(MINIMAL_ASYNC_PAUSE_S)
 
 
 async def sender():
     global master
+    global sender_command
+    global param_to_set_list
+    global param_types
 
-    await asyncio.sleep(WAIT_BEFORE_FIRST_SEND_S)
+    #await asyncio.sleep(WAIT_BEFORE_FIRST_SEND_S)
     while master is None:
         await asyncio.sleep(MINIMAL_ASYNC_PAUSE_S)
 
     target_system = SYSTEM_ID
     target_component = TARGET_COMPONENT_ID
     master.mav.srcComponent = SELF_COMPONENT_ID
-    master.mav.param_request_list_send(target_system, target_component)
-    print(f"_________________<< param_request_list_send(target_system={target_system}, target_component={target_component})")
 
     while True:
+        if sender_command is not None:
+            if str(sender_command).startswith(COMMAND_REQUEST_LIST):
+                sender_command = None
+                app.delete_all_data()
+
+                target_system = SYSTEM_ID
+                target_component = TARGET_COMPONENT_ID
+                master.mav.srcComponent = SELF_COMPONENT_ID
+                master.mav.param_request_list_send(target_system, target_component)
+                print(f"_________________<< param_request_list_send(target_system={target_system}, target_component={target_component})")
+
+            if str(sender_command).startswith(COMMAND_PARAM_SET):
+                sender_command = None
+
+                for param_to_set in param_to_set_list:
+                    param_id = param_to_set["param_id"]
+                    param_id_bytes = str.encode(param_id)
+                    param_value = float(param_to_set["param_value"])
+                    parameter_xml = xml_file.getElementsByTagName(param_id)[0]
+                    param_type = parameter_xml.getElementsByTagName('Type')[0].firstChild.data
+                    param_type_int = param_types[param_type]
+                    master.mav.srcComponent = SELF_COMPONENT_ID
+                    master.mav.param_set_send(target_system, target_component, param_id_bytes, param_value, param_type_int)
+                    print(f"_________________<< param_set_send(target_system={target_system}, target_component={target_component}, param_id={param_id}, param_value={param_value}, param_type={param_type})")
+                    await asyncio.sleep(SEND_ASYNC_PAUSE_S)
+
         await asyncio.sleep(MINIMAL_ASYNC_PAUSE_S)
 
 
@@ -151,6 +211,11 @@ class App(tk.Tk):
         self.tasks.append(loop.create_task(self.updater(interval)))
         self.tasks.append(loop.create_task(main()))
         self.is_new_line_odd = True
+        self.TAG_NAME_ODD = 'odd'
+        self.TAG_NAME_EVEN = 'even'
+        self.TAG_NAME_ODD_CHANGED = 'odd_changed'
+        self.TAG_NAME_EVEN_CHANGED = 'even_changed'
+        self.VALID_CANVAS_BORDER = 3
 
         if IS_TEST_DATA_GENERATION:
             self.tasks.append(loop.create_task(self.generate_test_tree_data()))
@@ -201,14 +266,15 @@ class App(tk.Tk):
 
         self.tree = ttk.Treeview(self.tree_frame, columns=columns, show='headings', height=40)
 
-        CreateToolTip(self.tree_frame, text='Hello World\n'
-                                   'This is how tip looks like.'
-                                   'Best part is, it\'s not a menu.\n'
-                                   'Purely tipbox.')
+        # CreateToolTip(self.tree_frame, text='Hello World\n'
+        #                            'This is how tip looks like.'
+        #                            'Best part is, it\'s not a menu.\n'
+        #                            'Purely tipbox.')
 
-        self.tree.tag_configure('odd', background='#f2f2f2')
-        self.tree.tag_configure('even', background='#d0d0d0')
-        self.tree.tag_configure('changed', background='#e0a0a0')
+        self.tree.tag_configure(self.TAG_NAME_ODD, background='#f2f2f2')
+        self.tree.tag_configure(self.TAG_NAME_EVEN, background='#d0d0d0')
+        self.tree.tag_configure(self.TAG_NAME_ODD_CHANGED, background='#a0e0a0')
+        self.tree.tag_configure(self.TAG_NAME_EVEN_CHANGED, background='#80c080')
         # tree.pack(expand=True, fill=BOTH)
         self.tree.pack()
 
@@ -271,12 +337,25 @@ class App(tk.Tk):
             self.tree.insert('', tk.END, values=contact, tags=(tag,), row_height=300)
             self.is_odd_line = not self.is_odd_line
 
+    def delete_all_data(self):
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+
     def get_data_from_mavlink_message(self, m):
         param_id = m.param_id
         param_value = m.param_value
         param_type = m.param_type
         param_count = m.param_count
         param_index = m.param_index
+
+        if len(param_id) == 0:
+            return
+
+        # MAV_PARAM_TYPE_REAL32 = 9
+        # MAV_PARAM_TYPE_REAL64 = 10
+        reals = (9, 10)
+        if m.param_type not in reals:
+            param_value = math.trunc(param_value)
 
         index_str = str(param_index)
         id_str = str(param_id)
@@ -285,6 +364,13 @@ class App(tk.Tk):
         default_str = parameter_xml.getElementsByTagName('Default')[0].firstChild.data
         range_str = parameter_xml.getElementsByTagName('Range')[0].firstChild.data
         description_str = parameter_xml.getElementsByTagName('Description')[0].firstChild.data
+
+        min_str = str(range_str).split(" ")[0]
+        dot_position = min_str.find(".")
+        if dot_position > 0:
+           decimal_nums_count = len(min_str) - dot_position - 1
+           param_value_rounded = round(param_value, decimal_nums_count)
+           value_str = str(param_value_rounded)
 
         row = (index_str, id_str, value_str, default_str, range_str, description_str)
 
@@ -330,44 +416,128 @@ class App(tk.Tk):
             message_title = selected_values[ID_COLUMN_NUMBER]
             showinfo(title=message_title, message=record)
         elif self.column_index == VALUES_COLUMN_NUMBER:
-            entry_edit = ttk.Entry( width=column_box[2], font=self.myFont)
+            valid_canvas_width = column_box[2]+2*self.VALID_CANVAS_BORDER
+            valid_canvas_height = column_box[3]+2*self.VALID_CANVAS_BORDER
+            self.entry_valid_canvas = tk.Canvas(width=valid_canvas_width, height=valid_canvas_height)
+
+            self.entry_edit = ttk.Entry( width=column_box[2], font=self.myFont)
             tree_root_x = self.tree.winfo_x()
             tree_root_y = self.tree.winfo_y()
             tree_frame_x = self.tree_frame.winfo_x()
             tree_frame_y = self.tree_frame.winfo_y()
-            entry_edit.place(x=column_box[0] + tree_root_x + tree_frame_x,
+
+            self.entry_valid_rectangle = self.entry_valid_canvas.create_rectangle(0, 0, 1000, 1000,   fill='grey')
+            valid_canvas_x = column_box[0] + tree_root_x + tree_frame_x - self.VALID_CANVAS_BORDER
+            valid_canvas_y = column_box[1] + tree_root_y + tree_frame_y - self.VALID_CANVAS_BORDER
+            self.entry_valid_canvas.place(x=valid_canvas_x, y=valid_canvas_y)
+            self.entry_edit.place(x=column_box[0] + tree_root_x + tree_frame_x,
                              y=column_box[1] + tree_root_y + tree_frame_y,
                              w=column_box[2],
                              h=column_box[3])
-            entry_edit.editing_column_index = self.column_index
-            entry_edit.editing_item_iid = self.selected_iid
-            entry_edit.insert(0, selected_text)
-            entry_edit.select_range(0, tk.END)
-            # entry_edit.configure(background="white", foreground="orange")
-            entry_edit.bind("<FocusOut>", self.on_focus_out)
-            entry_edit.bind("<Return>", self.on_enter_pressed)
-            entry_edit.focus()
+            self.entry_edit.editing_column_index = self.column_index
+            self.entry_edit.editing_item_iid = self.selected_iid
+            self.entry_edit.insert(0, selected_text)
+            self.entry_edit.select_range(0, tk.END)
+            # self.entry_edit.configure(background="white", foreground="orange")
+            self.entry_edit.bind("<FocusOut>", self.on_focus_out)
+            self.entry_edit.bind("<KeyRelease>", self.on_key_released)
+            self.entry_edit.focus()
 
     def on_focus_out(self, event):
         event.widget.destroy()
+        self.entry_valid_canvas.destroy()
 
-    def on_enter_pressed(self, event):
+    def on_key_released(self, event):
         widget = event.widget
         new_text = widget.get()
-        print(new_text)
-        # selected_iid_str = "#" + str(self.selected_iid + 1)
+        print(f"new_text = {new_text}")
+
         item = self.tree.item(self.selected_iid)
         current_values = item['values']  # , text=new_text)
-        # print(current_values)
-        current_values[self.column_index] = new_text
-        self.tree.item(self.selected_iid, values=current_values)
-        widget.destroy()
+        #print(current_values)
+
+        current_tags = self.tree.item(self.selected_iid, "tags")
+        # print(f"current_tags = {current_tags}")
+        if current_tags[0].startswith(self.TAG_NAME_ODD):
+            current_tags = (self.TAG_NAME_ODD_CHANGED,)
+        else:
+            current_tags = (self.TAG_NAME_EVEN_CHANGED,)
+
+        is_valid = False
+        try:
+            new_val = float(new_text)
+        except ValueError:
+            pass
+        else:
+            min_max = current_values[RANGE_COLUMN_NUMBER]
+            min_max_list = str(min_max).split(" ")
+            min_float = float(min_max_list[0])
+            max_float = float(min_max_list[1])
+
+            if min_float <= new_val <= max_float:
+                is_valid = True
+
+        if str(new_text).endswith("."):
+            is_valid = False
+
+        if is_valid:
+            self.entry_valid_canvas.itemconfig(self.entry_valid_rectangle, fill='grey')
+        else:
+            self.entry_valid_canvas.itemconfig(self.entry_valid_rectangle, fill='red')
+
+        keysym = event.keysym
+        #print(f"keysym = {keysym}")
+
+        if keysym.startswith("Return"):
+            if is_valid:
+                current_values[self.column_index] = new_text
+                self.tree.item(self.selected_iid, values=current_values, tags=current_tags)
+                widget.destroy()
+                self.entry_valid_canvas.destroy()
 
     def button_get_press(self):
+        global  sender_command
+        global get_button_pressed_time_s
+
         print("GET Button pressed")
+        now_s = time.time()
+        if get_button_pressed_time_s is not None:
+            if now_s - get_button_pressed_time_s < GET_BUTTON_PRESSED_TIMEOUT_S:
+                print("GET Button: timeout has not ended yet")
+                return
+
+        sender_command = COMMAND_REQUEST_LIST
+        get_button_pressed_time_s = now_s
 
     def button_set_press(self):
+        global sender_command
+        global param_to_set_list
+
         print("SET Button pressed")
+
+        param_to_set_list = []
+
+        list_of_entries = self.tree.get_children()
+
+        for each in list_of_entries:
+            #print(self.tree.item(each)['values'])
+            tags = self.tree.item(each, "tags")
+            if self.TAG_NAME_ODD_CHANGED in tags or self.TAG_NAME_EVEN_CHANGED in tags:
+                param_id = self.tree.item(each)['values'][ID_COLUMN_NUMBER]
+                param_value = self.tree.item(each)['values'][VALUES_COLUMN_NUMBER]
+                new_param_and_value = {
+                    "param_id": param_id,
+                    "param_value": param_value
+                }
+                param_to_set_list.append(new_param_and_value)
+                if self.TAG_NAME_ODD_CHANGED in tags:
+                    new_tag = self.TAG_NAME_ODD
+                else:
+                    new_tag = self.TAG_NAME_EVEN
+                self.tree.item(each, tags=(new_tag, ))
+
+        sender_command = COMMAND_PARAM_SET
+
 
     def button_default_press(self):
         print("SET_DEFAULT Button pressed")
