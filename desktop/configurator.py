@@ -18,8 +18,9 @@ IS_TEST_DATA_GENERATION = False
 
 WIDTH = 1500
 HEIGHT = 1500
-FONT_SIZE = 30
-FONT = "Areal 30"
+# FONT_SIZE = 30
+# FONT_SMALL_SIZE = 20
+# FONT = "Areal 30"
 
 xml_file = None
 
@@ -38,6 +39,8 @@ MAVLINK_MESSAGE_ID_PARAM_VALUE = 22
 ID_COLUMN_NUMBER = 1
 VALUES_COLUMN_NUMBER = 2
 DESCRIPTION_COLUMN_NUMBER = 5
+
+HINT_TEX = "Double-click the Description cell to view the full text.   Double-click the Value cell to edit the value."
 
 
 async def connect():
@@ -172,6 +175,7 @@ class App(tk.Tk):
         self.style = ttk.Style()
 
         self.myFont = tkfont.Font(size=20)
+        self.myFontSmall = tkfont.Font(size=15)
 
         top_frame = ttk.Frame(borderwidth=0, relief=tk.SOLID, padding=[8, 10])
 
@@ -186,14 +190,25 @@ class App(tk.Tk):
 
         top_frame.pack(padx=10, pady=10, ipadx=10, ipady=10)
 
+        hint_frame = ttk.Frame(borderwidth=0, relief=tk.SOLID, padding=[8, 0, 10, 10])
+        hint_label = ttk.Label(hint_frame, text=HINT_TEX, font=self.myFontSmall)
+        hint_label.pack(anchor=tk.NW)
+        hint_frame.pack(anchor=tk.NW, fill=tk.BOTH)
+
         columns = ('index', 'id', 'value', 'default', 'range', 'description')
 
         self.tree_frame = ttk.Frame(borderwidth=1, relief=tk.SOLID, padding=[8, 10])
 
-        self.tree = ttk.Treeview(self.tree_frame, columns=columns, show='headings', height=20)
+        self.tree = ttk.Treeview(self.tree_frame, columns=columns, show='headings', height=40)
+
+        CreateToolTip(self.tree_frame, text='Hello World\n'
+                                   'This is how tip looks like.'
+                                   'Best part is, it\'s not a menu.\n'
+                                   'Purely tipbox.')
 
         self.tree.tag_configure('odd', background='#f2f2f2')
         self.tree.tag_configure('even', background='#d0d0d0')
+        self.tree.tag_configure('changed', background='#e0a0a0')
         # tree.pack(expand=True, fill=BOTH)
         self.tree.pack()
 
@@ -232,7 +247,6 @@ class App(tk.Tk):
         self.tree_frame.columnconfigure(0, weight=1)
         self.tree_frame.rowconfigure(0, weight=1)
 
-
     async def generate_test_tree_data(self):
         await asyncio.sleep(5)
 
@@ -254,7 +268,7 @@ class App(tk.Tk):
             if self.is_new_line_odd:
                 tag = 'odd'
 
-            self.tree.insert('', tk.END, values=contact, tags=(tag,))
+            self.tree.insert('', tk.END, values=contact, tags=(tag,), row_height=300)
             self.is_odd_line = not self.is_odd_line
 
     def get_data_from_mavlink_message(self, m):
@@ -284,7 +298,6 @@ class App(tk.Tk):
         self.tree.column("#0", stretch=False)
 
     def item_selected(self, event):
-
         region_clicked = self.tree.identify_region(event.x, event.y)
         # print(region_clicked)
         if region_clicked not in ("cell"):
@@ -381,6 +394,46 @@ def close(self):
         task.cancel()
     self.loop.stop()
     self.destroy()
+
+
+class ToolTip(object):
+
+    def __init__(self, widget):
+        self.widget = widget
+        self.tipwindow = None
+        self.id = None
+        self.x = self.y = 0
+
+    def showtip(self, text):
+        "Display text in tooltip window"
+        self.text = text
+        if self.tipwindow or not self.text:
+            return
+        x, y, cx, cy = self.widget.bbox("insert")
+        x = x + self.widget.winfo_rootx() + 57
+        y = y + cy + self.widget.winfo_rooty() +27
+        self.tipwindow = tw = tk.Toplevel(self.widget)
+        tw.wm_overrideredirect(1)
+        tw.wm_geometry("+%d+%d" % (x, y))
+        label = tk.Label(tw, text=self.text, justify=tk.LEFT,
+                      background="#ffffe0", relief=tk.SOLID, borderwidth=1,
+                      font=("tahoma", "8", "normal"))
+        label.pack(ipadx=1)
+
+    def hidetip(self):
+        tw = self.tipwindow
+        self.tipwindow = None
+        if tw:
+            tw.destroy()
+
+def CreateToolTip(widget, text):
+    toolTip = ToolTip(widget)
+    def enter(event):
+        toolTip.showtip(text)
+    def leave(event):
+        toolTip.hidetip()
+    widget.bind('<Enter>', enter)
+    widget.bind('<Leave>', leave)
 
 
 #if __name__ == "__main__":
