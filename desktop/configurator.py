@@ -11,6 +11,7 @@ import time
 from xml.dom import minidom
 import os
 import sys
+import glob
 
 
 IS_LOGS = True
@@ -31,10 +32,11 @@ master = None
 SYSTEM_ID = 1
 TARGET_COMPONENT_ID = 191
 SELF_COMPONENT_ID = 25 # master.mav.MAV_COMP_ID_USER1
-CONNECT_PERIOD_S = 2
+CONNECT_PERIOD_S = 0.5
 WAIT_BEFORE_FIRST_SEND_S = 3
 MINIMAL_ASYNC_PAUSE_S = 0.01
 SEND_ASYNC_PAUSE_S = 0.05
+CHECK_GET_PAUSE_S = 0.5
 MAVLINK_MESSAGE_ID_PARAM_VALUE = 22
 
 # 0 based column numbers
@@ -75,26 +77,52 @@ GET_BUTTON_PRESSED_TIMEOUT_S = 3
 async def connect():
     global master
 
-    parser = ArgumentParser(description=__doc__)
+    # parser = ArgumentParser(description=__doc__)
+    #
+    # parser.add_argument("--baudrate", type=int,
+    #                     help="master port baud rate", default=115200)
+    # parser.add_argument("--device", required=True, help="serial device")
+    # args = parser.parse_args()
+    #
+    # ### MAV related code starts here ###
+    #
+    # is_connected = False
+    # # create a mavlink serial instance
+    # while not is_connected:
+    #     try:
+    #         master = mavutil.mavlink_connection(args.device, baud=args.baudrate)
+    #     except SerialException:
+    #         print(f"! Can not connect to: {args.device} at {args.baudrate}" )
+    #     else:
+    #         print(f"Connected to: {master.port} at {master.baud}")
+    #         is_connected = True
+    #     await asyncio.sleep(CONNECT_PERIOD_S)
 
-    parser.add_argument("--baudrate", type=int,
-                        help="master port baud rate", default=115200)
-    parser.add_argument("--device", required=True, help="serial device")
-    args = parser.parse_args()
+    device = ""
+    baudrate = 115200
 
-    ### MAV related code starts here ###
+    while True:
+        selected_device = str(app.combo_device.get())
+        if device != selected_device:
+            app.delete_all_data()
 
-    is_connected = False
-    # create a mavlink serial instance
-    while not is_connected:
-        try:
-            master = mavutil.mavlink_connection(args.device, baud=args.baudrate)
-        except SerialException:
-            print(f"! Can not connect to: {args.device} at {args.baudrate}" )
-        else:
-            print(f"Connected to: {master.port} at {master.baud}")
-            is_connected = True
-        await asyncio.sleep(CONNECT_PERIOD_S)
+            is_connected = False
+            # create a mavlink serial instance
+            while not is_connected:
+                try:
+                    selected_device = str(app.combo_device.get()) # in case of change device meanwhile
+                    master = mavutil.mavlink_connection(selected_device, baudrate)
+                except SerialException:
+                    print(f"! Can not connect to: {selected_device} at {baudrate}" )
+                else:
+                    print(f"Connected to: {master.port} at {master.baud}")
+                    device = selected_device
+                    is_connected = True
+
+                    app.button_get_press()
+                await asyncio.sleep(CONNECT_PERIOD_S)
+
+        await asyncio.sleep(MINIMAL_ASYNC_PAUSE_S)
 
 
 async def receaver():
@@ -166,6 +194,9 @@ async def sender():
                     print(f"_________________<< param_set_send(target_system={target_system}, target_component={target_component}, param_id={param_id}, param_value={param_value}, param_type={param_type})")
                     await asyncio.sleep(SEND_ASYNC_PAUSE_S)
 
+                await asyncio.sleep(CHECK_GET_PAUSE_S)
+                app.button_get_press()
+
         await asyncio.sleep(MINIMAL_ASYNC_PAUSE_S)
 
 
@@ -236,6 +267,15 @@ class App(tk.Tk):
 
         await asyncio.sleep(1)
 
+    def get_device_list(self):
+        platform_str = str(sys.platform)
+        pors = []
+        if platform_str.startswith("linux"):
+            ports = glob.glob('/dev/tty[A-Za-z]*')
+        elif platform_str.startswith("win"):
+            ports = ['COM%s' % (i + 1) for i in range(256)]
+        return ports
+
     async def init_gui(self):
         self.style = ttk.Style()
 
@@ -243,6 +283,18 @@ class App(tk.Tk):
         self.myFontSmall = tkfont.Font(size=15)
 
         top_frame = ttk.Frame(borderwidth=0, relief=tk.SOLID, padding=[8, 10])
+
+        #combo_values = ["Python", "C", "C++", "Java"]
+        combo_values = self.get_device_list()
+        self.style.configure('W.TCombobox', arrowsize=40)
+        top_frame.option_add("*TCombobox*Listbox*Font", self.myFont)
+
+        self.combo_device = ttk.Combobox(top_frame, values=combo_values, style="W.TCombobox", font=self.myFont, state='readonly')
+        self.combo_device.Font = self.myFont
+        combo_default_text = "Select the Port..."
+        self.combo_device.set(combo_default_text)
+        #combo_device.bind("<<ComboboxSelected>>", device_changed)
+        self.combo_device.pack(side=tk.LEFT, padx=10)
 
         button_get = tk.Button(top_frame, text="GET", command=self.button_get_press, font=self.myFont, width=13, bg='#D0D090')
         button_get.pack(side=tk.LEFT, padx=10)
@@ -474,7 +526,20 @@ class App(tk.Tk):
             min_float = float(min_max_list[0])
             max_float = float(min_max_list[1])
 
-            if min_float <= new_val <= max_float:
+            is_dot_position_correct = False
+            min_str = str(min_max).split(" ")[0]
+            dot_position = min_str.find(".")
+            if dot_position > 0:
+                decimal_nums_count = len(min_str) - dot_position - 1
+                new_text_dot_position = new_text.find(".")
+                if new_text_dot_position > -1:
+                    new_text_decimal_nums_count = len(new_text) - new_text_dot_position - 1
+                    if new_text_decimal_nums_count <= decimal_nums_count:
+                        is_dot_position_correct = True
+            else:
+                is_dot_position_correct = True
+
+            if min_float <= new_val <= max_float and is_dot_position_correct:
                 is_valid = True
 
         if str(new_text).endswith("."):
@@ -541,6 +606,26 @@ class App(tk.Tk):
 
     def button_default_press(self):
         print("SET_DEFAULT Button pressed")
+
+        list_of_entries = self.tree.get_children()
+
+        for each in list_of_entries:
+            # print(self.tree.item(each)['values'])
+            tags = self.tree.item(each, "tags")
+
+            row_values = self.tree.item(each)['values']
+            param_default = self.tree.item(each)['values'][DEFAULT_COLUMN_NUMBER]
+            row_values[VALUES_COLUMN_NUMBER] = param_default
+
+            if self.TAG_NAME_ODD in tags or self.TAG_NAME_ODD_CHANGED in tags:
+                new_tag = self.TAG_NAME_ODD_CHANGED
+            else:
+                new_tag = self.TAG_NAME_EVEN_CHANGED
+
+            self.tree.item(each, values=row_values, tags=(new_tag,))
+
+        self.button_set_press()
+
 
     async def updater(self, interval):
         while True:
