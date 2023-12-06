@@ -125,7 +125,7 @@ void setup(){
   n = 10;
   param_costraint_arr[n].min_value = 0.3;
   param_costraint_arr[n].max_value = 100;
-  param_costraint_arr[n].step_value = 0.01;
+  param_costraint_arr[n].step_value = 0.1;
   param_costraint_arr[n].default_value = 20;
   strcpy(param_costraint_arr[n].description, "Швидкість м/с при пошуку цілі. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу");
   // SCAN_SECTOR
@@ -153,7 +153,7 @@ void setup(){
   n = 14;
   param_costraint_arr[n].min_value = 0.3;
   param_costraint_arr[n].max_value = 100;
-  param_costraint_arr[n].step_value = 0.01;
+  param_costraint_arr[n].step_value = 0.1;
   param_costraint_arr[n].default_value = 25;
   strcpy(param_costraint_arr[n].description, "Швидкість м/с при заході на ціль. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу. Режим БОМБЕР");
   // DROP_ANGLE
@@ -181,7 +181,7 @@ void setup(){
   n = 18;
   param_costraint_arr[n].min_value = 0.3;
   param_costraint_arr[n].max_value = 100;
-  param_costraint_arr[n].step_value = 0.01;
+  param_costraint_arr[n].step_value = 0.1;
   param_costraint_arr[n].default_value = 30;
   strcpy(param_costraint_arr[n].description, "Швидкість м/с при заході на ціль. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу.Режим КАМІКАДЗЕ");
 }
