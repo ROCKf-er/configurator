@@ -63,7 +63,7 @@
         <SERVO_CLOSE>
             <DisplayName> </DisplayName>
             <Description><![CDATA[Сигнал на закриття скиду. Режим БОМБЕР]]></Description>
-            <Range>1100 1100</Range>
+            <Range>1100 1900</Range>
             <User>Standard</User>
             <Default>1900</Default>
             <Step>1</Step>
