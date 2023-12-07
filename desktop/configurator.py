@@ -150,7 +150,7 @@ async def receaver():
                     print(str(m))
                     if m.id == MAVLINK_MESSAGE_ID_PARAM_VALUE:
                         app.get_data_from_mavlink_message(m)
-                    if m.id == MAVLINK_MESSAGE_ID_STATUSTEXT:
+                    if m.id == MAVLINK_MESSAGE_ID_STATUSTEXT or m.id == 0:
                         app.handle_statustext(m)
 
                 await asyncio.sleep(MINIMAL_ASYNC_PAUSE_S)
@@ -312,6 +312,8 @@ class App(tk.Tk):
         button_default = tk.Button(top_frame, text="SET DEFAULT", command=self.button_default_press, font=self.myFont, width=13, bg='#D09090')
         button_default.pack(side=tk.LEFT, padx=10)
 
+        tk.Label(top_frame, text="EEPROM status:", font=self.myFont).pack(side=tk.LEFT, padx=10)
+
         self.var_saved_text = tk.StringVar()
         self.label_saved = tk.Label(top_frame, textvariable=self.var_saved_text, font=self.myFont)
         self.label_saved.pack(side=tk.LEFT, padx=10)
@@ -389,15 +391,15 @@ class App(tk.Tk):
             return
         self.label_saved_state = state
         if state is None:
-            self.var_saved_text.set("Saved to EEPROM:...")
+            self.var_saved_text.set("Waiting...")
             self.label_saved.config(fg="orange")
             return
         if state is True:
-            self.var_saved_text.set("Saved to EEPROM: + ")
+            self.var_saved_text.set("Saved     ")
             self.label_saved.config(fg="green")
             return
         if state is False:
-            self.var_saved_text.set("Saved to EEPROM: - ")
+            self.var_saved_text.set("Changed   ")
             self.label_saved.config(fg="white")
             return
 
@@ -475,10 +477,12 @@ class App(tk.Tk):
         self.set_label_saved_state(True)
 
     def handle_statustext(self, m):
-        text = m.text
-        print(f"STATUSTEXT: {text}")
-        if str(text).startswith(STATUS_TEXT_SAVED):
-            self.reset_label_saved_state(True)
+        fieldnames = m.get_fieldnames()
+        if 'severity' in fieldnames and 'text' in fieldnames:
+            text = m.text
+            print(f"STATUSTEXT: {text}")
+            if str(text).startswith(STATUS_TEXT_SAVED):
+                self.reset_label_saved_state(True)
 
     def item_selected(self, event):
         region_clicked = self.tree.identify_region(event.x, event.y)
@@ -598,7 +602,7 @@ class App(tk.Tk):
         keysym = event.keysym
         #print(f"keysym = {keysym}")
 
-        if keysym.startswith("Return"):
+        if keysym.startswith("Return") or keysym.startswith("KP_Enter"):
             if is_valid:
                 current_values[self.column_index] = new_text
                 self.tree.item(self.selected_iid, values=current_values, tags=current_tags)
@@ -648,9 +652,9 @@ class App(tk.Tk):
                     new_tag = self.TAG_NAME_EVEN
                 self.tree.item(each, tags=(new_tag, ))
 
-        sender_command = COMMAND_PARAM_SET
-
-        self.set_label_saved_state(None)
+        if len(param_to_set_list) > 0:
+            sender_command = COMMAND_PARAM_SET
+            self.set_label_saved_state(None)
 
 
     def button_default_press(self):
