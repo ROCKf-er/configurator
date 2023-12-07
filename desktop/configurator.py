@@ -38,6 +38,9 @@ MINIMAL_ASYNC_PAUSE_S = 0.01
 SEND_ASYNC_PAUSE_S = 0.05
 CHECK_GET_PAUSE_S = 0.5
 MAVLINK_MESSAGE_ID_PARAM_VALUE = 22
+MAVLINK_MESSAGE_ID_STATUSTEXT = 253
+
+STATUS_TEXT_SAVED = "SAVED TO EEPROM"
 
 # 0 based column numbers
 ID_COLUMN_NUMBER = 1
@@ -147,6 +150,8 @@ async def receaver():
                     print(str(m))
                     if m.id == MAVLINK_MESSAGE_ID_PARAM_VALUE:
                         app.get_data_from_mavlink_message(m)
+                    if m.id == MAVLINK_MESSAGE_ID_STATUSTEXT:
+                        app.handle_statustext(m)
 
                 await asyncio.sleep(MINIMAL_ASYNC_PAUSE_S)
 
@@ -248,6 +253,8 @@ class App(tk.Tk):
         self.TAG_NAME_EVEN_CHANGED = 'even_changed'
         self.VALID_CANVAS_BORDER = 3
 
+        self.label_saved_state = False
+
         if IS_TEST_DATA_GENERATION:
             self.tasks.append(loop.create_task(self.generate_test_tree_data()))
 
@@ -304,6 +311,11 @@ class App(tk.Tk):
 
         button_default = tk.Button(top_frame, text="SET DEFAULT", command=self.button_default_press, font=self.myFont, width=13, bg='#D09090')
         button_default.pack(side=tk.LEFT, padx=10)
+
+        self.var_saved_text = tk.StringVar()
+        self.label_saved = tk.Label(top_frame, textvariable=self.var_saved_text, font=self.myFont)
+        self.label_saved.pack(side=tk.LEFT, padx=10)
+        self.set_label_saved_state(False)
 
         top_frame.pack(padx=10, pady=10, ipadx=10, ipady=10)
 
@@ -365,6 +377,30 @@ class App(tk.Tk):
         self.tree_frame.columnconfigure(0, weight=1)
         self.tree_frame.rowconfigure(0, weight=1)
 
+    def reset_label_saved_state(self, state):
+        if state is None:
+            return
+        self.label_saved_state = state
+        self.set_label_saved_state(state)
+
+    def set_label_saved_state(self, state):
+        if self.label_saved_state is None:
+            # wait for reset
+            return
+        self.label_saved_state = state
+        if state is None:
+            self.var_saved_text.set("Saved to EEPROM:...")
+            self.label_saved.config(fg="orange")
+            return
+        if state is True:
+            self.var_saved_text.set("Saved to EEPROM: + ")
+            self.label_saved.config(fg="green")
+            return
+        if state is False:
+            self.var_saved_text.set("Saved to EEPROM: - ")
+            self.label_saved.config(fg="white")
+            return
+
     async def generate_test_tree_data(self):
         await asyncio.sleep(5)
 
@@ -392,6 +428,7 @@ class App(tk.Tk):
     def delete_all_data(self):
         for row in self.tree.get_children():
             self.tree.delete(row)
+        self.set_label_saved_state(False)
 
     def get_data_from_mavlink_message(self, m):
         param_id = m.param_id
@@ -434,6 +471,14 @@ class App(tk.Tk):
         self.is_new_line_odd = not self.is_new_line_odd
 
         self.tree.column("#0", stretch=False)
+
+        self.set_label_saved_state(True)
+
+    def handle_statustext(self, m):
+        text = m.text
+        print(f"STATUSTEXT: {text}")
+        if str(text).startswith(STATUS_TEXT_SAVED):
+            self.reset_label_saved_state(True)
 
     def item_selected(self, event):
         region_clicked = self.tree.identify_region(event.x, event.y)
@@ -560,6 +605,8 @@ class App(tk.Tk):
                 widget.destroy()
                 self.entry_valid_canvas.destroy()
 
+                self.set_label_saved_state(False)
+
     def button_get_press(self):
         global  sender_command
         global get_button_pressed_time_s
@@ -602,6 +649,8 @@ class App(tk.Tk):
                 self.tree.item(each, tags=(new_tag, ))
 
         sender_command = COMMAND_PARAM_SET
+
+        self.set_label_saved_state(None)
 
 
     def button_default_press(self):
