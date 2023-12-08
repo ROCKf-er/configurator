@@ -1,22 +1,37 @@
 #----------------------------------------------------------------------
 # For Ubuntu ----------------------------------------------------------
 
+# Use python version 3.7 or grater.
+# Install necessary libraries:
+
+pip install pyserial
+pip install pymavlink
+
 sudo apt-get install python3-tk
 sudo -i
 pip3 install pyinstaller
 
 
-# For make executable file:
-pyinstaller --noconsole --onefile configurator.py
-
 # For make executable file and include source data file to it:
 pyinstaller --clean --noconfirm --add-data="../parameters.xml":"files" --hidden-import=pymavlink.dialects.v20 --hidden-import=pymavlink.dialects.v20.ardupilotmega --onefile configurator.py
 
-# Output exe file mast be in the "dist" folder
+# Output executable file mast be in the "dist" folder
+
+
 
 #----------------------------------------------------------------------
 # For Windows ---------------------------------------------------------
 
+# Use python version grater then 3.7 (3.12 for example) cose you need tk version 3.8.10 all later.
+# Install necessary libraries:
+
+pip install pyserial
+pip install pymavlink
+
+pip install pyinstaller
+
 
 # For make executable file and include source data file to it:
 pyinstaller --clean --noconfirm --add-data "./../parameters.xml;./files" --hidden-import=pymavlink.dialects.v20 --hidden-import=pymavlink.dialects.v20.ardupilotmega --onefile configurator.py
+
+# Output executable file mast be in the "dist" folder
