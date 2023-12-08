@@ -259,7 +259,8 @@ class App(tk.Tk):
             self.tasks.append(loop.create_task(self.generate_test_tree_data()))
 
         super().title("Configurator")
-        super().attributes('-zoomed', True)
+        #super().attributes('-zoomed', True)
+        super().state('zoomed')
 
         #self.root = tk.Tk()
 
