@@ -315,7 +315,7 @@ class App(tk.Tk):
         button_default = tk.Button(top_frame, text="SET DEFAULT", command=self.button_default_press, font=self.myFont, width=13, bg='#D09090')
         button_default.pack(side=tk.LEFT, padx=10)
 
-        tk.Label(top_frame, text="EEPROM status:", font=self.myFont).pack(side=tk.LEFT, padx=10)
+        #tk.Label(top_frame, text="EEPROM status:", font=self.myFont).pack(side=tk.LEFT, padx=10)
 
         self.var_saved_text = tk.StringVar()
         self.label_saved = tk.Label(top_frame, textvariable=self.var_saved_text, font=self.myFont)
@@ -404,7 +404,7 @@ class App(tk.Tk):
             return
         if state is False:
             self.var_saved_text.set("Changed   ")
-            self.label_saved.config(fg="white")
+            self.label_saved.config(fg="grey")
             return
 
     async def generate_test_tree_data(self):
