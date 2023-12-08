@@ -32,6 +32,6 @@ pip install pyinstaller
 
 
 # For make executable file and include source data file to it:
-pyinstaller --clean --noconfirm --add-data "./../parameters.xml;./files" --hidden-import=pymavlink.dialects.v20 --hidden-import=pymavlink.dialects.v20.ardupilotmega --onefile configurator.py
+pyinstaller --clean --noconfirm --add-data "./../parameters.xml;./files" --hidden-import=pymavlink.dialects.v20 --hidden-import=pymavlink.dialects.v20.ardupilotmega --distpath "./dist_windows" --onefile configurator.py
 
 # Output executable file mast be in the "dist" folder
