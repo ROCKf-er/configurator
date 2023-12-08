@@ -287,8 +287,10 @@ class App(tk.Tk):
     async def init_gui(self):
         self.style = ttk.Style()
 
-        self.myFont = tkfont.Font(size=20)
-        self.myFontSmall = tkfont.Font(size=15)
+        self.my_font_size = 10
+        self.my_font_small_size = 10
+        self.myFont = tkfont.Font(size=self.my_font_size)
+        self.myFontSmall = tkfont.Font(size=self.my_font_small_size)
 
         top_frame = ttk.Frame(borderwidth=0, relief=tk.SOLID, padding=[8, 10])
 
@@ -345,20 +347,20 @@ class App(tk.Tk):
         # tree.pack(expand=True, fill=BOTH)
         self.tree.pack()
 
-        self.style.configure("Treeview.Heading", font=(None, 25))
-        self.style.configure("Treeview", font=(None, 25))
-        self.style.configure('Treeview', rowheight=50)
+        self.style.configure("Treeview.Heading", font=(None, self.my_font_size))
+        self.style.configure("Treeview", font=(None, self.my_font_size))
+        self.style.configure('Treeview', rowheight=2*self.my_font_size)
 
         self.tree.heading(columns[0], text="Index")
-        self.tree.column(columns[0], minwidth=0, width=85, stretch=tk.NO)
+        self.tree.column(columns[0], minwidth=0, width=40, stretch=tk.NO)
         self.tree.heading(columns[1], text="ID")
-        self.tree.column(columns[1], minwidth=0, width=350, stretch=tk.NO)
+        self.tree.column(columns[1], minwidth=0, width=150, stretch=tk.NO)
         self.tree.heading(columns[2], text="Value")
-        self.tree.column(columns[2], minwidth=0, width=120, stretch=tk.NO)
+        self.tree.column(columns[2], minwidth=0, width=60, stretch=tk.NO)
         self.tree.heading(columns[3], text="Default")
-        self.tree.column(columns[3], minwidth=0, width=120, stretch=tk.NO)
+        self.tree.column(columns[3], minwidth=0, width=60, stretch=tk.NO)
         self.tree.heading(columns[4], text="Range")
-        self.tree.column(columns[4], minwidth=0, width=270, stretch=tk.NO)
+        self.tree.column(columns[4], minwidth=0, width=120, stretch=tk.NO)
         self.tree.heading(columns[5], text="Description")
         self.tree.column(columns[5], minwidth=0, width=200)
 
