@@ -349,7 +349,8 @@ class App(tk.Tk):
 
         self.style.configure("Treeview.Heading", font=(None, self.my_font_size))
         self.style.configure("Treeview", font=(None, self.my_font_size))
-        self.style.configure('Treeview', rowheight=2*self.my_font_size)
+        rowheight = math.floor(3.0 * self.my_font_size)
+        self.style.configure('Treeview', rowheight=rowheight)
 
         self.tree.heading(columns[0], text="Index")
         self.tree.column(columns[0], minwidth=0, width=40, stretch=tk.NO)
