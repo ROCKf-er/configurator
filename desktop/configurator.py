@@ -89,11 +89,29 @@ def strip_port(port_name):
     return port_name
 
 
-def save_settings(device, baudrate):
-    settings_file = open(SETTINGS_FILE_NAME, "w")
-    settings_file.write(str(device) + "\n")
-    settings_file.write(str(baudrate) + "\n")
-    settings_file.close()
+remember_device = ""
+remember_baudrate = ""
+def remember_settings(device, baudrate):
+    global remember_device
+    global remember_baudrate
+
+    remember_device = device
+    remember_baudrate = baudrate
+
+def save_settings():
+    global remember_device
+    global remember_baudrate
+
+    device = remember_device
+    baudrate = remember_baudrate
+
+    if len(str(device)) > 0 and len(str(baudrate)):
+        settings_file = open(SETTINGS_FILE_NAME, "w")
+        settings_file.write(str(device) + "\n")
+        settings_file.write(str(baudrate) + "\n")
+        settings_file.close()
+
+        remember_device, remember_baudrate = "", ""
 
 def load_settings():
     device, baudrate = "", ""
@@ -162,7 +180,7 @@ async def connect():
                     print(f"Connected to: {master.port} at {master.baud}")
                     device = selected_device
                     baudrate = selected_baudrate
-                    save_settings(device, baudrate)
+                    remember_settings(device, baudrate)
                     is_connected = True
 
                     app.button_get_press()
@@ -193,6 +211,7 @@ async def receaver():
                     print(str(m))
                     if m.id == MAVLINK_MESSAGE_ID_PARAM_VALUE:
                         app.get_data_from_mavlink_message(m)
+                        save_settings() # save connection settings after data receive
                     if m.id == MAVLINK_MESSAGE_ID_STATUSTEXT or m.id == 0:
                         app.handle_statustext(m)
 
