@@ -156,7 +156,7 @@ async def receaver():
     while True:
         # Check for incoming data on the serial port and count
         # how many messages of each type have been received
-        if not master is None:
+        if master is not None:
             while master.port.inWaiting() > 0:
                 # recv_msg will try parsing the serial port buffer
                 # and return a new message if available
@@ -281,8 +281,12 @@ class App(tk.Tk):
             self.tasks.append(loop.create_task(self.generate_test_tree_data()))
 
         super().title("Configurator")
-        #super().attributes('-zoomed', True)
-        super().state('zoomed')
+
+        platform_str = str(sys.platform)
+        if platform_str.startswith("linux"):
+            super().attributes('-zoomed', True)
+        elif platform_str.startswith("win"):
+            super().state('zoomed')
 
         #self.root = tk.Tk()
 
@@ -302,6 +306,11 @@ class App(tk.Tk):
         pors = []
         if platform_str.startswith("linux"):
             ports = glob.glob('/dev/tty[A-Za-z]*')
+            comports = serial.tools.list_ports.comports()
+            #print(comports)
+            ports = []
+            for port in comports:
+                ports.append(port.description + " (" + port.device + ")")
         elif platform_str.startswith("win"):
             # import serial.tools.list_ports;
             comports = serial.tools.list_ports.comports()
