@@ -6,6 +6,7 @@ import tkinter.font as tkfont
 from tkinter.messagebox import showinfo
 from argparse import ArgumentParser
 from serial import SerialException
+import serial.tools.list_ports
 from pymavlink import mavutil
 import time
 from xml.dom import minidom
@@ -77,6 +78,15 @@ get_button_pressed_time_s = None
 GET_BUTTON_PRESSED_TIMEOUT_S = 3
 
 
+def strip_port(port_name):
+    port_name = str(port_name)
+    open_br_position = port_name.find("(")
+    close_br_position = port_name.find(")")
+    if open_br_position > 0:
+        port_name = port_name[open_br_position + 1 : close_br_position]
+    return port_name
+
+
 async def connect():
     global master
 
@@ -106,7 +116,12 @@ async def connect():
 
     while True:
         selected_device = str(app.combo_device.get())
-        if device != selected_device:
+        selected_device = strip_port(selected_device)
+        selected_baudrate = int(app.combo_baud.get())
+        if device != selected_device or baudrate != selected_baudrate:
+            if master is not None:
+                master.close()
+                master = None
             app.delete_all_data()
 
             is_connected = False
@@ -114,12 +129,19 @@ async def connect():
             while not is_connected:
                 try:
                     selected_device = str(app.combo_device.get()) # in case of change device meanwhile
-                    master = mavutil.mavlink_connection(selected_device, baudrate)
+                    selected_device = strip_port(selected_device)
+                    selected_baudrate = int(app.combo_baud.get()) # in case of change baud meanwhile
+                    new_master = mavutil.mavlink_connection(selected_device, selected_baudrate)
                 except SerialException:
-                    print(f"! Can not connect to: {selected_device} at {baudrate}" )
+                    print(f"! Can not connect to: {selected_device} at {selected_baudrate}" )
+                except Exception as e:
+                    print(f"Connection exeption: {e}")
                 else:
+                    await asyncio.sleep(CONNECT_PERIOD_S)
+                    master = new_master
                     print(f"Connected to: {master.port} at {master.baud}")
                     device = selected_device
+                    baudrate = selected_baudrate
                     is_connected = True
 
                     app.button_get_press()
@@ -281,7 +303,13 @@ class App(tk.Tk):
         if platform_str.startswith("linux"):
             ports = glob.glob('/dev/tty[A-Za-z]*')
         elif platform_str.startswith("win"):
-            ports = ['COM%s' % (i + 1) for i in range(256)]
+            # import serial.tools.list_ports;
+            comports = serial.tools.list_ports.comports()
+            #print(comports)
+            #ports = ['COM%s' % (i + 1) for i in range(256)]
+            ports = []
+            for port in comports:
+                ports.append(port.description)
         return ports
 
     async def init_gui(self):
@@ -295,16 +323,25 @@ class App(tk.Tk):
         top_frame = ttk.Frame(borderwidth=0, relief=tk.SOLID, padding=[8, 10])
 
         #combo_values = ["Python", "C", "C++", "Java"]
-        combo_values = self.get_device_list()
+        combo_device_values = self.get_device_list()
         self.style.configure('W.TCombobox', arrowsize=40)
         top_frame.option_add("*TCombobox*Listbox*Font", self.myFont)
 
-        self.combo_device = ttk.Combobox(top_frame, values=combo_values, style="W.TCombobox", font=self.myFont, state='readonly')
+        self.combo_device = ttk.Combobox(top_frame, values=combo_device_values, style="W.TCombobox", font=self.myFont, state='readonly', width=25)
         self.combo_device.Font = self.myFont
-        combo_default_text = "Select the Port..."
-        self.combo_device.set(combo_default_text)
-        #combo_device.bind("<<ComboboxSelected>>", device_changed)
+        combo_device_default_text = "Select the Port..."
+        self.combo_device.set(combo_device_default_text)
         self.combo_device.pack(side=tk.LEFT, padx=10)
+
+        combo_baud_values = ('110', '300', '600', '1200', '2400', '4800', '9600', '14400', '19200', '38400', '57600', '115200', '128000', '256000')
+        self.style.configure('W.TCombobox', arrowsize=40)
+        top_frame.option_add("*TCombobox*Listbox*Font", self.myFont)
+
+        self.combo_baud = ttk.Combobox(top_frame, values=combo_baud_values, style="W.TCombobox", font=self.myFont, state='readonly')
+        self.combo_baud.Font = self.myFont
+        combo_baud_default_text = "115200"
+        self.combo_baud.set(combo_baud_default_text)
+        self.combo_baud.pack(side=tk.LEFT, padx=10)
 
         button_get = tk.Button(top_frame, text="GET", command=self.button_get_press, font=self.myFont, width=13, bg='#D0D090')
         button_get.pack(side=tk.LEFT, padx=10)
