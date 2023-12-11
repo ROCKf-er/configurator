@@ -381,6 +381,10 @@ class App(tk.Tk):
                 ports.append(port.description)
         return ports
 
+    def update_device_list(self):
+        self.combo_device_values = self.get_device_list()
+        self.combo_device['values'] = self.combo_device_values
+
     async def init_gui(self):
         self.style = ttk.Style()
 
@@ -396,7 +400,7 @@ class App(tk.Tk):
         self.style.configure('W.TCombobox', arrowsize=40)
         top_frame.option_add("*TCombobox*Listbox*Font", self.myFont)
 
-        self.combo_device = ttk.Combobox(top_frame, values=self.combo_device_values, style="W.TCombobox", font=self.myFont, state='readonly', width=25)
+        self.combo_device = ttk.Combobox(top_frame, values=self.combo_device_values, style="W.TCombobox", font=self.myFont, state='readonly', width=25, postcommand = self.update_device_list)
 
         self.combo_device.Font = self.myFont
         combo_device_default_text = "Select the Port..."
