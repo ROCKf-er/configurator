@@ -77,6 +77,8 @@ param_types = {
 get_button_pressed_time_s = None
 GET_BUTTON_PRESSED_TIMEOUT_S = 3
 
+SETTINGS_FILE_NAME = "settings.txt"
+
 
 def strip_port(port_name):
     port_name = str(port_name)
@@ -85,6 +87,24 @@ def strip_port(port_name):
     if open_br_position > 0:
         port_name = port_name[open_br_position + 1 : close_br_position]
     return port_name
+
+
+def save_settings(device, baudrate):
+    settings_file = open(SETTINGS_FILE_NAME, "w")
+    settings_file.write(str(device) + "\n")
+    settings_file.write(str(baudrate) + "\n")
+    settings_file.close()
+
+def load_settings():
+    device, baudrate = "", ""
+    try:
+        settings_file = open(SETTINGS_FILE_NAME, "r")
+        device = settings_file.readline().strip()
+        baudrate = settings_file.readline().strip()
+        settings_file.close()
+    except OSError:
+        print("Could not open settings file: " + str(SETTINGS_FILE_NAME))
+    return (device, baudrate)
 
 
 async def connect():
@@ -142,6 +162,7 @@ async def connect():
                     print(f"Connected to: {master.port} at {master.baud}")
                     device = selected_device
                     baudrate = selected_baudrate
+                    save_settings(device, baudrate)
                     is_connected = True
 
                     app.button_get_press()
@@ -290,11 +311,31 @@ class App(tk.Tk):
 
         #self.root = tk.Tk()
 
+    def restore_from_settings(self):
+        device, baudrate = load_settings()
+        device = str(device)
+        baudrate = str(baudrate)
+
+        if len(device) > 0:
+            list_len = len(self.combo_device_values)
+            for i in range(list_len):
+                stripped_device_name = strip_port(self.combo_device_values[i])
+                if stripped_device_name.startswith(device):
+                    self.combo_device.current(i)
+
+        if len(baudrate) > 0:
+            list_len = len(self.combo_baud_values)
+            for i in range(list_len):
+                if str(self.combo_baud_values[i]).startswith(baudrate):
+                    self.combo_baud.current(i)
+
     async def rotator(self, interval, d_per_tick):
         if IS_LOGS_FOR_DEBUG:
             print("Run rotator")
 
         await self.init_gui()
+
+        self.restore_from_settings()
 
         while await asyncio.sleep(interval, True):
             pass
@@ -332,21 +373,22 @@ class App(tk.Tk):
         top_frame = ttk.Frame(borderwidth=0, relief=tk.SOLID, padding=[8, 10])
 
         #combo_values = ["Python", "C", "C++", "Java"]
-        combo_device_values = self.get_device_list()
+        self.combo_device_values = self.get_device_list()
         self.style.configure('W.TCombobox', arrowsize=40)
         top_frame.option_add("*TCombobox*Listbox*Font", self.myFont)
 
-        self.combo_device = ttk.Combobox(top_frame, values=combo_device_values, style="W.TCombobox", font=self.myFont, state='readonly', width=25)
+        self.combo_device = ttk.Combobox(top_frame, values=self.combo_device_values, style="W.TCombobox", font=self.myFont, state='readonly', width=25)
+
         self.combo_device.Font = self.myFont
         combo_device_default_text = "Select the Port..."
         self.combo_device.set(combo_device_default_text)
         self.combo_device.pack(side=tk.LEFT, padx=10)
 
-        combo_baud_values = ('110', '300', '600', '1200', '2400', '4800', '9600', '14400', '19200', '38400', '57600', '115200', '128000', '256000')
+        self.combo_baud_values = ('110', '300', '600', '1200', '2400', '4800', '9600', '14400', '19200', '38400', '57600', '115200', '128000', '256000')
         self.style.configure('W.TCombobox', arrowsize=40)
         top_frame.option_add("*TCombobox*Listbox*Font", self.myFont)
 
-        self.combo_baud = ttk.Combobox(top_frame, values=combo_baud_values, style="W.TCombobox", font=self.myFont, state='readonly')
+        self.combo_baud = ttk.Combobox(top_frame, values=self.combo_baud_values, style="W.TCombobox", font=self.myFont, state='readonly', width=8)
         self.combo_baud.Font = self.myFont
         combo_baud_default_text = "115200"
         self.combo_baud.set(combo_baud_default_text)
