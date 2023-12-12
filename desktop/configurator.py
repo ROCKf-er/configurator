@@ -566,10 +566,21 @@ class App(tk.Tk):
         index_str = str(param_index)
         id_str = str(param_id)
         value_str = str(param_value)
-        parameter_xml = xml_file.getElementsByTagName(id_str)[0]
-        default_str = parameter_xml.getElementsByTagName('Default')[0].firstChild.data
-        range_str = parameter_xml.getElementsByTagName('Range')[0].firstChild.data
-        description_str = parameter_xml.getElementsByTagName('Description')[0].firstChild.data
+        elements = xml_file.getElementsByTagName(id_str)
+        if len(elements) > 0:
+            parameter_xml = elements[0]
+            default_str = parameter_xml.getElementsByTagName('Default')[0].firstChild.data
+            range_str = parameter_xml.getElementsByTagName('Range')[0].firstChild.data
+            description_str = parameter_xml.getElementsByTagName('Description')[0].firstChild.data
+        else:
+            if m.param_type in reals:
+                default_str = "0.00"
+                range_str = "-1000000.00 1000000.00"
+                description_str = ""
+            else:
+                default_str = "0"
+                range_str = "-1000000 1000000"
+                description_str = ""
 
         min_str = str(range_str).split(" ")[0]
         dot_position = min_str.find(".")
@@ -659,116 +670,148 @@ class App(tk.Tk):
         elif self.column_index == VALUES_COLUMN_NUMBER:
             self.is_bit_value = False
             selected_id = selected_values[ID_COLUMN_NUMBER]
-            param_xml = xml_file.getElementsByTagName(selected_id)[0]
-            bitmask_xml = param_xml.getElementsByTagName("Bitmask")
-            if len(bitmask_xml) > 0:
-                self.is_bit_value = True
-                bitmask_raw = bitmask_xml[0].firstChild.data
-                bitmask_list = str(bitmask_raw).split(",")
-                self.bitmask = {}
-                for each in bitmask_list:
-                    each = each.strip()
-                    bit_list = each.split(":")
-                    bit_number = int(bit_list[0])
-                    bit_description = bit_list[1]
-                    self.bitmask[bit_number] = bit_description
+            elements = xml_file.getElementsByTagName(selected_id)
+            if len(elements) > 0:
+                param_xml = elements[0]
+                bitmask_xml = param_xml.getElementsByTagName("Bitmask")
+                if len(bitmask_xml) > 0:
+                    self.is_bit_value = True
+                    bitmask_raw = bitmask_xml[0].firstChild.data
+                    bitmask_list = str(bitmask_raw).split(",")
+                    self.bitmask = {}
+                    for each in bitmask_list:
+                        each = each.strip()
+                        bit_list = each.split(":")
+                        bit_number = int(bit_list[0])
+                        bit_description = bit_list[1]
+                        self.bitmask[bit_number] = bit_description
+
+            valid_canvas_width = column_box[2]+2*self.VALID_CANVAS_BORDER
+            valid_canvas_height = column_box[3]+2*self.VALID_CANVAS_BORDER
+            self.entry_valid_canvas = tk.Canvas(width=valid_canvas_width, height=valid_canvas_height)
+
+            self.entry_edit = ttk.Entry( width=column_box[2], font=self.myFont)
+            tree_root_x = self.tree.winfo_x()
+            tree_root_y = self.tree.winfo_y()
+            tree_frame_x = self.tree_frame.winfo_x()
+            tree_frame_y = self.tree_frame.winfo_y()
+
+            self.entry_valid_rectangle = self.entry_valid_canvas.create_rectangle(0, 0, 1000, 1000,   fill='grey')
+            valid_canvas_x = column_box[0] + tree_root_x + tree_frame_x - self.VALID_CANVAS_BORDER
+            valid_canvas_y = column_box[1] + tree_root_y + tree_frame_y - self.VALID_CANVAS_BORDER
+            self.entry_valid_canvas.place(x=valid_canvas_x, y=valid_canvas_y)
+            entry_edit_x = column_box[0] + tree_root_x + tree_frame_x
+            entry_edit_y = column_box[1] + tree_root_y + tree_frame_y
+            entry_edit_w = column_box[2]
+            entry_edit_h = column_box[3]
+            self.entry_edit.place(x=entry_edit_x, y=entry_edit_y, w=entry_edit_w, h=entry_edit_h)
+            self.entry_edit.editing_column_index = self.column_index
+            self.entry_edit.editing_item_iid = self.selected_iid
+            self.entry_edit.insert(0, selected_text)
+            self.entry_edit.select_range(0, tk.END)
+            # self.entry_edit.configure(background="white", foreground="orange")
+            self.entry_edit.bind("<FocusOut>", self.on_focus_out)
+            self.entry_edit.bind("<KeyRelease>", self.on_key_released)
+            self.entry_edit.focus()
 
             if self.is_bit_value:
-                tree_root_x = self.tree.winfo_x()
-                tree_root_y = self.tree.winfo_y()
-                tree_frame_x = self.tree_frame.winfo_x()
-                tree_frame_y = self.tree_frame.winfo_y()
-                bitmap_edit_frame = ttk.Frame(borderwidth=1, relief=tk.SOLID, padding=[8, 0, 10, 10])
-                bitmap_edit_frame.place(x=column_box[0] + tree_root_x + tree_frame_x,
-                                        y=column_box[1] + tree_root_y + tree_frame_y,)
-                #max_width, sum_height = 0, 0
-                editing_value = selected_values[VALUES_COLUMN_NUMBER]
-                self.editing_value_copy_label = tk.Label(bitmap_edit_frame, text=editing_value)
-                self.editing_value_copy_label.pack(side=tk.TOP, anchor=tk.NW, pady=5)
+                self.show_bitmap_edit_button = tk.Button(text="Edit Bits",
+                                                    command=self.show_bitmap_edit_button_press, font=self.myFont,
+                                                    width=13, bg='#90D090')
+                SPACING_HORIZONTAL = 30
+                show_bitmap_edit_button_x = entry_edit_x + entry_edit_w + SPACING_HORIZONTAL
+                show_bitmap_edit_button_y = entry_edit_y;
+                self.show_bitmap_edit_button.place(x=show_bitmap_edit_button_x, y=show_bitmap_edit_button_y)
 
-                bits_str = "{0:b}".format(int(editing_value))
+    def show_bitmap_edit_button_press(self):
+        self.entry_edit.destroy()
+        self.show_bitmap_edit_button.destroy()
+        try:
+            self.entry_valid_canvas.destroy()
+        except Exception as e:
+            pass
 
-                self.check_buttons = []
-                self.check_buttons_vars = []
-                for bit_number, bit_description in self.bitmask.items():
-                    bit_text = str(bit_number) + ": " + bit_description
+        tree_root_x = self.tree.winfo_x()
+        tree_root_y = self.tree.winfo_y()
+        tree_frame_x = self.tree_frame.winfo_x()
+        tree_frame_y = self.tree_frame.winfo_y()
+        bitmap_edit_frame = ttk.Frame(borderwidth=1, relief=tk.SOLID, padding=[8, 0, 10, 10])
+        # bitmap_edit_frame.place(x=column_box[0] + tree_root_x + tree_frame_x,
+        #                         y=column_box[1] + tree_root_y + tree_frame_y,)
+        #max_width, sum_height = 0, 0
 
-                    bit_state = "0"
-                    if bit_number < len(bits_str):
-                        bit_pos = -bit_number - 1
-                        bit_state = bits_str[bit_pos]
-                    print(f"bit {bit_number} = {bit_state}")
+        for selected_item in self.tree.selection():
+            item = self.tree.item(selected_item)
+            selected_values = item['values']
 
-                    bit_state_int = int(bit_state)
-                    check_var = tk.IntVar(value=bit_state_int)
-                    self.check_buttons_vars.append(check_var)
-                    check_var.set(bit_state_int)
+        editing_value = selected_values[VALUES_COLUMN_NUMBER]
+        self.editing_value_copy_label = tk.Label(bitmap_edit_frame, text=editing_value)
+        self.editing_value_copy_label.pack(side=tk.TOP, anchor=tk.NW, pady=5)
 
-                    checkbutton = tk.Checkbutton(bitmap_edit_frame, text=bit_text, variable=check_var, command=lambda _bit_number=bit_number, _check_var=check_var: self.bit_checked(_bit_number, _check_var))
-                    self.check_buttons.append(checkbutton)
-                    checkbutton.pack(side=tk.TOP, anchor=tk.NW, pady=5)
-                    self.style.configure('TCheckbutton', font = self.my_font_size)
-                    if bit_state.startswith("1"):
-                        checkbutton.select()
-                    else:
-                        checkbutton.deselect()
-                    self.update_idletasks()
+        bits_str = "{0:b}".format(int(editing_value))
 
-                    # w = checkbutton.winfo_width()
-                    # h = checkbutton.winfo_height()
-                    # print(f"bb: {w}, {h}")
-                    # max_width = max(max_width, w)
-                    # sum_height += h
+        self.check_buttons = []
+        self.check_buttons_vars = []
+        for bit_number, bit_description in self.bitmask.items():
+            bit_text = str(bit_number) + ": " + bit_description
 
-                tree_frame_x = self.tree_frame.winfo_x()
-                tree_frame_y = self.tree_frame.winfo_y()
-                tree_frame_height = self.tree_frame.winfo_height()
-                tree_frame_width = self.tree_frame.winfo_width()
-                bitmap_edit_frame_height = bitmap_edit_frame.winfo_height()
-                bitmap_edit_frame_width = bitmap_edit_frame.winfo_width()
+            bit_state = "0"
+            if bit_number < len(bits_str):
+                bit_pos = -bit_number - 1
+                bit_state = bits_str[bit_pos]
+            print(f"bit {bit_number} = {bit_state}")
 
-                centered_x = tree_frame_x + tree_frame_width / 2 - bitmap_edit_frame_width / 2
-                centered_y = tree_frame_y + tree_frame_height / 2 - bitmap_edit_frame_height / 2
-                bitmap_edit_frame.place_forget()
-                bitmap_edit_frame.place(x=centered_x, y=centered_y)
+            bit_state_int = int(bit_state)
+            check_var = tk.IntVar(value=bit_state_int)
+            self.check_buttons_vars.append(check_var)
+            check_var.set(bit_state_int)
+
+            checkbutton = tk.Checkbutton(bitmap_edit_frame, text=bit_text, variable=check_var, command=lambda _bit_number=bit_number, _check_var=check_var: self.bit_checked(_bit_number, _check_var))
+            self.check_buttons.append(checkbutton)
+            checkbutton.pack(side=tk.TOP, anchor=tk.NW, pady=5)
+            self.style.configure('TCheckbutton', font = self.my_font_size)
+            if bit_state.startswith("1"):
+                checkbutton.select()
+            else:
+                checkbutton.deselect()
+            self.update_idletasks()
+
+            # w = checkbutton.winfo_width()
+            # h = checkbutton.winfo_height()
+            # print(f"bb: {w}, {h}")
+            # max_width = max(max_width, w)
+            # sum_height += h
+
+        tree_frame_x = self.tree_frame.winfo_x()
+        tree_frame_y = self.tree_frame.winfo_y()
+        tree_frame_height = self.tree_frame.winfo_height()
+        tree_frame_width = self.tree_frame.winfo_width()
+
+        bitmap_edit_frame.place(x=tree_frame_x + tree_frame_width, y=tree_frame_y + tree_frame_height)
+        self.update_idletasks()
+
+        bitmap_edit_frame_height = bitmap_edit_frame.winfo_height()
+        bitmap_edit_frame_width = bitmap_edit_frame.winfo_width()
+
+        centered_x = tree_frame_x + tree_frame_width / 2 - bitmap_edit_frame_width / 2
+        centered_y = tree_frame_y + tree_frame_height / 2 - bitmap_edit_frame_height / 2
+        bitmap_edit_frame.place_forget()
+        bitmap_edit_frame.place(x=centered_x, y=centered_y)
 
 
-                #bitmap_edit_frame.config(width=max_width+20, height=sum_height+50)
-                bitmap_edit_frame.bind("<FocusOut>", self.on_focus_out)
-                bitmap_edit_frame.focus()
+        #bitmap_edit_frame.config(width=max_width+20, height=sum_height+50)
+        bitmap_edit_frame.bind("<FocusOut>", self.on_focus_out)
+        bitmap_edit_frame.focus()
 
-            if not self.is_bit_value:
-                valid_canvas_width = column_box[2]+2*self.VALID_CANVAS_BORDER
-                valid_canvas_height = column_box[3]+2*self.VALID_CANVAS_BORDER
-                self.entry_valid_canvas = tk.Canvas(width=valid_canvas_width, height=valid_canvas_height)
-
-                self.entry_edit = ttk.Entry( width=column_box[2], font=self.myFont)
-                tree_root_x = self.tree.winfo_x()
-                tree_root_y = self.tree.winfo_y()
-                tree_frame_x = self.tree_frame.winfo_x()
-                tree_frame_y = self.tree_frame.winfo_y()
-
-                self.entry_valid_rectangle = self.entry_valid_canvas.create_rectangle(0, 0, 1000, 1000,   fill='grey')
-                valid_canvas_x = column_box[0] + tree_root_x + tree_frame_x - self.VALID_CANVAS_BORDER
-                valid_canvas_y = column_box[1] + tree_root_y + tree_frame_y - self.VALID_CANVAS_BORDER
-                self.entry_valid_canvas.place(x=valid_canvas_x, y=valid_canvas_y)
-                self.entry_edit.place(x=column_box[0] + tree_root_x + tree_frame_x,
-                                 y=column_box[1] + tree_root_y + tree_frame_y,
-                                 w=column_box[2],
-                                 h=column_box[3])
-                self.entry_edit.editing_column_index = self.column_index
-                self.entry_edit.editing_item_iid = self.selected_iid
-                self.entry_edit.insert(0, selected_text)
-                self.entry_edit.select_range(0, tk.END)
-                # self.entry_edit.configure(background="white", foreground="orange")
-                self.entry_edit.bind("<FocusOut>", self.on_focus_out)
-                self.entry_edit.bind("<KeyRelease>", self.on_key_released)
-                self.entry_edit.focus()
 
     def on_focus_out(self, event):
         event.widget.destroy()
         try:
             self.entry_valid_canvas.destroy()
+        except Exception as e:
+            pass
+        try:
+            self.show_bitmap_edit_button.destroy()
         except Exception as e:
             pass
 
@@ -811,7 +854,9 @@ class App(tk.Tk):
                     if new_text_decimal_nums_count <= decimal_nums_count:
                         is_dot_position_correct = True
             else:
-                is_dot_position_correct = True
+                new_text_dot_position = new_text.find(".")
+                if new_text_dot_position < 0:
+                    is_dot_position_correct = True
 
             if min_float <= new_val <= max_float and is_dot_position_correct:
                 is_valid = True
