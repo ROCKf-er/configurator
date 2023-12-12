@@ -720,6 +720,17 @@ class App(tk.Tk):
                     # max_width = max(max_width, w)
                     # sum_height += h
 
+                tree_frame_x = self.tree_frame.winfo_x()
+                tree_frame_y = self.tree_frame.winfo_y()
+                tree_frame_height = self.tree_frame.winfo_height()
+                tree_frame_width = self.tree_frame.winfo_width()
+                bitmap_edit_frame_height = bitmap_edit_frame.winfo_height()
+                bitmap_edit_frame_width = bitmap_edit_frame.winfo_width()
+
+                centered_x = tree_frame_x + tree_frame_width / 2 - bitmap_edit_frame_width / 2
+                centered_y = tree_frame_y + tree_frame_height / 2 - bitmap_edit_frame_height / 2
+                bitmap_edit_frame.place_forget()
+                bitmap_edit_frame.place(x=centered_x, y=centered_y)
 
 
                 #bitmap_edit_frame.config(width=max_width+20, height=sum_height+50)
