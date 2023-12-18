@@ -106,7 +106,7 @@
             <Range>0.30 100.00</Range>
             <User>Standard</User>
             <Default>20.00</Default>
-            <Step>0.1</Step>
+            <Step>0.01</Step>
             <Index>10</Index>
             <Type>MAV_PARAM_TYPE_REAL32</Type>
         </SCAN_SPEED>
@@ -146,7 +146,7 @@
             <Range>0.30 100.00</Range>
             <User>Standard</User>
             <Default>25.00</Default>
-            <Step>0.1</Step>
+            <Step>0.01</Step>
             <Index>14</Index>
             <Type>MAV_PARAM_TYPE_REAL32</Type>
         </DROP_SPEED>
@@ -186,7 +186,7 @@
             <Range>0.30 100.00</Range>
             <User>Standard</User>
             <Default>30.00</Default>
-            <Step>0.1</Step>
+            <Step>0.01</Step>
             <Index>18</Index>
             <Type>MAV_PARAM_TYPE_REAL32</Type>
         </DIVING_SPEED>
