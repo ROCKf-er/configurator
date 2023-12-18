@@ -13,8 +13,8 @@ String header;
 
 String p_str = "";
 
-extern mavlink_param_value_t param_arr[20];
-extern param_constraint param_costraint_arr[20];
+extern mavlink_param_value_t param_arr[PARAM_COUNT];
+extern param_constraint param_costraint_arr[PARAM_COUNT];
 
 
 void wifi_init() {
