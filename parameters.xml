@@ -103,9 +103,9 @@
         <SCAN_SPEED>
             <DisplayName> </DisplayName>
             <Description><![CDATA[Швидкість м/с при пошуку цілі. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу]]></Description>
-            <Range>0.3 100.0</Range>
+            <Range>0.30 100.00</Range>
             <User>Standard</User>
-            <Default>20.0</Default>
+            <Default>20.00</Default>
             <Step>0.1</Step>
             <Index>10</Index>
             <Type>MAV_PARAM_TYPE_REAL32</Type>
@@ -143,9 +143,9 @@
         <DROP_SPEED>
             <DisplayName> </DisplayName>
             <Description><![CDATA[Швидкість м/с при заході на ціль. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу. Режим БОМБЕР]]></Description>
-            <Range>0.3 100.0</Range>
+            <Range>0.30 100.00</Range>
             <User>Standard</User>
-            <Default>25.0</Default>
+            <Default>25.00</Default>
             <Step>0.1</Step>
             <Index>14</Index>
             <Type>MAV_PARAM_TYPE_REAL32</Type>
@@ -183,9 +183,9 @@
         <DIVING_SPEED>
             <DisplayName> </DisplayName>
             <Description><![CDATA[Швидкість м/с при заході на ціль. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу.Режим КАМІКАДЗЕ]]></Description>
-            <Range>0.3 100.0</Range>
+            <Range>0.30 100.00</Range>
             <User>Standard</User>
-            <Default>30.0</Default>
+            <Default>30.00</Default>
             <Step>0.1</Step>
             <Index>18</Index>
             <Type>MAV_PARAM_TYPE_REAL32</Type>
