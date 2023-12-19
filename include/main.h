@@ -68,6 +68,9 @@
   void mav_param_request_list();
   void update_parameters(void);
   bool check_param(float val, uint16_t index);
+  void set_status_saved(void);
+  void reset_status_saved(void);
+  bool get_status_saved(void);
 
 #endif // MAIN_H 
 

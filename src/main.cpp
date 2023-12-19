@@ -11,6 +11,12 @@
 #include "constraints.h"
 
 
+const uint16_t MAVLINK_MESSAGE_ID_STATUSTEXT = 253;
+char STATUS_TEXT_SAVED[50];
+char statustext[50];
+char statustext_displayed[50];
+bool status_saved_flag;
+
 TFT_eSPI display = TFT_eSPI(DISP_HEIGHT, DISP_WIDTH); 
 TFT_eSprite spr = TFT_eSprite(&display); // Invoke Sprite class
 Parameters parameters;
@@ -52,140 +58,8 @@ void setup(){
 
   update_parameters();
 
-  // int n;
-  // // G_ROLL_ANGLE
-  // n = 0;
-  // param_costraint_arr[n].min_value = -30;
-  // param_costraint_arr[n].max_value = 30;
-  // param_costraint_arr[n].step_value = 1;
-  // param_costraint_arr[n].default_value = 10;
-  // strcpy(param_costraint_arr[n].description, "Кут крену при пошуку цілі (при RSSI < THRESHOLD)");
-  // // ANGLE_MIXER
-  // n = 1;
-  // param_costraint_arr[n].min_value = 0;
-  // param_costraint_arr[n].max_value = 2;
-  // param_costraint_arr[n].step_value = 0.01;
-  // param_costraint_arr[n].default_value = 0.75;
-  // strcpy(param_costraint_arr[n].description, "Відсоток від ROLL’у на руль повороту");
-  // // P_COEF
-  // n = 2;
-  // param_costraint_arr[n].min_value = 0.2;
-  // param_costraint_arr[n].max_value = 5;
-  // param_costraint_arr[n].step_value = 0.01;
-  // param_costraint_arr[n].default_value = 1.0;
-  // strcpy(param_costraint_arr[n].description, "Пропорційний коефіцієнт");
-  // // I_COEF
-  // n = 3;
-  // param_costraint_arr[n].min_value = -100;
-  // param_costraint_arr[n].max_value = 100;
-  // param_costraint_arr[n].step_value = 0.01;
-  // param_costraint_arr[n].default_value = 0;
-  // strcpy(param_costraint_arr[n].description, "Інтегральний коефіцієнт. Відладка");
-  // // D_COEF
-  // n = 4;
-  // param_costraint_arr[n].min_value = -100;
-  // param_costraint_arr[n].max_value = 100;
-  // param_costraint_arr[n].step_value = 0.01;
-  // param_costraint_arr[n].default_value = 0;
-  // strcpy(param_costraint_arr[n].description, "Диференціальний коефіцієнт. Відладка");
-  // // ANTENNA_ANGLE
-  // n = 5;
-  // param_costraint_arr[n].min_value = -45;
-  // param_costraint_arr[n].max_value = 45;
-  // param_costraint_arr[n].step_value = 1;
-  // param_costraint_arr[n].default_value = 0;
-  // strcpy(param_costraint_arr[n].description, "Кут встановлення антенного модуля (-20º – нормаль антени відхилена вниз від осі літака)");
-  // // SERVO_CLOSE
-  // n = 6;
-  // param_costraint_arr[n].min_value = 1100;
-  // param_costraint_arr[n].max_value = 1900;
-  // param_costraint_arr[n].step_value = 1;
-  // param_costraint_arr[n].default_value = 1900;
-  // strcpy(param_costraint_arr[n].description, "Сигнал на закриття скиду. Режим БОМБЕР");
-  // // SERVO_OPEN
-  // n = 7;
-  // param_costraint_arr[n].min_value = 1100;
-  // param_costraint_arr[n].max_value = 1900;
-  // param_costraint_arr[n].step_value = 1;
-  // param_costraint_arr[n].default_value = 1220;
-  // strcpy(param_costraint_arr[n].description, "Сигнал на відкриття скиду. Режим БОМБЕР");
-  // // SERVO_CHANNEL
-  // n = 8;
-  // param_costraint_arr[n].min_value = 1;
-  // param_costraint_arr[n].max_value = 8;
-  // param_costraint_arr[n].step_value = 1;
-  // param_costraint_arr[n].default_value = 8;
-  // strcpy(param_costraint_arr[n].description, "Номер каналу для підключення механізму скидання. Режим БОМБЕР");
-  // // SCAN_ALT
-  // n = 9;
-  // param_costraint_arr[n].min_value = 100;
-  // param_costraint_arr[n].max_value = 400;
-  // param_costraint_arr[n].step_value = 1;
-  // param_costraint_arr[n].default_value = 200;
-  // strcpy(param_costraint_arr[n].description, "Висота пошуку цілі");
-  // // SCAN_SPEED
-  // n = 10;
-  // param_costraint_arr[n].min_value = 0.3;
-  // param_costraint_arr[n].max_value = 100;
-  // param_costraint_arr[n].step_value = 0.01;
-  // param_costraint_arr[n].default_value = 20;
-  // strcpy(param_costraint_arr[n].description, "Швидкість м/с при пошуку цілі. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу");
-  // // SCAN_SECTOR
-  // n = 11;
-  // param_costraint_arr[n].min_value = 1;
-  // param_costraint_arr[n].max_value = 360;
-  // param_costraint_arr[n].step_value = 1;
-  // param_costraint_arr[n].default_value = 120;
-  // strcpy(param_costraint_arr[n].description, "Після ввімкнення режиму Guided пошук цілі буде відбуватися у проміжку від (Heading –  SCAN_SECTOR / 2) до (Heading +  SCAN_SECTOR / 2)");
-  // // DROP_ALT
-  // n = 12;
-  // param_costraint_arr[n].min_value = 50;
-  // param_costraint_arr[n].max_value = 200;
-  // param_costraint_arr[n].step_value = 1;
-  // param_costraint_arr[n].default_value = 100;
-  // strcpy(param_costraint_arr[n].description, "Висота заходу на ціль. Режим БОМБЕР");
-  // // DROP_LVL
-  // n = 13;
-  // param_costraint_arr[n].min_value = -80;
-  // param_costraint_arr[n].max_value = -50;
-  // param_costraint_arr[n].step_value = 1;
-  // param_costraint_arr[n].default_value = -70;
-  // strcpy(param_costraint_arr[n].description, "Рівень сигналу при якому відбувається зниження до DROP_ALT. Режим БОМБЕР");
-  // // DROP_SPEED
-  // n = 14;
-  // param_costraint_arr[n].min_value = 0.3;
-  // param_costraint_arr[n].max_value = 100;
-  // param_costraint_arr[n].step_value = 0.01;
-  // param_costraint_arr[n].default_value = 25;
-  // strcpy(param_costraint_arr[n].description, "Швидкість м/с при заході на ціль. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу. Режим БОМБЕР");
-  // // DROP_ANGLE
-  // n = 15;
-  // param_costraint_arr[n].min_value = -90;
-  // param_costraint_arr[n].max_value = 0;
-  // param_costraint_arr[n].step_value = 1;
-  // param_costraint_arr[n].default_value = -45;
-  // strcpy(param_costraint_arr[n].description, "Кут на ціль відносно літака, при якому скидається вантаж. Режим БОМБЕР");
-  // // UAV_PURPOSE
-  // n = 16;
-  // param_costraint_arr[n].min_value = 0;
-  // param_costraint_arr[n].max_value = 2;
-  // param_costraint_arr[n].step_value = 1;
-  // param_costraint_arr[n].default_value = 2;
-  // strcpy(param_costraint_arr[n].description, "Тип застосування: 0 - БОМБЕР, 1 - БОМБЕР з поверненням додому, 2 - КАМІКАДЗЕ");
-  // // DIVING_ANGLE
-  // n = 17;
-  // param_costraint_arr[n].min_value = -60;
-  // param_costraint_arr[n].max_value = 0;
-  // param_costraint_arr[n].step_value = 1;
-  // param_costraint_arr[n].default_value = -30;
-  // strcpy(param_costraint_arr[n].description, "Кут пікірування. DIVING_ANGLE - ANTENNA_ANGLE >= -30.  Режим КАМІКАДЗЕ");
-  // // DIVING_SPEED
-  // n = 18;
-  // param_costraint_arr[n].min_value = 0.3;
-  // param_costraint_arr[n].max_value = 100;
-  // param_costraint_arr[n].step_value = 0.01;
-  // param_costraint_arr[n].default_value = 30;
-  // strcpy(param_costraint_arr[n].description, "Швидкість м/с при заході на ціль. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу.Режим КАМІКАДЗЕ");
+  strcpy(STATUS_TEXT_SAVED, "SAVED TO EEPROM");
+  set_status_saved();
 }
 
 
@@ -379,6 +253,21 @@ bool check_param(float val, uint16_t index) {
 }
 
 
+void set_status_saved(void) {
+  strcpy(statustext_displayed, "Saved     ");
+  status_saved_flag = true;
+}
+
+
+void reset_status_saved(void) {
+  strcpy(statustext_displayed, "Waiting...");
+  status_saved_flag = false;
+}
+
+bool get_status_saved(void) {
+  return status_saved_flag;
+}
+
 
 void mavlink_read(HardwareSerial &link){
   mavlink_status_t status;
@@ -441,6 +330,15 @@ void mavlink_read(HardwareSerial &link){
               //delay(500);
             }
           */
+          }
+          break;
+        case MAVLINK_MESSAGE_ID_STATUSTEXT:
+          {
+            mavlink_msg_statustext_get_text(&msg, statustext);
+            if (strcmp(statustext, STATUS_TEXT_SAVED) == 0) {
+              set_status_saved();
+            }
+
           }
           break;
         default: 
