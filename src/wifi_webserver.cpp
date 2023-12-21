@@ -75,6 +75,7 @@ void build_header(WiFiClient client)
   //client.println(".checkboxlabel {display: flex; align-items: center; padding: 2px;}");
   client.println(".bitmaptable { margin-top: 10px; }");  
   client.println(".editbutton { background-color: #90D090; }");
+  client.println(".changedrow { background-color: #b7edb7; }");
   client.println("</style></head>");
   client.println("<body>");
   build_set_buttons(client);
@@ -240,9 +241,30 @@ void build_script(WiFiClient client)
   client.println("}");
   client.println("document.addEventListener(\"keyup\", docKeyup);");  
   client.println("if(window.addEventListener){");
+  client.println("window.addEventListener('load', initInputs)");
   client.println("window.addEventListener('load', docKeyup)");
   client.println("}else{");
+  client.println("window.attachEvent('onload', initInputs)");
   client.println("window.attachEvent('onload', docKeyup)");
+  client.println("}");
+  client.println("function initInputs() {");
+  client.println("var inputs = document.getElementsByTagName(\"input\");");
+  client.println("for (var i=0; i<inputs.length; i++) {");
+  client.println("var uploadname = inputs[i].getAttribute(\"uploadname\");");
+  client.println("if (uploadname != null) {");
+  client.println("inputs[i].addEventListener(\"keyup\", inputCheck);");
+  client.println("inputs[i].addEventListener(\"click\", inputCheck);");
+  client.println("}");
+  client.println("}");
+  client.println("}");
+  client.println("function inputCheck(e) {");
+  client.println("console.log(e.target);");
+  client.println("var initial_value = e.target.getAttribute('value');");
+  client.println("if (e.target.value != initial_value && e.target.checkValidity()) {");
+  client.println("console.log('changed');");
+  client.println("var table_row = e.target.parentNode.parentNode;");
+  client.println("table_row.setAttribute('class', 'changedrow');");
+  client.println("}");
   client.println("}");
   client.println("document.addEventListener(\"click\", docKeyup);");
 }
