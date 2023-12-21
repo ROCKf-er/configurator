@@ -23,7 +23,7 @@ params = xml_file.getElementsByTagName("ArduPlane")
 for parm in params:
     siblings = parm.childNodes
     for sib in siblings:
-        print(f"sib = {sib}")
+        # print(f"sib = {sib}")
         if sib.nodeType == minidom.Node.TEXT_NODE:
             pass
         if sib.nodeType == minidom.Node.ELEMENT_NODE:
@@ -36,6 +36,12 @@ for parm in params:
             param_default_str = str(sib.getElementsByTagName("Default")[0].firstChild.data)
             param_step_str = str(sib.getElementsByTagName("Step")[0].firstChild.data)
 
+            param_bitmask_str = ""
+            param_bitmask_list = sib.getElementsByTagName("Bitmask")
+            if len(param_bitmask_list) > 0:
+                param_bitmask_str = str(param_bitmask_list[0].firstChild.data)
+
+
             header_file.write('\t{' + "\n")
             header_file.write('\t\t' + param_min_str + ', // float min_value;' + "\n")
             header_file.write('\t\t' + param_max_str + ', // float max_value;' + "\n")
@@ -43,6 +49,7 @@ for parm in params:
             header_file.write('\t\t' + param_default_str + ', // float default_value;' + "\n")
             header_file.write('\t\t"' + param_description_str + '", // char description[300];' + "\n")
             header_file.write('\t\tfalse, // bool actual;' + "\n")
+            header_file.write('\t\t"' + param_bitmask_str + '", // char bitmask[300];' + "\n")
             header_file.write('\t},' + "\n")
 
 header_file.write('};' + "\n")
