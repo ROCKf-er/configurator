@@ -67,8 +67,14 @@ void build_header(WiFiClient client)
   client.println(".greenbutton { background-color: #90D090; padding: 5px 50px; margin: 10px;}");
   client.println(".yellowbutton { background-color: #D0D090; padding: 5px 50px; margin: 10px;}");
   client.println(".labelorange{color: #e0a100;}.labelgreen{color: #02a82e;}");
-  client.println("input { width: 8em; }");
+  client.println("input[type=number] { width: 8em; }");
   client.println("input:invalid { border: 1px dashed red; background-color: pink; }");
+  client.println("#bitmaskdiv { display: none; background-color: #EBEBEB; position: absolute; top: 50%; left: 50%; padding: 10px; transform: translate(-50\%,-50\%);}");
+  client.println("#openingbuttondiv { display: none; background-color: #CBEBEB; position: absolute; top: 50%; left: 50%; }");
+  //client.println("input[type=\"checkbox\"]{ display: inline-block; vertical-align: middle; cursor: pointer;}");
+  //client.println(".checkboxlabel {display: flex; align-items: center; padding: 2px;}");
+  client.println(".bitmaptable { margin-top: 10px; }");  
+  client.println(".editbutton { background-color: #90D090; }");
   client.println("</style></head>");
   client.println("<body>");
   build_set_buttons(client);
@@ -104,18 +110,19 @@ void build_table_rows(WiFiClient client)
     // 9..10 - floar
     if (param_arr[i].param_type <= 8)
     {
-      client.printf("<td><input type=number value=%.0f min=%.0f max=%.0f step=%.0f uploadname=\"v%d\" /></td>",
+      client.printf("<td><input type=number value=%.0f min=%.0f max=%.0f step=%.0f uploadname=\"v%d\" bitmask=\"%s\" /></td>",
                     param_arr[i].param_value,
                     param_costraint_arr[i].min_value,
                     param_costraint_arr[i].max_value,
                     param_costraint_arr[i].step_value,
-                    param_arr[i].param_index);
+                    param_arr[i].param_index,
+                    param_costraint_arr[i].bitmask);
       client.printf("<td>%.0f</td>", param_costraint_arr[i].default_value);
       client.printf("<td>%.0f..%.0f</td>", param_costraint_arr[i].min_value, param_costraint_arr[i].max_value);
     }
     else
     {
-      client.printf("<td><input type=number value=%.2f min=%.2f max=%.2f step=%.2f uploadname=\"v%d\" /></td>",
+      client.printf("<td><input type=number value=%.2f min=%.2f max=%.2f step=%.2f uploadname=\"v%d\" bitmask=\"\" /></td>",
                     param_arr[i].param_value,
                     param_costraint_arr[i].min_value,
                     param_costraint_arr[i].max_value,
@@ -151,11 +158,21 @@ void build_footer(WiFiClient client, bool need_reload)
   client.println("<br>");
   build_set_buttons(client);
   client.println("<br>");
+  client.println("<div id=\"openingbuttondiv\">");
+  client.println("<input type=\"button\" value=\"Edit Bits\" onclick=\"editbitsclick()\" class=\"editbutton\"/>");
+  client.println("</div>");
+  client.println("<div id=\"bitmaskdiv\"> </div>");
   client.println("<script src=\"javascript.js\"></script>");
+  client.println("<script src=\"bitmask.js\"></script>");
 
   if (need_reload) {
     client.println("<script>");
-    client.println("window.onload = function() {");
+    client.println("if(window.addEventListener){");
+    client.println("window.addEventListener('load', reload_with_delay)");
+    client.println("}else{");
+    client.println("window.attachEvent('onload', reload_with_delay)");
+    client.println("}");
+    client.println("function reload_with_delay() {");
     client.println("setTimeout(() => { location.href = \"/\"; }, 5500);");
     client.println("}");
     client.println("</script>");
@@ -221,9 +238,163 @@ void build_script(WiFiClient client)
   client.println("b.disabled = !isAllValid;");
   client.println("}");
   client.println("}");
-  client.println("document.addEventListener(\"keyup\", docKeyup);");
-  client.println("document.onload = docKeyup();");
+  client.println("document.addEventListener(\"keyup\", docKeyup);");  
+  client.println("if(window.addEventListener){");
+  client.println("window.addEventListener('load', docKeyup)");
+  client.println("}else{");
+  client.println("window.attachEvent('onload', docKeyup)");
+  client.println("}");
   client.println("document.addEventListener(\"click\", docKeyup);");
+}
+
+void build_script_bitmask(WiFiClient client)
+{
+  client.println("var bitmaskdiv;");
+  client.println("var openingbuttondiv;");
+  client.println("var bitmask = \"\";");
+  client.println("var edited_input;");
+  client.println("if(window.addEventListener){");
+  client.println("window.addEventListener('load', init)");
+  client.println("}else{");
+  client.println("window.attachEvent('onload', init)");
+  client.println("}");
+  client.println("function init() {");
+  client.println("bitmaskdiv = document.getElementById(\"bitmaskdiv\");");
+  client.println("bitmaskdiv_showing(false);");
+  client.println("bitmaskdiv.addEventListener(\"focusout\", bitmaskdivfocusout);");
+  client.println("openingbuttondiv = document.getElementById(\"openingbuttondiv\");");
+  client.println("openingbuttondiv_showing(false);");
+  client.println("window.addEventListener(\"click\", function() {");
+  client.println("openingbuttondiv_showing(false);");
+  client.println("bitmaskdiv_showing(false);");
+  client.println("});");
+  client.println("bitmaskdiv.addEventListener(\"click\", function() {");
+  client.println("var event = arguments[0] || window.event;");
+  client.println("event.stopPropagation();");
+  client.println("});");
+  client.println("var inputs = document.getElementsByTagName(\"input\");");
+  client.println("for (var i=0; i<inputs.length; i++) {");
+  client.println("var input = inputs[i]");
+  client.println("var uploadname = input.getAttribute(\"uploadname\");");
+  client.println("if (uploadname != null) {");
+  client.println("input.addEventListener(\"focus\", inputfocus);");
+  client.println("input.addEventListener(\"focusout\", inputfocusout);");
+  client.println("input.addEventListener(\"click\", function() {");
+  client.println("var event = arguments[0] || window.event;");
+  client.println("event.stopPropagation();");
+  client.println("edited_input = this;");
+  client.println("});");
+  client.println("input.addEventListener(\"mouseup\", function() {");
+  client.println("edited_input = this;");
+  client.println("});");
+  client.println("}");
+  client.println("}");
+  client.println("}");
+  client.println("function inputfocus(e) {");
+  client.println("bitmaskdiv_showing(false);");
+  client.println("edited_input = e.target;");
+  client.println("bitmask = e.target.getAttribute(\"bitmask\");");
+  client.println("if (bitmask != null && bitmask != \"\") {");
+  client.println("openingbuttondiv_showing(true);");
+  client.println("} else {");
+  client.println("openingbuttondiv_showing(false);");
+  client.println("}");
+  client.println("var rect = e.target.getBoundingClientRect();");
+  client.println("var scrolltop = window.scrollX || document.documentElement.scrollTop || document.body.scrollTop;");
+  client.println("button_top = rect.top + scrolltop;");
+  client.println("button_left = rect.right + 10;");
+  client.println("//openingbuttondiv.style.position = 'absolute';");
+  client.println("openingbuttondiv.style.top = '' + button_top + 'px';");
+  client.println("openingbuttondiv.style.left = '' + button_left + 'px';");
+  client.println("}");
+  client.println("function inputfocusout(e) {");
+  client.println("return;");
+  client.println("openingbuttondiv_showing(false);");
+  client.println("}");
+  client.println("function editbitsclick(e) {");
+  client.println("var event = arguments[0] || window.event;");
+  client.println("event.stopPropagation();");
+  client.println("openingbuttondiv_showing(false);");
+  client.println("bitmaskdiv_showing(true);");
+  client.println("}");
+  client.println("function bitmaskdivfocusout(e) {");
+  client.println("}");
+  client.println("function bitmaskdiv_showing(is_show) {");
+  client.println("//bitmaskdiv.style.position = 'absolute';");
+  client.println("if (is_show) {");
+  client.println("var scrolltop = window.scrollX || document.documentElement.scrollTop || document.body.scrollTop;");
+  client.println("var top = window.innerHeight / 2 + scrolltop;");
+  client.println("bitmaskdiv.style.top = '' + top + 'px'");
+  client.println("bitmaskdiv.style.display = 'inline-block';");
+  client.println("buil_bitmaskdiv();");
+  client.println("} else {");
+  client.println("bitmaskdiv.style.display = 'none';");
+  client.println("}");
+  client.println("}");
+  client.println("function openingbuttondiv_showing(is_show) {");
+  client.println("if (is_show) {");
+  client.println("openingbuttondiv.style.display = 'inline-block';");
+  client.println("} else {");
+  client.println("openingbuttondiv.style.display = 'none';");
+  client.println("}");
+  client.println("}");
+  client.println("function dec2bin(dec) {");
+  client.println("return (dec >>> 0).toString(2);");
+  client.println("}");
+  client.println("function buil_bitmaskdiv() {");
+  client.println("console.log(bitmask);");
+  client.println("bitmask_arr = bitmask.split(\", \");");
+  client.println("console.log(bitmask_arr);");
+  client.println("var bit_str = dec2bin(0 + edited_input.value);");
+  client.println("console.log(bit_str);");
+  client.println("bitmaskdiv.innerHTML = \"\";");  
+  client.println("var value_label = document.createElement('label');");
+  client.println("value_label.id = \"value_label\";");
+  client.println("value_label.innerHTML = edited_input.value;");
+  client.println("bitmaskdiv.appendChild(value_label);");
+  client.println("bitmaskdiv.innerHTML += '<br/>';");
+  client.println("bitmasktable = document.createElement('table');");
+  client.println("bitmaskdiv.appendChild(bitmasktable);");
+  client.println("bitmasktable.setAttribute(\"class\", \"bitmaptable\");");
+  client.println("for (var n=0; n<bitmask_arr.length; n++) {");
+  client.println("bitmaskrow = document.createElement('tr');");
+  client.println("bitmasktable.appendChild(bitmaskrow);");
+  client.println("bitmaskcell = document.createElement('td');");
+  client.println("bitmaskrow.appendChild(bitmaskcell);");
+  client.println("var bit = 0 + bit_str[bit_str.length - 1 - n]");
+  client.println("var checkbox = document.createElement('input');");
+  client.println("checkbox.type = 'checkbox';");
+  client.println("checkbox.id = 'checkbox_' + n;");
+  client.println("checkbox.name = 'checkbox_' + n;");
+  client.println("checkbox.class = 'bitcheckbox';");
+  client.println("checkbox.setAttribute(\"onclick\", \"checkbox_cliced()\");");
+  client.println("checkbox.setAttribute(\"w_value\", '' + 1<<n);");
+  client.println("bitmaskcell.appendChild(checkbox);");
+  client.println("if (bit > 0) {");
+  client.println("checkbox.setAttribute('checked', 'checked');");
+  client.println("}");
+  client.println("var checkbox_label = document.createElement('label');");
+  client.println("checkbox_label.for = 'checkbox_' + n;");
+  client.println("checkbox_label.setAttribute(\"class\", \"checkboxlabel\");");
+  client.println("checkbox_label.innerHTML = bitmask_arr[n];");
+  client.println("bitmaskcell.appendChild(checkbox_label);");
+  client.println("}");
+  client.println("}");
+  client.println("function checkbox_cliced() {");
+  client.println("var s = 0;");
+  client.println("var value_label = document.getElementById(\"value_label\");");
+  client.println("var checkboxes = document.getElementsByTagName(\"input\");");   
+  client.println("for (var i=0; i<checkboxes.length; i++) {");
+  client.println("if (checkboxes[i].hasAttribute(\"w_value\")) {");
+  client.println("var w_value = +checkboxes[i].getAttribute(\"w_value\");");
+  client.println("if (checkboxes[i].checked) {");
+  client.println("s += w_value;");
+  client.println("}");
+  client.println("}");
+  client.println("}");
+  client.println("value_label.innerHTML = '' + s;");
+  client.println("edited_input.value = '' + s;");
+  client.println("}");
 }
 
 void get_value_from_pair_str(String pair)
@@ -291,6 +462,14 @@ void wifi_work()
               client.println("Connection: close");
               client.println();
               build_script(client);
+            }
+            else if (header.indexOf("GET /bitmask.js") >= 0)
+            {
+              client.println("HTTP/1.1 200 OK");
+              client.println("Content-type:application/javascript");
+              client.println("Connection: close");
+              client.println();
+              build_script_bitmask(client);
             }
             else
             {
