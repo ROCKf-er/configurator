@@ -79,6 +79,7 @@ GET_BUTTON_PRESSED_TIMEOUT_S = 3
 
 SETTINGS_FILE_NAME = "settings.txt"
 
+types_dict = {}
 
 def strip_port(port_name):
     port_name = str(port_name)
@@ -225,6 +226,7 @@ async def sender():
     global sender_command
     global param_to_set_list
     global param_types
+    global types_dict
 
     #await asyncio.sleep(WAIT_BEFORE_FIRST_SEND_S)
     while master is None:
@@ -253,9 +255,13 @@ async def sender():
                     param_id = param_to_set["param_id"]
                     param_id_bytes = str.encode(param_id)
                     param_value = float(param_to_set["param_value"])
-                    parameter_xml = xml_file.getElementsByTagName(param_id)[0]
-                    param_type = parameter_xml.getElementsByTagName('Type')[0].firstChild.data
-                    param_type_int = param_types[param_type]
+                    parameter_xml_list = xml_file.getElementsByTagName(param_id)
+                    if len(parameter_xml_list) > 0:
+                        parameter_xml = parameter_xml_list[0]
+                        param_type = parameter_xml.getElementsByTagName('Type')[0].firstChild.data
+                        param_type_int = param_types[param_type]
+                    else:
+                        param_type_int = types_dict[param_id]
                     master.mav.srcComponent = SELF_COMPONENT_ID
                     master.mav.param_set_send(target_system, target_component, param_id_bytes, param_value, param_type_int)
                     print(f"_________________<< param_set_send(target_system={target_system}, target_component={target_component}, param_id={param_id}, param_value={param_value}, param_type={param_type})")
@@ -548,11 +554,16 @@ class App(tk.Tk):
         self.set_label_saved_state(False)
 
     def get_data_from_mavlink_message(self, m):
+        global types_dict
+
         param_id = m.param_id
         param_value = m.param_value
         param_type = m.param_type
         param_count = m.param_count
         param_index = m.param_index
+        param_type = m.param_type
+
+        types_dict[param_id] = param_type
 
         if len(param_id) == 0:
             return
