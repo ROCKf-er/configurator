@@ -864,6 +864,8 @@ class App(tk.Tk):
                     new_text_decimal_nums_count = len(new_text) - new_text_dot_position - 1
                     if new_text_decimal_nums_count <= decimal_nums_count:
                         is_dot_position_correct = True
+                else:
+                    is_dot_position_correct = True
             else:
                 new_text_dot_position = new_text.find(".")
                 if new_text_dot_position < 0:
@@ -872,8 +874,8 @@ class App(tk.Tk):
             if min_float <= new_val <= max_float and is_dot_position_correct:
                 is_valid = True
 
-        if str(new_text).endswith("."):
-            is_valid = False
+        # if str(new_text).endswith("."):
+        #     is_valid = False
 
         if is_valid:
             self.entry_valid_canvas.itemconfig(self.entry_valid_rectangle, fill='grey')
