@@ -190,5 +190,25 @@
             <Index>18</Index>
             <Type>MAV_PARAM_TYPE_REAL32</Type>
         </DIVING_SPEED>
+        <MISSION_HEADING>
+            <DisplayName> </DisplayName>
+            <Description><![CDATA[[град] При включенні Guided буде виконано вихід на точку пошуку по азимуту MISSION_HEADING]]></Description>
+            <Range>0.0 360.0</Range>
+            <User>Standard</User>
+            <Default>0.0</Default>
+            <Step>0.1</Step>
+            <Index>19</Index>
+            <Type>MAV_PARAM_TYPE_REAL32</Type>
+        </MISSION_HEADING>
+        <MISSION_DELAY>
+            <DisplayName> </DisplayName>
+            <Description><![CDATA[[c] При включенні Guided буде виконано вихід на точку пошуку зі швидкістю SCAN_SPEED протягом MISSION_DELAY]]></Description>
+            <Range>0 100000</Range>
+            <User>Standard</User>
+            <Default>0</Default>
+            <Step>1</Step>
+            <Index>20</Index>
+            <Type>MAV_PARAM_TYPE_INT16</Type>
+        </MISSION_DELAY>
     </ArduPlane>
 </Params>

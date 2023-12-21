@@ -26,7 +26,7 @@
   #define MAV_Serial Serial1
   #define RAD_Serial Serial2
 
-  #define PARAM_COUNT 20
+  #define PARAM_COUNT 22
   #define UART_OK 0
   #define UART_TIMEOUT 2
 

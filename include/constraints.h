@@ -177,6 +177,24 @@ param_constraint param_costraint_arr[PARAM_COUNT] = {
 		false, // bool actual;
 		"", // char bitmask[300];
 	},
+	{
+		0.0, // float min_value;
+		360.0, // float max_value;
+		0.1, // float step_value;
+		0.0, // float default_value;
+		"[град] При включенні Guided буде виконано вихід на точку пошуку по азимуту MISSION_HEADING", // char description[300];
+		false, // bool actual;
+		"", // char bitmask[300];
+	},
+	{
+		0, // float min_value;
+		100000, // float max_value;
+		1, // float step_value;
+		0, // float default_value;
+		"[c] При включенні Guided буде виконано вихід на точку пошуку зі швидкістю SCAN_SPEED протягом MISSION_DELAY", // char description[300];
+		false, // bool actual;
+		"", // char bitmask[300];
+	},
 };
 
 #endif // CONSTRAINTS_H
