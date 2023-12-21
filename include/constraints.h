@@ -13,6 +13,7 @@ param_constraint param_costraint_arr[PARAM_COUNT] = {
 		10, // float default_value;
 		"Кут крену при пошуку цілі (при RSSI < THRESHOLD)", // char description[300];
 		false, // bool actual;
+		"", // char bitmask[300];
 	},
 	{
 		0.00, // float min_value;
@@ -21,6 +22,7 @@ param_constraint param_costraint_arr[PARAM_COUNT] = {
 		0.75, // float default_value;
 		"Відсоток від ROLL’у на руль повороту", // char description[300];
 		false, // bool actual;
+		"", // char bitmask[300];
 	},
 	{
 		0.20, // float min_value;
@@ -29,6 +31,7 @@ param_constraint param_costraint_arr[PARAM_COUNT] = {
 		1.00, // float default_value;
 		"Пропорційний коефіцієнт", // char description[300];
 		false, // bool actual;
+		"", // char bitmask[300];
 	},
 	{
 		-100.00, // float min_value;
@@ -37,6 +40,7 @@ param_constraint param_costraint_arr[PARAM_COUNT] = {
 		0.00, // float default_value;
 		"Інтегральний коефіцієнт. Відладка", // char description[300];
 		false, // bool actual;
+		"", // char bitmask[300];
 	},
 	{
 		-100.00, // float min_value;
@@ -45,6 +49,7 @@ param_constraint param_costraint_arr[PARAM_COUNT] = {
 		0.00, // float default_value;
 		"Диференціальний коефіцієнт. Відладка", // char description[300];
 		false, // bool actual;
+		"", // char bitmask[300];
 	},
 	{
 		-45, // float min_value;
@@ -53,6 +58,7 @@ param_constraint param_costraint_arr[PARAM_COUNT] = {
 		0, // float default_value;
 		"Кут встановлення антенного модуля (-20º – нормаль антени відхилена вниз від осі літака)", // char description[300];
 		false, // bool actual;
+		"", // char bitmask[300];
 	},
 	{
 		1100, // float min_value;
@@ -61,6 +67,7 @@ param_constraint param_costraint_arr[PARAM_COUNT] = {
 		1900, // float default_value;
 		"Сигнал на закриття скиду. Режим БОМБЕР", // char description[300];
 		false, // bool actual;
+		"", // char bitmask[300];
 	},
 	{
 		1100, // float min_value;
@@ -69,6 +76,7 @@ param_constraint param_costraint_arr[PARAM_COUNT] = {
 		1220, // float default_value;
 		"Сигнал на відкриття скиду. Режим БОМБЕР", // char description[300];
 		false, // bool actual;
+		"", // char bitmask[300];
 	},
 	{
 		1, // float min_value;
@@ -77,6 +85,7 @@ param_constraint param_costraint_arr[PARAM_COUNT] = {
 		8, // float default_value;
 		"Номер каналу для підключення механізму скидання. Режим БОМБЕР", // char description[300];
 		false, // bool actual;
+		"", // char bitmask[300];
 	},
 	{
 		100, // float min_value;
@@ -85,6 +94,7 @@ param_constraint param_costraint_arr[PARAM_COUNT] = {
 		150, // float default_value;
 		"Висота пошуку цілі", // char description[300];
 		false, // bool actual;
+		"", // char bitmask[300];
 	},
 	{
 		0.30, // float min_value;
@@ -93,6 +103,7 @@ param_constraint param_costraint_arr[PARAM_COUNT] = {
 		20.00, // float default_value;
 		"Швидкість м/с при пошуку цілі. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу", // char description[300];
 		false, // bool actual;
+		"", // char bitmask[300];
 	},
 	{
 		1, // float min_value;
@@ -101,6 +112,7 @@ param_constraint param_costraint_arr[PARAM_COUNT] = {
 		120, // float default_value;
 		"Після ввімкнення режиму Guided пошук цілі буде відбуватися у проміжку від (Heading –  SCAN_SECTOR / 2) до (Heading +  SCAN_SECTOR / 2)", // char description[300];
 		false, // bool actual;
+		"", // char bitmask[300];
 	},
 	{
 		50, // float min_value;
@@ -109,6 +121,7 @@ param_constraint param_costraint_arr[PARAM_COUNT] = {
 		100, // float default_value;
 		"Висота заходу на ціль. Режим БОМБЕР", // char description[300];
 		false, // bool actual;
+		"", // char bitmask[300];
 	},
 	{
 		-80, // float min_value;
@@ -117,6 +130,7 @@ param_constraint param_costraint_arr[PARAM_COUNT] = {
 		-70, // float default_value;
 		"Рівень сигналу при якому відбувається зниження до DROP_ALT. Режим БОМБЕР", // char description[300];
 		false, // bool actual;
+		"", // char bitmask[300];
 	},
 	{
 		0.30, // float min_value;
@@ -125,6 +139,7 @@ param_constraint param_costraint_arr[PARAM_COUNT] = {
 		25.00, // float default_value;
 		"Швидкість м/с при заході на ціль. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу. Режим БОМБЕР", // char description[300];
 		false, // bool actual;
+		"", // char bitmask[300];
 	},
 	{
 		-90, // float min_value;
@@ -133,6 +148,7 @@ param_constraint param_costraint_arr[PARAM_COUNT] = {
 		-45, // float default_value;
 		"Кут на ціль відносно літака, при якому скидається вантаж. Режим БОМБЕР", // char description[300];
 		false, // bool actual;
+		"", // char bitmask[300];
 	},
 	{
 		0, // float min_value;
@@ -141,6 +157,7 @@ param_constraint param_costraint_arr[PARAM_COUNT] = {
 		2, // float default_value;
 		"Тип застосування: 0 - БОМБЕР, 1 - БОМБЕР з поверненням додому, 2 - КАМІКАДЗЕ", // char description[300];
 		false, // bool actual;
+		"", // char bitmask[300];
 	},
 	{
 		-60, // float min_value;
@@ -149,6 +166,7 @@ param_constraint param_costraint_arr[PARAM_COUNT] = {
 		-30, // float default_value;
 		"Кут пікірування. DIVING_ANGLE - ANTENNA_ANGLE >= -30.  Режим КАМІКАДЗЕ", // char description[300];
 		false, // bool actual;
+		"", // char bitmask[300];
 	},
 	{
 		0.30, // float min_value;
@@ -157,6 +175,7 @@ param_constraint param_costraint_arr[PARAM_COUNT] = {
 		30.00, // float default_value;
 		"Швидкість м/с при заході на ціль. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу.Режим КАМІКАДЗЕ", // char description[300];
 		false, // bool actual;
+		"", // char bitmask[300];
 	},
 };
 
