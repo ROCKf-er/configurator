@@ -60,6 +60,7 @@
     float default_value;
     char description[300];
     bool actual;
+    char bitmask[300];
   } param_constraint;
  
   void mavlink_read(HardwareSerial &link);
