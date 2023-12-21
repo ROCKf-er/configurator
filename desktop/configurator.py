@@ -36,7 +36,7 @@ SELF_COMPONENT_ID = 25 # master.mav.MAV_COMP_ID_USER1
 CONNECT_PERIOD_S = 0.5
 WAIT_BEFORE_FIRST_SEND_S = 3
 MINIMAL_ASYNC_PAUSE_S = 0.01
-SEND_ASYNC_PAUSE_S = 0.05
+SEND_ASYNC_PAUSE_S = 0.1
 CHECK_GET_PAUSE_S = 0.5
 MAVLINK_MESSAGE_ID_PARAM_VALUE = 22
 MAVLINK_MESSAGE_ID_STATUSTEXT = 253
@@ -264,7 +264,7 @@ async def sender():
                         param_type_int = types_dict[param_id]
                     master.mav.srcComponent = SELF_COMPONENT_ID
                     master.mav.param_set_send(target_system, target_component, param_id_bytes, param_value, param_type_int)
-                    print(f"_________________<< param_set_send(target_system={target_system}, target_component={target_component}, param_id={param_id}, param_value={param_value}, param_type={param_type})")
+                    print(f"_________________<< param_set_send(target_system={target_system}, target_component={target_component}, param_id={param_id}, param_value={param_value}, param_type_int={param_type_int})")
                     await asyncio.sleep(SEND_ASYNC_PAUSE_S)
 
                 await asyncio.sleep(CHECK_GET_PAUSE_S)
