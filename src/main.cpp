@@ -106,6 +106,10 @@ void loop() {
   
   wifi_work();
 
+  if (LOG_Serial.available()){              // Serial passthrough
+    MAV_Serial.write(LOG_Serial.read());
+  }
+
   mavlink_read(MAV_Serial); // Reading messages from quad
 
   #ifdef DISPLAY_ON
@@ -279,6 +283,7 @@ void mavlink_read(HardwareSerial &link){
   while(link.available() > 0){
     uint8_t byte;
     link.readBytes(&byte, 1);
+    LOG_Serial.write(byte);   // Serial passthrough
         
     if (mavlink_parse_char(chan, byte, &msg, &status)) {
       msg_msgid = msg.msgid;
