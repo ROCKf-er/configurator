@@ -93,7 +93,7 @@
         <SCAN_ALT>
             <DisplayName> </DisplayName>
             <Description><![CDATA[Висота пошуку цілі]]></Description>
-            <Range>100 400</Range>
+            <Range>10 400</Range>
             <User>Standard</User>
             <Default>150</Default>
             <Step>1</Step>
