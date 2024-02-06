@@ -27,7 +27,6 @@ pyinstaller --clean --noconfirm --add-data="./../parameters.xml":"src" --add-dat
 
 pip install pyserial
 pip install pymavlink
-
 pip install pyinstaller
 
 
