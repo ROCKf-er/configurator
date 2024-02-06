@@ -166,6 +166,7 @@ class App(QMainWindow):
 
         self.save_pushButton.clicked.connect(self.saveButton_clicked)
         self.load_pushButton.clicked.connect(self.loadButton_clicked)
+        self.setWindowTitle("Configurator")
 
     def saveButton_clicked(self):
         doc = minidom.Document()
