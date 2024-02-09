@@ -24,7 +24,6 @@
 
   #define LOG_Serial Serial
   #define MAV_Serial Serial1
-  #define RAD_Serial Serial2
 
   #define PARAM_COUNT 50
   #define UART_OK 0
