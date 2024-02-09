@@ -62,7 +62,7 @@
     char bitmask[300];
   } param_constraint;
  
-  void mavlink_read(HardwareSerial &link);
+  void mavlink_read(uint8_t byte);
   void mav_param_request(uint16_t index);
   bool mav_param_set(uint16_t index, float value);
   void mav_param_request_list();

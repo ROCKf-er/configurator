@@ -94,7 +94,18 @@ void loop() {
   
   wifi_work();
 
-  mavlink_read(MAV_Serial); // Reading messages from quad
+  while(MAV_Serial.available() > 0){
+    uint8_t byte;
+    MAV_Serial.readBytes(&byte, 1);
+    mavlink_read(byte); // Reading messages from UAV
+    LOG_Serial.write(byte);
+  }
+
+  while(LOG_Serial.available() > 0){
+    uint8_t byte;
+    LOG_Serial.readBytes(&byte, 1);
+    MAV_Serial.write(byte);
+  }
 
   send_heartbeat();
   if ((millis() - heartbeat_received_ms) > 5000) {
@@ -117,7 +128,7 @@ void mav_param_request(uint16_t index){
   mavlink_msg_param_request_read_encode(SYSTEM_ID,  COMPONENT_ID, &message, &com);
   mav_msg_len = mavlink_msg_to_send_buffer(mav_msg_buf, &message);
   MAV_Serial.write(mav_msg_buf, mav_msg_len); 
-  LOG_Serial.printf("Param_request\n");
+  //LOG_Serial.printf("Param_request\n");
 }
 
 
@@ -141,10 +152,10 @@ bool mav_param_set(uint16_t index, float value){
     MAV_Serial.write(mav_msg_buf, mav_msg_len); 
     delay(20);
     if (check_param(value, index)) {
-      LOG_Serial.printf("SET %s %d: %.2f\n", param_arr[index].param_id, index, value);
+      //LOG_Serial.printf("SET %s %d: %.2f\n", param_arr[index].param_id, index, value);
       return true;
     } else {
-      LOG_Serial.printf("SET %s %d: error\n", param_arr[index].param_id, index);
+      //LOG_Serial.printf("SET %s %d: error\n", param_arr[index].param_id, index);
       return false;
     }
   }
@@ -164,7 +175,7 @@ void mav_param_request_list(){
   mavlink_msg_param_request_list_encode(SYSTEM_ID,  COMPONENT_ID, &message, &com);
   mav_msg_len = mavlink_msg_to_send_buffer(mav_msg_buf, &message);
   MAV_Serial.write(mav_msg_buf, mav_msg_len); 
-  LOG_Serial.printf("Param request list\n");
+  //LOG_Serial.printf("Param request list\n");
 }
 
 void mav_param_request_read(uint16_t index){
@@ -193,7 +204,11 @@ void update_parameters(void){
   uint32_t now = millis();
   const uint32_t timeout = 1000;
   while((millis() - now) < timeout){                //waiting for new params
-    mavlink_read(MAV_Serial);
+    while (MAV_Serial.available()){
+      uint8_t byte;
+      MAV_Serial.readBytes(&byte, 1);
+      mavlink_read(byte);
+    }
   }
 } 
 
@@ -233,50 +248,45 @@ bool get_status_saved(void) {
 }
 
 
-void mavlink_read(HardwareSerial &link){
+void mavlink_read(uint8_t byte){
   mavlink_status_t status;
   mavlink_message_t msg;
   mavlink_channel_t chan = MAVLINK_COMM_0;
   mavlink_param_value_t param;
   mavlink_param_request_read_t read_param;
 
-  while(link.available() > 0){
-    uint8_t byte;
-    link.readBytes(&byte, 1);
+  if (mavlink_parse_char(chan, byte, &msg, &status)) {
+    msg_msgid = msg.msgid;
 
-    if (mavlink_parse_char(chan, byte, &msg, &status)) {
-      msg_msgid = msg.msgid;
+    switch (msg.msgid) {
+      case MAVLINK_MSG_ID_PARAM_VALUE:  
+        if (msg.compid == TARGET_COMPONENT) {
+          mavlink_msg_param_value_decode(&msg, &param);
+          param_arr[param.param_index] = param;
+          param_costraint_arr[param.param_index].actual = true;
+         // LOG_Serial.printf("GET %d: %s = %.2f\n", param.param_index, param.param_id, param.param_value);
+        }  
+        break;
+      case MAVLINK_MSG_ID_HEARTBEAT: 
+        if (msg.compid == MAV_COMP_ID_ONBOARD_COMPUTER) {
+          heartbeat_received = true;
+          heartbeat_received_ms = millis();
+        }
+        break;
 
-      switch (msg.msgid) {
-        case MAVLINK_MSG_ID_PARAM_VALUE:  
-          if (msg.compid == TARGET_COMPONENT) {
-            mavlink_msg_param_value_decode(&msg, &param);
-            param_arr[param.param_index] = param;
-            param_costraint_arr[param.param_index].actual = true;
-            LOG_Serial.printf("GET %d: %s = %.2f\n", param.param_index, param.param_id, param.param_value);
-          }  
-          break;
-        case MAVLINK_MSG_ID_HEARTBEAT: 
-          if (msg.compid == MAV_COMP_ID_ONBOARD_COMPUTER) {
-            heartbeat_received = true;
-            heartbeat_received_ms = millis();
+      case MAVLINK_MESSAGE_ID_STATUSTEXT:
+        {
+          mavlink_msg_statustext_get_text(&msg, statustext);
+          if (strcmp(statustext, STATUS_TEXT_SAVED) == 0) {
+            set_status_saved();
           }
-          break;
 
-        case MAVLINK_MESSAGE_ID_STATUSTEXT:
-          {
-            mavlink_msg_statustext_get_text(&msg, statustext);
-            if (strcmp(statustext, STATUS_TEXT_SAVED) == 0) {
-              set_status_saved();
-            }
-
-          }
-          break;
-        default: 
-          break;
-      }
+        }
+        break;
+      default: 
+        break;
     }
-  }  
+  } 
 }
 
 
