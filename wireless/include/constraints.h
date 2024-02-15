@@ -80,7 +80,7 @@ param_constraint param_costraint_arr[PARAM_COUNT] = {
 	},
 	{
 		1, // float min_value;
-		11, // float max_value;
+		15, // float max_value;
 		1, // float step_value;
 		8, // float default_value;
 		"Номер каналу для підключення механізму скидання. Режим БОМБЕР", // char description[300];
@@ -194,6 +194,15 @@ param_constraint param_costraint_arr[PARAM_COUNT] = {
 		"[c] При включенні Guided буде виконано вихід на точку пошуку зі швидкістю SCAN_SPEED протягом MISSION_DELAY", // char description[300];
 		false, // bool actual;
 		"", // char bitmask[300];
+	},
+	{
+		0, // float min_value;
+		255, // float max_value;
+		1, // float step_value;
+		0, // float default_value;
+		" ", // char description[300];
+		false, // bool actual;
+		"0: DEBUG_MESSAGES", // char bitmask[300];
 	},
 };
 
