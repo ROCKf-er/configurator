@@ -11,7 +11,7 @@ param_constraint param_costraint_arr[PARAM_COUNT] = {
 		30, // float max_value;
 		1, // float step_value;
 		10, // float default_value;
-		"Кут крену при пошуку цілі (при RSSI < THRESHOLD)", // char description[300];
+		"Кут повороту при пошуку цілі (при RSSI < THRESHOLD)", // char description[300];
 		false, // bool actual;
 		"", // char bitmask[300];
 	},
@@ -20,7 +20,7 @@ param_constraint param_costraint_arr[PARAM_COUNT] = {
 		2.00, // float max_value;
 		0.01, // float step_value;
 		0.75, // float default_value;
-		"Відсоток від ROLL’у на руль повороту", // char description[300];
+		"ROLL = YAW * ANGLE_MIXER", // char description[300];
 		false, // bool actual;
 		"", // char bitmask[300];
 	},

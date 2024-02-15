@@ -2,7 +2,7 @@
     <ArduPlane>
         <G_ROLL_ANGLE>
             <DisplayName></DisplayName>
-            <Description><![CDATA[Кут крену при пошуку цілі (при RSSI < THRESHOLD)]]></Description>
+            <Description><![CDATA[Кут повороту при пошуку цілі (при RSSI < THRESHOLD)]]></Description>
             <Range>-30 30</Range>
             <User>Standard</User>
             <Default>10</Default>
@@ -12,7 +12,7 @@
         </G_ROLL_ANGLE>
         <ANGLE_MIXER>
             <DisplayName> </DisplayName>
-            <Description><![CDATA[Відсоток від ROLL’у на руль повороту]]></Description>
+            <Description><![CDATA[ROLL = YAW * ANGLE_MIXER]]></Description>
             <Range>0.00 2.00</Range>
             <User>Standard</User>
             <Default>0.75</Default>
