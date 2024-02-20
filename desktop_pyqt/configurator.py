@@ -174,9 +174,9 @@ class App(QMainWindow):
         self.load_pushButton.clicked.connect(self.loadButton_clicked)
         self.setWindowTitle("Configurator")
 
-        self.tableWidget.setStyleSheet("QTableWidget { font-size: 12pt; }")
-        self.tableWidget.horizontalHeader().setStyleSheet("QHeaderView::section { font-size: 12pt; }")
-        self.tableWidget.verticalHeader().setStyleSheet("QHeaderView::section { font-size: 12pt; }")
+        self.tableWidget.setStyleSheet("QTableWidget { font-size: 12pt; }") 
+        self.tableWidget.horizontalHeader().setStyleSheet("QHeaderView::section { font-size: 12pt; }") 
+        self.tableWidget.verticalHeader().setStyleSheet("QHeaderView::section { font-size: 12pt; }") 
 
     def saveButton_clicked(self):
         doc = minidom.Document()
@@ -1264,7 +1264,7 @@ if __name__ == '__main__':
 
     app = QApplication(sys.argv)
     ex = App()
-    ex.setStyleSheet("QWidget { font-size: 12pt; }")
+    ex.setStyleSheet("QWidget { font-size: 12pt; }") 
 
     ex.show()
     ex.set_sizes()
