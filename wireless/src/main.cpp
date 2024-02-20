@@ -1,13 +1,11 @@
 #include <Arduino.h>
 #include "main.h"
-#include "data_display.h"
 #include <SPI.h>
 #include <Wire.h>
 #include "mav_commands.h"
 #include "filter.h"
 #include "wifi_webserver.h"
 #include <common/mavlink.h>
-#include "_eeprom.h"
 #include "constraints.h"
 
 
@@ -16,9 +14,6 @@ char STATUS_TEXT_SAVED[50];
 char statustext[50];
 char statustext_displayed[50];
 bool status_saved_flag;
-
-TFT_eSPI display = TFT_eSPI(DISP_HEIGHT, DISP_WIDTH); 
-TFT_eSprite spr = TFT_eSprite(&display); // Invoke Sprite class
 Parameters parameters;
 uint32_t HB_count;
 
@@ -37,21 +32,14 @@ uint32_t  heartbeat_received_ms = 0;
 
 
 void setup(){
-  LOG_Serial.begin(115200);     // syslog 
+  LOG_Serial.begin(57600);     // syslog 
   MAV_Serial.begin(57600);      // mavlink
   MAV_Serial.setPins(MAV_RX_PIN, MAV_TX_PIN);
 
   pinMode(LED_1_PIN, OUTPUT);
   pinMode(LED_2_PIN, OUTPUT);
   LED_1_ON;
-
-  #ifdef DISPLAY_ON
-    display.init();
-    display.setRotation(1);
-  #endif //DISPLAY_ON
     
-  eeprom_init();
-  eeprom_get();
   wifi_init();
 
   delay(500);
@@ -106,31 +94,18 @@ void loop() {
   
   wifi_work();
 
-  mavlink_read(MAV_Serial); // Reading messages from quad
+  while(MAV_Serial.available() > 0){
+    uint8_t byte;
+    MAV_Serial.readBytes(&byte, 1);
+    mavlink_read(byte); // Reading messages from UAV
+    LOG_Serial.write(byte);
+  }
 
-  #ifdef DISPLAY_ON
-    
-    spr.createSprite(DISP_WIDTH, DISP_HEIGHT); // Create sprite  
-    spr.fillSprite(TFT_BLACK);
-
-    spr.setTextSize(2); 
-    spr.setTextColor(TFT_WHITE);
-    spr.setCursor(10, 10);
-    //spr.printf("HB seq: %d", HB_count);
-    spr.printf("msg.msgid: %d", msg_msgid);
-    spr.setCursor(10, 40);
-    spr.printf("%d %s %0.3f", param_arr[10].param_index, param_arr[10].param_id, param_arr[10].param_value);
-    spr.setCursor(10, 60);
-    spr.printf("%d %s %0.3f", param_arr[11].param_index, param_arr[11].param_id, param_arr[11].param_value);
-    spr.setCursor(10, 80);
-    spr.printf("%d %s %0.3f", param_arr[12].param_index, param_arr[12].param_id, param_arr[12].param_value);
-    spr.setCursor(10, 100);
-    spr.printf("%d %s %0.3f", param_arr[13].param_index, param_arr[13].param_id, param_arr[13].param_value);
-
-    spr.pushSprite(0, 0); // Push sprite to its position    
-
-    delay(20);
-  #endif //DISPLAY_ON
+  while(LOG_Serial.available() > 0){
+    uint8_t byte;
+    LOG_Serial.readBytes(&byte, 1);
+    MAV_Serial.write(byte);
+  }
 
   send_heartbeat();
   if ((millis() - heartbeat_received_ms) > 5000) {
@@ -153,7 +128,7 @@ void mav_param_request(uint16_t index){
   mavlink_msg_param_request_read_encode(SYSTEM_ID,  COMPONENT_ID, &message, &com);
   mav_msg_len = mavlink_msg_to_send_buffer(mav_msg_buf, &message);
   MAV_Serial.write(mav_msg_buf, mav_msg_len); 
-  LOG_Serial.printf("Param_request\n");
+  //LOG_Serial.printf("Param_request\n");
 }
 
 
@@ -177,10 +152,10 @@ bool mav_param_set(uint16_t index, float value){
     MAV_Serial.write(mav_msg_buf, mav_msg_len); 
     delay(20);
     if (check_param(value, index)) {
-      LOG_Serial.printf("SET %s %d: %.2f\n", param_arr[index].param_id, index, value);
+      //LOG_Serial.printf("SET %s %d: %.2f\n", param_arr[index].param_id, index, value);
       return true;
     } else {
-      LOG_Serial.printf("SET %s %d: error\n", param_arr[index].param_id, index);
+      //LOG_Serial.printf("SET %s %d: error\n", param_arr[index].param_id, index);
       return false;
     }
   }
@@ -200,7 +175,7 @@ void mav_param_request_list(){
   mavlink_msg_param_request_list_encode(SYSTEM_ID,  COMPONENT_ID, &message, &com);
   mav_msg_len = mavlink_msg_to_send_buffer(mav_msg_buf, &message);
   MAV_Serial.write(mav_msg_buf, mav_msg_len); 
-  LOG_Serial.printf("Param request list\n");
+  //LOG_Serial.printf("Param request list\n");
 }
 
 void mav_param_request_read(uint16_t index){
@@ -229,7 +204,11 @@ void update_parameters(void){
   uint32_t now = millis();
   const uint32_t timeout = 1000;
   while((millis() - now) < timeout){                //waiting for new params
-    mavlink_read(MAV_Serial);
+    while (MAV_Serial.available()){
+      uint8_t byte;
+      MAV_Serial.readBytes(&byte, 1);
+      mavlink_read(byte);
+    }
   }
 } 
 
@@ -269,83 +248,45 @@ bool get_status_saved(void) {
 }
 
 
-void mavlink_read(HardwareSerial &link){
+void mavlink_read(uint8_t byte){
   mavlink_status_t status;
   mavlink_message_t msg;
   mavlink_channel_t chan = MAVLINK_COMM_0;
   mavlink_param_value_t param;
   mavlink_param_request_read_t read_param;
 
-  while(link.available() > 0){
-    uint8_t byte;
-    link.readBytes(&byte, 1);
-        
-    if (mavlink_parse_char(chan, byte, &msg, &status)) {
-      msg_msgid = msg.msgid;
+  if (mavlink_parse_char(chan, byte, &msg, &status)) {
+    msg_msgid = msg.msgid;
 
-      switch (msg.msgid) {
-        case MAVLINK_MSG_ID_PARAM_VALUE:  
-          if (msg.compid == TARGET_COMPONENT) {
-            mavlink_msg_param_value_decode(&msg, &param);
-            param_arr[param.param_index] = param;
-            param_costraint_arr[param.param_index].actual = true;
-            LOG_Serial.printf("GET %d: %s = %.2f\n", param.param_index, param.param_id, param.param_value);
-          }  
-          break;
-        case MAVLINK_MSG_ID_HEARTBEAT: 
-          if (msg.compid == MAV_COMP_ID_ONBOARD_COMPUTER) {
-            heartbeat_received = true;
-            heartbeat_received_ms = millis();
-          }
-          break;
-        case MAVLINK_MSG_ID_PARAM_REQUEST_READ:
-          {
-            /*
-            mavlink_msg_param_request_read_decode(&msg, &read_param);          
-            param = param_arr[read_param.param_index];
-            mavlink_message_t message;
-            mavlink_msg_param_value_encode(SYSTEM_ID,  MAV_COMP_ID_AUTOPILOT1, &message, &param);
-            uint8_t mav_msg_resp_buf[250];
-            uint16_t mav_msg_resp_len = mavlink_msg_to_send_buffer(mav_msg_resp_buf, &message);
-            LOG_Serial.write(mav_msg_resp_buf, mav_msg_resp_len);             
-            */
-          }
-          break;
-        case MAVLINK_MSG_ID_PARAM_REQUEST_LIST:
-          {/*
-            mavlink_param_request_list_t param_request_list;
-            mavlink_msg_param_request_list_decode(&msg, &param_request_list);
-            for (uint16_t i = 0; i < param_arr[0].param_count; i++) {  
-              mavlink_param_value_t param;
-              param.param_count = param_arr[i].param_count;
-              memcpy(param.param_id, param_arr[i].param_id, 16);
-              param.param_index = param_arr[i].param_index;
-              param.param_type = param_arr[i].param_type;
-              param.param_value = param_arr[i].param_value;
-              mavlink_message_t message;
-              mavlink_msg_param_value_encode(SYSTEM_ID,  MAV_COMP_ID_AUTOPILOT1, &message, &param);
-              uint8_t mav_msg_resp_buf[250];
-              uint16_t mav_msg_resp_len = mavlink_msg_to_send_buffer(mav_msg_resp_buf, &message);
-              LOG_Serial.write(mav_msg_resp_buf, mav_msg_resp_len);   
-              //delay(500);
-            }
-          */
-          }
-          break;
-        case MAVLINK_MESSAGE_ID_STATUSTEXT:
-          {
-            mavlink_msg_statustext_get_text(&msg, statustext);
-            if (strcmp(statustext, STATUS_TEXT_SAVED) == 0) {
-              set_status_saved();
-            }
+    switch (msg.msgid) {
+      case MAVLINK_MSG_ID_PARAM_VALUE:  
+        if (msg.compid == TARGET_COMPONENT) {
+          mavlink_msg_param_value_decode(&msg, &param);
+          param_arr[param.param_index] = param;
+          param_costraint_arr[param.param_index].actual = true;
+         // LOG_Serial.printf("GET %d: %s = %.2f\n", param.param_index, param.param_id, param.param_value);
+        }  
+        break;
+      case MAVLINK_MSG_ID_HEARTBEAT: 
+        if (msg.compid == MAV_COMP_ID_ONBOARD_COMPUTER) {
+          heartbeat_received = true;
+          heartbeat_received_ms = millis();
+        }
+        break;
 
+      case MAVLINK_MESSAGE_ID_STATUSTEXT:
+        {
+          mavlink_msg_statustext_get_text(&msg, statustext);
+          if (strcmp(statustext, STATUS_TEXT_SAVED) == 0) {
+            set_status_saved();
           }
-          break;
-        default: 
-          break;
-      }
+
+        }
+        break;
+      default: 
+        break;
     }
-  }  
+  } 
 }
 
 

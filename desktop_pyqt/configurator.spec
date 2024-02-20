@@ -5,7 +5,7 @@ a = Analysis(
     ['configurator.py'],
     pathex=[],
     binaries=[],
-    datas=[('./../parameters.xml', 'src'), ('./src/*.*', 'src')],
+    datas=[('./../parameters.xml', './src'), ('./src/*.*', './src')],
     hiddenimports=['pymavlink.dialects.v20', 'pymavlink.dialects.v20.ardupilotmega'],
     hookspath=[],
     hooksconfig={},

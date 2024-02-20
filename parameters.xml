@@ -83,7 +83,7 @@
         <SERVO_CHANNEL>
             <DisplayName> </DisplayName>
             <Description><![CDATA[Номер каналу для підключення механізму скидання. Режим БОМБЕР]]></Description>
-            <Range>1 11</Range>
+            <Range>1 15</Range>
             <User>Standard</User>
             <Default>8</Default>
             <Step>1</Step>
@@ -210,5 +210,16 @@
             <Index>20</Index>
             <Type>MAV_PARAM_TYPE_INT16</Type>
         </MISSION_DELAY>
+        <OPTIONS>
+            <DisplayName> </DisplayName>
+            <Description> </Description>
+            <Range>0 255</Range>
+            <User>Standard</User>
+            <Default>0</Default>
+            <Step>1</Step>
+            <Index>21</Index>
+            <Type>MAV_PARAM_TYPE_UINT8</Type>
+            <Bitmask>0: DEBUG_MESSAGES</Bitmask>
+        </OPTIONS>
     </ArduPlane>
 </Params>

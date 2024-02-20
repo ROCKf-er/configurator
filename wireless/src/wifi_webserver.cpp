@@ -2,7 +2,6 @@
 #include "wifi_webserver.h"
 #include <string>
 #include "main.h"
-#include "_eeprom.h"
 #include <ESP32Servo.h>
 #include <common/mavlink.h>
 
@@ -505,8 +504,6 @@ void wifi_work()
 
               if (header.indexOf("GET /default") >= 0)
               {
-                // reset to default
-                // eeprom_set_default();
                 set_default();
               }
 

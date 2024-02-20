@@ -24,7 +24,6 @@
 
   #define LOG_Serial Serial
   #define MAV_Serial Serial1
-  #define RAD_Serial Serial2
 
   #define PARAM_COUNT 50
   #define UART_OK 0
@@ -63,7 +62,7 @@
     char bitmask[300];
   } param_constraint;
  
-  void mavlink_read(HardwareSerial &link);
+  void mavlink_read(uint8_t byte);
   void mav_param_request(uint16_t index);
   bool mav_param_set(uint16_t index, float value);
   void mav_param_request_list();
