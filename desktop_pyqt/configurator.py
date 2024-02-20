@@ -7,11 +7,12 @@ import serial.tools.list_ports
 from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QMainWindow, QHeaderView, QTableWidgetItem, QStyledItemDelegate, QWidget, QGraphicsView, QGraphicsScene, QVBoxLayout, QPushButton, QFrame, QLineEdit, QFileDialog
 from PyQt5 import QtCore
-from PyQt5.QtGui import QBrush, QColor, QPainter, QPixmap, QValidator, QRegExpValidator, QPalette
+from PyQt5.QtGui import QBrush, QColor, QPainter, QPixmap, QValidator, QRegExpValidator, QPalette, QFont
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from pymavlink import mavutil
 from serial import SerialException
 from xml.dom import minidom
+import netifaces
 
 
 VALUES_COUNT = 20
@@ -146,9 +147,14 @@ class App(QMainWindow):
 
         self.types_dict = {}
         self.sender_command = None
-        self.master = None
+        self.master_in = None
+        self.master_out = None
         self.device = ""
         self.baudrate = 115200
+        self.is_connection_done = False
+        self.last_connection_time_sec = 0
+        self.interface_info = None
+        self.current_interface_number = -1
         self.update_device_list()
         self.refreshButton.clicked.connect(self.refreshButton_clicked)
         # self.port_comboBox.view().installEventFilter(self)
@@ -167,6 +173,10 @@ class App(QMainWindow):
         self.save_pushButton.clicked.connect(self.saveButton_clicked)
         self.load_pushButton.clicked.connect(self.loadButton_clicked)
         self.setWindowTitle("Configurator")
+
+        self.tableWidget.setStyleSheet("QTableWidget { font-size: 12pt; }")
+        self.tableWidget.horizontalHeader().setStyleSheet("QHeaderView::section { font-size: 12pt; }")
+        self.tableWidget.verticalHeader().setStyleSheet("QHeaderView::section { font-size: 12pt; }")
 
     def saveButton_clicked(self):
         doc = minidom.Document()
@@ -331,27 +341,36 @@ class App(QMainWindow):
         device = self.remember_device
         baudrate = self.remember_baudrate
 
-        if len(str(device)) > 0 and len(str(baudrate)):
+        if len(str(device)) > 0 and len(str(baudrate)) > 0:
             settings_file = open(SETTINGS_FILE_NAME, "w")
             settings_file.write(str(device) + "\n")
             settings_file.write(str(baudrate) + "\n")
+
+            if str(device) == "UDP":
+                settings_file.write(str(self.master_in_str) + "\n")
+                settings_file.write(str(self.master_out_str) + "\n")
+
             settings_file.close()
 
             self.remember_device, self.remember_baudrate = "", ""
 
+
     def load_settings(self):
-        device, baudrate = "", ""
+        device, baudrate, udpin, udpout = "", "", "", ""
         try:
             settings_file = open(SETTINGS_FILE_NAME, "r")
             device = settings_file.readline().strip()
             baudrate = settings_file.readline().strip()
+            if device == "UDP":
+                udpin = settings_file.readline().strip()
+                udpout = settings_file.readline().strip()
             settings_file.close()
         except OSError:
             print("Could not open settings file: " + str(SETTINGS_FILE_NAME))
-        return (device, baudrate)
+        return (device, baudrate, udpin, udpout)
 
     def restore_from_settings(self):
-        device, baudrate = self.load_settings()
+        device, baudrate, udpin, udpout = self.load_settings()
         device = str(device)
         baudrate = str(baudrate)
 
@@ -418,6 +437,8 @@ class App(QMainWindow):
         device_list = self.get_device_list()
         for device in device_list:
             self.port_comboBox.addItem(device)
+
+        self.port_comboBox.addItem("UDP")
 
     def get_device_list(self):
         platform_str = str(sys.platform)
@@ -835,31 +856,89 @@ class App(QMainWindow):
         selected_device = self.strip_port(selected_device_str)
         selected_baudrate = self.baud_comboBox.currentText()
 
-        if self.device != selected_device or self.baudrate != selected_baudrate or self.master is None:
-            if self.master is not None:
-                self.master.close()
-                self.master = None
+        is_trying_UDP = False
+        if (self.device == "UDP" and not self.is_connection_done):
+            is_trying_UDP = True
 
-            try:
-                # selected_device = str(app.combo_device.get())  # in case of change device meanwhile
-                # selected_device = strip_port(selected_device)
-                # selected_baudrate = int(app.combo_baud.get())  # in case of change baud meanwhile
-                new_master = mavutil.mavlink_connection(selected_device, selected_baudrate)
-            except SerialException:
-                print(f"! Can not connect to: {selected_device} at {selected_baudrate}")
-            except Exception as e:
-                print(f"Connection exeption: {e}")
-            else:
-                self.removeAllRows()
-                # await asyncio.sleep(CONNECT_PERIOD_S)
-                self.master = new_master
-                print(f"Connected to: {self.master.port} at {self.master.baud}")
-                # self.device = selected_device
-                # self.baudrate = selected_baudrate
-                self.remember_settings(selected_device, selected_baudrate)
-                # is_connected = True
+        if (self.device != selected_device or
+                self.baudrate != selected_baudrate or
+                #self.master_in is None or
+                is_trying_UDP):
+            if selected_device == "UDP":
+                self.is_connection_done = False
+                self.interface_info = get_interface_info()
+                #self.current_interface_number = -1
 
-                self.getPushButton_clicked()
+            connection_timeout_sec = 0.5
+            now_time_sec = time.time()
+            if is_trying_UDP and  now_time_sec > self.last_connection_time_sec + connection_timeout_sec:
+                try:
+                    self.removeAllRows()
+
+                    self.last_connection_time_sec = now_time_sec
+                    self.current_interface_number = self.current_interface_number + 1
+                    if self.current_interface_number >= len(self.interface_info):
+                        self.current_interface_number = 0
+                    interface_values = self.interface_info.values()
+                    current_interface_value = list(interface_values)[self.current_interface_number]
+                    udpin = current_interface_value["ip"]
+                    udpout = current_interface_value["gateway"]
+                    # new_master_in = mavutil.mavlink_connection("udpin:192.168.144.20:19856")
+                    # new_master_out = mavutil.mavlink_connection("udpout:192.168.144.12:19856")
+                    self.master_in_str = "udpin:" + udpin + ":19856"
+                    self.master_out_str = "udpout:" + udpout + ":19856"
+                    new_master_in = mavutil.mavlink_connection(self.master_in_str)
+                    new_master_out = mavutil.mavlink_connection(self.master_out_str)
+                except SerialException:
+                    print(f"! Can not connect to: {selected_device} at {selected_baudrate}")
+                except Exception as e:
+                    print(f"Connection exeption: {e}")
+                else:
+                    #self.removeAllRows()
+                    # await asyncio.sleep(CONNECT_PERIOD_S)
+                    self.master_in = new_master_in
+                    self.master_out = new_master_out
+                    #print(f"Connected to: {self.master.port} at {self.master.baud}")
+                    # self.device = selected_device
+                    # self.baudrate = selected_baudrate
+                    self.remember_settings(selected_device, selected_baudrate)
+                    # is_connected = True
+
+                    self.getPushButton_clicked()
+
+            else: # if selected_device == "UDP":
+
+                if self.master_in is not None:
+                    self.master_in.close()
+                    self.master_in = None
+
+                if self.master_out is not None:
+                    self.master_out.close()
+                    self.master_out = None
+
+                try:
+                    self.removeAllRows()
+
+                    # selected_device = str(app.combo_device.get())  # in case of change device meanwhile
+                    # selected_device = strip_port(selected_device)
+                    # selected_baudrate = int(app.combo_baud.get())  # in case of change baud meanwhile
+                    new_master_in = mavutil.mavlink_connection(selected_device, selected_baudrate)
+                except SerialException:
+                    print(f"! Can not connect to: {selected_device} at {selected_baudrate}")
+                except Exception as e:
+                    print(f"Connection exeption: {e}")
+                else:
+                    # self.removeAllRows()
+                    # await asyncio.sleep(CONNECT_PERIOD_S)
+                    self.master_in = new_master_in
+                    self.master_out = self.master_in
+                    #print(f"Connected to: {self.master.port} at {self.master.baud}")
+                    # self.device = selected_device
+                    # self.baudrate = selected_baudrate
+                    self.remember_settings(selected_device, selected_baudrate)
+                    # is_connected = True
+
+                    self.getPushButton_clicked()
 
         self.device = selected_device
         self.baudrate = selected_baudrate
@@ -868,17 +947,17 @@ class App(QMainWindow):
         target_system = SYSTEM_ID
         target_component = TARGET_COMPONENT_ID
 
-        if self.master is None:
+        if self.master_out is None:
             return
 
-        self.master.mav.srcComponent = SELF_COMPONENT_ID
+        self.master_out.mav.srcComponent = SELF_COMPONENT_ID
 
         if self.sender_command is not None:
             if str(self.sender_command).startswith(COMMAND_REQUEST_LIST):
                 self.sender_command = None
                 self.removeAllRows()
 
-                self.master.mav.param_request_list_send(target_system, target_component)
+                self.master_out.mav.param_request_list_send(target_system, target_component)
                 print(f"_________________<< param_request_list_send(target_system={target_system}, target_component={target_component})")
 
             if str(self.sender_command).startswith(COMMAND_PARAM_SET):
@@ -895,8 +974,8 @@ class App(QMainWindow):
                     if param_id in self.types_dict.keys():
                         param_type_int = self.types_dict[param_id]
 
-                    self.master.mav.srcComponent = SELF_COMPONENT_ID
-                    self.master.mav.param_set_send(target_system, target_component, param_id_bytes, param_value,
+                    self.master_out.mav.srcComponent = SELF_COMPONENT_ID
+                    self.master_out.mav.param_set_send(target_system, target_component, param_id_bytes, param_value,
                                               param_type_int)
                     print(
                         f"_________________<< param_set_send(target_system={target_system}, target_component={target_component}, param_id={param_id}, param_value={param_value}, param_type_int={param_type_int})")
@@ -917,25 +996,29 @@ class App(QMainWindow):
         # self.tableWidget.update()
 
     def receaver_routine(self):
-        if self.master is None:
+        if self.master_in is None:
             return
 
         try:
-            while self.master.port.inWaiting() > 0:
+            m = self.master_in.recv_msg()
+            #while self.master.port.inWaiting() > 0:
+            if m is not None:
                 # recv_msg will try parsing the serial port buffer
                 # and return a new message if available
-                m = self.master.recv_msg()
+                #m = self.master.recv_msg()
+                #m = self.master.
 
-                if m is None: break  # No new message
+                #if m is None: break  # No new message
 
                 m_src_id = m.get_srcComponent()
                 # print(f">> id = {m.id} from {m_src_id}")
                 # print(str(m))
                 if m_src_id == TARGET_COMPONENT_ID:
-                    # print(f">> id = {m.id} from {m_src_id}")
+                    print(f">> id = {m.id} from {m_src_id}")
                     # print(str(m))
                     if m.id == MAVLINK_MESSAGE_ID_PARAM_VALUE:
                         print("MAVLINK_MESSAGE_ID_PARAM_VALUE")
+                        self.is_connection_done = True
                         self.get_data_from_mavlink_message(m)
                         self.save_settings()  # save connection settings after data receive
                     if m.id == MAVLINK_MESSAGE_ID_STATUSTEXT or m.id == 0:
@@ -1152,6 +1235,24 @@ class ItemDelegate(QStyledItemDelegate):
         super().paint(painter, option, index)
 
 
+def get_interface_info():
+    interface_info = {}
+    routes = netifaces.gateways()
+    for interface in netifaces.interfaces():
+        try:
+            addresses = netifaces.ifaddresses(interface)
+            ip = addresses[netifaces.AF_INET][0]['addr']
+            gateway = None
+            for route in routes.get(netifaces.AF_INET, []):
+                if route[1] == interface:
+                    gateway = route[0]
+                    break
+            interface_info[interface] = {'ip': ip, 'gateway': gateway}
+        except (KeyError, IndexError):
+            pass
+    return interface_info
+
+
 if __name__ == '__main__':
     # parse an xml file by name
     if getattr(sys, 'frozen', False):
@@ -1163,6 +1264,8 @@ if __name__ == '__main__':
 
     app = QApplication(sys.argv)
     ex = App()
+    ex.setStyleSheet("QWidget { font-size: 12pt; }")
+
     ex.show()
     ex.set_sizes()
     sys.exit(app.exec())
