@@ -1,5 +1,6 @@
 import math
 import os
+import subprocess
 import sys
 import time
 import glob
@@ -12,7 +13,7 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from pymavlink import mavutil
 from serial import SerialException
 from xml.dom import minidom
-import netifaces
+#import netifaces
 
 
 VALUES_COUNT = 20
@@ -879,10 +880,17 @@ class App(QMainWindow):
                     self.current_interface_number = self.current_interface_number + 1
                     if self.current_interface_number >= len(self.interface_info):
                         self.current_interface_number = 0
-                    interface_values = self.interface_info.values()
-                    current_interface_value = list(interface_values)[self.current_interface_number]
-                    udpin = current_interface_value["ip"]
-                    udpout = current_interface_value["gateway"]
+                    # interface_values = self.interface_info.values()
+                    # current_interface_value = list(interface_values)[self.current_interface_number]
+                    # udpin = current_interface_value["ip"]
+                    # udpout = current_interface_value["gateway"]
+                    current_interface = self.interface_info[self.current_interface_number]
+                    udpin = "_None_"
+                    if "IP" in current_interface.keys():
+                        udpin = current_interface["IP"]
+                    udpout = "_None_"
+                    if "Gateway" in current_interface.keys():
+                        udpout = current_interface["Gateway"]
                     # new_master_in = mavutil.mavlink_connection("udpin:192.168.144.20:19856")
                     # new_master_out = mavutil.mavlink_connection("udpout:192.168.144.12:19856")
                     self.master_in_str = "udpin:" + udpin + ":19856"
@@ -1236,21 +1244,58 @@ class ItemDelegate(QStyledItemDelegate):
 
 
 def get_interface_info():
-    interface_info = {}
-    routes = netifaces.gateways()
-    for interface in netifaces.interfaces():
-        try:
-            addresses = netifaces.ifaddresses(interface)
-            ip = addresses[netifaces.AF_INET][0]['addr']
-            gateway = None
-            for route in routes.get(netifaces.AF_INET, []):
-                if route[1] == interface:
-                    gateway = route[0]
-                    break
-            interface_info[interface] = {'ip': ip, 'gateway': gateway}
-        except (KeyError, IndexError):
-            pass
-    return interface_info
+    # interface_info = {}
+    # routes = netifaces.gateways()
+    # for interface in netifaces.interfaces():
+    #     try:
+    #         addresses = netifaces.ifaddresses(interface)
+    #         ip = addresses[netifaces.AF_INET][0]['addr']
+    #         gateway = None
+    #         for route in routes.get(netifaces.AF_INET, []):
+    #             if route[1] == interface:
+    #                 gateway = route[0]
+    #                 break
+    #         interface_info[interface] = {'ip': ip, 'gateway': gateway}
+    #     except (KeyError, IndexError):
+    #         pass
+    # return interface_info
+
+    interfaces = []
+
+    platform_str = str(sys.platform)
+    if platform_str.startswith("linux"):
+        pass
+
+    elif platform_str.startswith("win"):
+        ipconfig_output = subprocess.check_output(['ipconfig'], shell=True, universal_newlines=True)
+
+        lines = ipconfig_output.split('\n')
+
+        # interfaces = []
+        current_interface = {}
+
+        for line in lines:
+            if 'adapter' in line.lower():
+                if current_interface:
+                    interfaces.append(current_interface)
+                current_interface = {'Interface': line.split(':')[0].strip()}
+            elif 'IPv4 Address' in line:
+                current_interface['IP'] = line.split(':')[-1].strip()
+            elif 'Default Gateway' in line:
+                current_interface['Gateway'] = line.split(':')[-1].strip()
+
+        if current_interface:
+            interfaces.append(current_interface)
+
+    # Example of output:
+    # [{'Interface': 'Ethernet adapter Ethernet'},
+    # {'Interface': 'Ethernet adapter Ethernet 2'},
+    # {'Interface': 'Wireless LAN adapter Џ?¤Є«озҐ\xad\xadп зҐаҐ§ «®Є\xa0«м\xadг ¬ҐаҐ¦г* 11'},
+    # {'Interface': 'Wireless LAN adapter Џ?¤Є«озҐ\xad\xadп зҐаҐ§ «®Є\xa0«м\xadг ¬ҐаҐ¦г* 12'},
+    # {'Interface': 'Wireless LAN adapter Wi-Fi', 'IP': '192.168.144.20', 'Gateway': '192.168.144.12'},
+    # {'Interface': 'Wireless LAN adapter Wi-Fi 2', 'IP': '192.168.88.80', 'Gateway': '192.168.88.1'}]
+
+    return interfaces
 
 
 if __name__ == '__main__':
