@@ -1,5 +1,6 @@
 import math
 import os
+import re
 import subprocess
 import sys
 import time
@@ -90,7 +91,7 @@ class App(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        form_path = "src/form_06.ui"
+        form_path = "src/form_07.ui"
         if getattr(sys, 'frozen', False):
             # in case of run as one exe
             form_path = os.path.join(sys._MEIPASS, ('' + form_path))
@@ -156,6 +157,12 @@ class App(QMainWindow):
         self.last_connection_time_sec = 0
         self.interface_info = None
         self.current_interface_number = -1
+
+        self.port_lineEdit.focusInEvent = self.focusInLineEdit
+        regex = QtCore.QRegExp("[0-9]*")
+        validator = QRegExpValidator(regex)
+        self.port_lineEdit.setValidator(validator)
+
         self.update_device_list()
         self.refreshButton.clicked.connect(self.refreshButton_clicked)
         # self.port_comboBox.view().installEventFilter(self)
@@ -177,7 +184,18 @@ class App(QMainWindow):
 
         self.tableWidget.setStyleSheet("QTableWidget { font-size: 12pt; }") 
         self.tableWidget.horizontalHeader().setStyleSheet("QHeaderView::section { font-size: 12pt; }") 
-        self.tableWidget.verticalHeader().setStyleSheet("QHeaderView::section { font-size: 12pt; }") 
+        self.tableWidget.verticalHeader().setStyleSheet("QHeaderView::section { font-size: 12pt; }")
+
+    def focusInLineEdit(self, event):
+        #self.port_lineEdit.setText("")
+        event.accept()
+    def update_GUI_by_UDP(self):
+        if self.device == "UDP":
+            self.baud_comboBox.hide()
+            self.port_lineEdit.show()
+        else:
+            self.baud_comboBox.show()
+            self.port_lineEdit.hide()
 
     def saveButton_clicked(self):
         doc = minidom.Document()
@@ -350,6 +368,7 @@ class App(QMainWindow):
             if str(device) == "UDP":
                 settings_file.write(str(self.master_in_str) + "\n")
                 settings_file.write(str(self.master_out_str) + "\n")
+                settings_file.write(str(self.port_lineEdit.text()) + "\n")
 
             settings_file.close()
 
@@ -357,7 +376,7 @@ class App(QMainWindow):
 
 
     def load_settings(self):
-        device, baudrate, udpin, udpout = "", "", "", ""
+        device, baudrate, udpin, udpout, port = "", "", "", "", ""
         try:
             settings_file = open(SETTINGS_FILE_NAME, "r")
             device = settings_file.readline().strip()
@@ -365,13 +384,14 @@ class App(QMainWindow):
             if device == "UDP":
                 udpin = settings_file.readline().strip()
                 udpout = settings_file.readline().strip()
+                port = settings_file.readline().strip()
             settings_file.close()
         except OSError:
             print("Could not open settings file: " + str(SETTINGS_FILE_NAME))
-        return (device, baudrate, udpin, udpout)
+        return (device, baudrate, udpin, udpout, port)
 
     def restore_from_settings(self):
-        device, baudrate, udpin, udpout = self.load_settings()
+        device, baudrate, udpin, udpout, port = self.load_settings()
         device = str(device)
         baudrate = str(baudrate)
 
@@ -389,6 +409,8 @@ class App(QMainWindow):
             for i in range(list_len):
                 if str(self.baud_comboBox.itemText(i)).startswith(baudrate):
                     self.baud_comboBox.setCurrentIndex(i)
+
+        self.port_lineEdit.setText(port)
 
     def strip_port(self, port_name):
         port_name = str(port_name)
@@ -431,7 +453,7 @@ class App(QMainWindow):
     def update_device_list(self):
         print("update_device_list")
         self.port_comboBox.clear()
-        placeholder_text = "Select the Port"
+        placeholder_text = "Select the Device"
         self.port_comboBox.addItem(placeholder_text)
         self.port_comboBox.setCurrentIndex(0)
 
@@ -857,6 +879,8 @@ class App(QMainWindow):
         selected_device = self.strip_port(selected_device_str)
         selected_baudrate = self.baud_comboBox.currentText()
 
+        self.update_GUI_by_UDP()
+
         is_trying_UDP = False
         if (self.device == "UDP" and not self.is_connection_done):
             is_trying_UDP = True
@@ -891,10 +915,11 @@ class App(QMainWindow):
                     udpout = "_None_"
                     if "Gateway" in current_interface.keys():
                         udpout = current_interface["Gateway"]
+                    port = int(self.port_lineEdit.text())
                     # new_master_in = mavutil.mavlink_connection("udpin:192.168.144.20:19856")
                     # new_master_out = mavutil.mavlink_connection("udpout:192.168.144.12:19856")
-                    self.master_in_str = "udpin:" + udpin + ":19856"
-                    self.master_out_str = "udpout:" + udpout + ":19856"
+                    self.master_in_str = "udpin:" + udpin + ":" + str(port) #":19856"
+                    self.master_out_str = "udpout:" + udpout + ":" + str(port) #":19856"
                     new_master_in = mavutil.mavlink_connection(self.master_in_str)
                     new_master_out = mavutil.mavlink_connection(self.master_out_str)
                 except SerialException:
@@ -1264,7 +1289,29 @@ def get_interface_info():
 
     platform_str = str(sys.platform)
     if platform_str.startswith("linux"):
-        pass
+        ip_route_output = subprocess.check_output(['ip', 'route', 'show'], universal_newlines=True)
+
+        for line in ip_route_output.split('\n'):
+            match = re.match(r'^default via (\S+) dev (\S+)', line)
+            if match:
+                gateway = match.group(1)
+                interface = match.group(2)
+                interfaces.append({'Interface': interface, 'Gateway': gateway})
+
+        for interface_info in interfaces:
+            interface = interface_info['Interface']
+            try:
+                ip_addr_output = subprocess.check_output(['ip', 'addr', 'show', interface], universal_newlines=True)
+                for line in ip_addr_output.split('\n'):
+                    if 'inet ' in line:
+                        parts = line.strip().split()
+                        ip = parts[1].split('/')[0]  # Извлекаем IP-адрес без маски
+                        interface_info['IP'] = ip
+                        break  # Переходим к следующему интерфейсу после того, как найден IP-адрес
+            except subprocess.CalledProcessError:
+                pass
+
+        return interfaces
 
     elif platform_str.startswith("win"):
         ipconfig_output = subprocess.check_output(['ipconfig'], shell=True, universal_newlines=True)
