@@ -917,11 +917,14 @@ class App(QMainWindow):
                             current_interface = None
                         else:
                             current_interface = self.interface_info[self.current_interface_number]
+
                         udpin = "_None_"
-                        if "IP" in current_interface.keys():
+                        if (current_interface is not None and
+                                "IP" in current_interface.keys()):
                             udpin = current_interface["IP"]
                         udpout = "_None_"
-                        if "Gateway" in current_interface.keys():
+                        if (current_interface is not None and
+                                "Gateway" in current_interface.keys()):
                             udpout = current_interface["Gateway"]
                         port = int(self.port_lineEdit.text())
                         # new_master_in = mavutil.mavlink_connection("udpin:192.168.144.20:19856")
