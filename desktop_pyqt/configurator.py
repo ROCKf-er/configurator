@@ -410,7 +410,8 @@ class App(QMainWindow):
                 if str(self.baud_comboBox.itemText(i)).startswith(baudrate):
                     self.baud_comboBox.setCurrentIndex(i)
 
-        self.port_lineEdit.setText(port)
+        if port != "":
+            self.port_lineEdit.setText(port)
 
     def strip_port(self, port_name):
         port_name = str(port_name)
