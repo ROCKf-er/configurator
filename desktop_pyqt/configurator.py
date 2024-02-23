@@ -162,6 +162,7 @@ class App(QMainWindow):
         regex = QtCore.QRegExp("[0-9]*")
         validator = QRegExpValidator(regex)
         self.port_lineEdit.setValidator(validator)
+        self.port_lineEdit.setText("19856")
 
         self.update_device_list()
         self.refreshButton.clicked.connect(self.refreshButton_clicked)
@@ -897,50 +898,54 @@ class App(QMainWindow):
 
             connection_timeout_sec = 0.5
             now_time_sec = time.time()
-            if is_trying_UDP and  now_time_sec > self.last_connection_time_sec + connection_timeout_sec:
-                try:
-                    self.removeAllRows()
+            if is_trying_UDP:
+                if now_time_sec > self.last_connection_time_sec + connection_timeout_sec:
+                    try:
+                        self.removeAllRows()
 
-                    self.last_connection_time_sec = now_time_sec
-                    self.current_interface_number = self.current_interface_number + 1
-                    if self.current_interface_number >= len(self.interface_info):
-                        self.current_interface_number = 0
-                    # interface_values = self.interface_info.values()
-                    # current_interface_value = list(interface_values)[self.current_interface_number]
-                    # udpin = current_interface_value["ip"]
-                    # udpout = current_interface_value["gateway"]
-                    current_interface = self.interface_info[self.current_interface_number]
-                    udpin = "_None_"
-                    if "IP" in current_interface.keys():
-                        udpin = current_interface["IP"]
-                    udpout = "_None_"
-                    if "Gateway" in current_interface.keys():
-                        udpout = current_interface["Gateway"]
-                    port = int(self.port_lineEdit.text())
-                    # new_master_in = mavutil.mavlink_connection("udpin:192.168.144.20:19856")
-                    # new_master_out = mavutil.mavlink_connection("udpout:192.168.144.12:19856")
-                    self.master_in_str = "udpin:" + udpin + ":" + str(port) #":19856"
-                    self.master_out_str = "udpout:" + udpout + ":" + str(port) #":19856"
-                    new_master_in = mavutil.mavlink_connection(self.master_in_str)
-                    new_master_out = mavutil.mavlink_connection(self.master_out_str)
-                except SerialException:
-                    print(f"! Can not connect to: {selected_device} at {selected_baudrate}")
-                except Exception as e:
-                    print(f"Connection exeption: {e}")
-                else:
-                    #self.removeAllRows()
-                    # await asyncio.sleep(CONNECT_PERIOD_S)
-                    self.master_in = new_master_in
-                    self.master_out = new_master_out
-                    #print(f"Connected to: {self.master.port} at {self.master.baud}")
-                    # self.device = selected_device
-                    # self.baudrate = selected_baudrate
-                    self.remember_settings(selected_device, selected_baudrate)
-                    # is_connected = True
+                        self.last_connection_time_sec = now_time_sec
+                        self.current_interface_number = self.current_interface_number + 1
+                        if self.current_interface_number >= len(self.interface_info):
+                            self.current_interface_number = 0
+                        # interface_values = self.interface_info.values()
+                        # current_interface_value = list(interface_values)[self.current_interface_number]
+                        # udpin = current_interface_value["ip"]
+                        # udpout = current_interface_value["gateway"]
+                        current_interface = self.interface_info[self.current_interface_number]
+                        udpin = "_None_"
+                        if "IP" in current_interface.keys():
+                            udpin = current_interface["IP"]
+                        udpout = "_None_"
+                        if "Gateway" in current_interface.keys():
+                            udpout = current_interface["Gateway"]
+                        port = int(self.port_lineEdit.text())
+                        # new_master_in = mavutil.mavlink_connection("udpin:192.168.144.20:19856")
+                        # new_master_out = mavutil.mavlink_connection("udpout:192.168.144.12:19856")
+                        self.master_in_str = "udpin:" + udpin + ":" + str(port) #":19856"
+                        self.master_out_str = "udpout:" + udpout + ":" + str(port) #":19856"
+                        new_master_in = mavutil.mavlink_connection(self.master_in_str)
+                        new_master_out = mavutil.mavlink_connection(self.master_out_str)
+                    except SerialException:
+                        print(f"! Can not connect to: {self.master_in_str}")
+                    except Exception as e:
+                        print(f"During connection to: {self.master_in_str}")
+                        print(f"Connection exeption: {type(e).__name__}")
+                        print(f"Exeption args: {e.args}")
+                    else:
+                        #self.removeAllRows()
+                        # await asyncio.sleep(CONNECT_PERIOD_S)
+                        self.master_in = new_master_in
+                        self.master_out = new_master_out
+                        print(f"Connected to in: {self.master_in_str}")
+                        print(f"Connected to out: {self.master_out_str}")
+                        # self.device = selected_device
+                        # self.baudrate = selected_baudrate
+                        self.remember_settings(selected_device, selected_baudrate)
+                        # is_connected = True
 
-                    self.getPushButton_clicked()
+                        self.getPushButton_clicked()
 
-            else: # if selected_device == "UDP":
+            else: # if is_trying_UDP:
 
                 if self.master_in is not None:
                     self.master_in.close()
@@ -960,13 +965,15 @@ class App(QMainWindow):
                 except SerialException:
                     print(f"! Can not connect to: {selected_device} at {selected_baudrate}")
                 except Exception as e:
-                    print(f"Connection exeption: {e}")
+                    print(f"During connection to: {selected_device} at {selected_baudrate}")
+                    print(f"Connection exeption: {type(e).__name__}")
+                    print(f"Exeption args: {e.args}")
                 else:
                     # self.removeAllRows()
                     # await asyncio.sleep(CONNECT_PERIOD_S)
                     self.master_in = new_master_in
                     self.master_out = self.master_in
-                    #print(f"Connected to: {self.master.port} at {self.master.baud}")
+                    print(f"Connected to in/out: {selected_device} at {selected_baudrate}")
                     # self.device = selected_device
                     # self.baudrate = selected_baudrate
                     self.remember_settings(selected_device, selected_baudrate)
