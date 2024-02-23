@@ -911,6 +911,10 @@ class App(QMainWindow):
                         # current_interface_value = list(interface_values)[self.current_interface_number]
                         # udpin = current_interface_value["ip"]
                         # udpout = current_interface_value["gateway"]
+                        if (self.interface_info is None or
+                            self.current_interface_number < 0 or
+                             self.current_interface_number >= len(self.interface_info)):
+                            return
                         current_interface = self.interface_info[self.current_interface_number]
                         udpin = "_None_"
                         if "IP" in current_interface.keys():
