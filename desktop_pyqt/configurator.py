@@ -1336,20 +1336,28 @@ def get_interface_info():
 
         # interfaces = []
         current_interface = {}
+        is_ip_found = False
+        is_geteway_found = False
 
         for line in lines:
             if 'adapter' in line.lower():
+                current_interface = {'Interface': line.split(':')[0].strip()}
                 # if current_interface:
                 #     interfaces.append(current_interface)
-                current_interface = {'Interface': line.split(':')[0].strip()}
             elif 'IPv4 Address' in line:
                 current_interface['IP'] = line.split(':')[-1].strip()
+                if len(current_interface['IP']) > 0:
+                    is_ip_found = True
             elif 'Default Gateway' in line:
                 current_interface['Gateway'] = line.split(':')[-1].strip()
+                if len(current_interface['Gateway']) > 0:
+                    is_geteway_found = True
 
-        if current_interface:
-            if 'IP' in current_interface.keys() and 'Gateway' in current_interface.keys():
-                interfaces.append(current_interface)
+            if current_interface:
+                if is_ip_found and is_geteway_found:
+                    interfaces.append(current_interface)
+                    is_ip_found = False
+                    is_geteway_found = False
 
     # Example of output:
     # [{'Interface': 'Ethernet adapter Ethernet'},
