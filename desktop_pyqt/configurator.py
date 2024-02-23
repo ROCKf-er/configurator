@@ -1331,8 +1331,8 @@ def get_interface_info():
 
         for line in lines:
             if 'adapter' in line.lower():
-                if current_interface:
-                    interfaces.append(current_interface)
+                # if current_interface:
+                #     interfaces.append(current_interface)
                 current_interface = {'Interface': line.split(':')[0].strip()}
             elif 'IPv4 Address' in line:
                 current_interface['IP'] = line.split(':')[-1].strip()
@@ -1340,7 +1340,8 @@ def get_interface_info():
                 current_interface['Gateway'] = line.split(':')[-1].strip()
 
         if current_interface:
-            interfaces.append(current_interface)
+            if 'IP' in current_interface.keys() and 'Gateway' in current_interface.keys():
+                interfaces.append(current_interface)
 
     # Example of output:
     # [{'Interface': 'Ethernet adapter Ethernet'},
