@@ -32,8 +32,8 @@
         </P_COEF>
         <I_COEF>
             <DisplayName> </DisplayName>
-            <Description><![CDATA[Інтегральний коефіцієнт. Відладка]]></Description>
-            <Range>-100.00 100.00</Range>
+            <Description><![CDATA[Інтегральний коефіцієнт]]></Description>
+            <Range>0.00 1.00</Range>
             <User>Standard</User>
             <Default>0.00</Default>
             <Step>0.01</Step>
