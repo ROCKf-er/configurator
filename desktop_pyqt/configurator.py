@@ -619,9 +619,11 @@ class App(QMainWindow):
         print("postvalidateEdited")
         if not edited_cell_is_valid:
             if edited_cell is not None:
-                edited_cell.setText(str(edited_cell_saved_value))
-                print(f"post set to saved = {edited_cell_saved_value}")
-                edited_cell = None
+                # disable rollback for invalid values
+                #edited_cell.setText(str(edited_cell_saved_value))
+                #print(f"post set to saved = {edited_cell_saved_value}")
+                #edited_cell = None
+                pass
 
     def getClickedCell(self, row, column):
         global edited_cell
@@ -1230,7 +1232,10 @@ class ItemDelegate(QStyledItemDelegate):
             #if not self.is_valid:
             if not edited_cell_is_valid:
                 #editor.setText(self.saved_value)
-                editor.setText(edited_cell_saved_value)
+
+                # disable rollback for invalid values
+                #editor.setText(edited_cell_saved_value)
+                pass
 
     def validate_and_update_color(self, text):
         global edited_cell_is_valid
