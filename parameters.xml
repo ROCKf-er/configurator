@@ -43,7 +43,7 @@
         <I_COEF_Y>
             <DisplayName> </DisplayName>
             <Description><![CDATA[Інтегральний коефіцієнт для Pitch]]></Description>
-            <Range>0 2.00</Range>
+            <Range>0.00 2.00</Range>
             <User>Standard</User>
             <Default>0.00</Default>
             <Step>0.01</Step>
