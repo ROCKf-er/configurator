@@ -1,0 +1,225 @@
+<Params>
+    <ArduPlane>
+        <G_ROLL_ANGLE>
+            <DisplayName></DisplayName>
+            <Description><![CDATA[Кут повороту при пошуку цілі (при RSSI < THRESHOLD)]]></Description>
+            <Range>-30 30</Range>
+            <User>Standard</User>
+            <Default>10</Default>
+            <Step>1</Step>
+            <Index>0</Index>
+            <Type>MAV_PARAM_TYPE_INT16</Type>
+        </G_ROLL_ANGLE>
+        <ANGLE_MIXER>
+            <DisplayName> </DisplayName>
+            <Description><![CDATA[ROLL = YAW * ANGLE_MIXER]]></Description>
+            <Range>0.00 2.00</Range>
+            <User>Standard</User>
+            <Default>0.75</Default>
+            <Step>0.01</Step>
+            <Index>1</Index>
+            <Type>MAV_PARAM_TYPE_REAL32</Type>
+        </ANGLE_MIXER>
+        <P_COEF>
+            <DisplayName> </DisplayName>
+            <Description><![CDATA[Пропорційний коефіцієнт]]></Description>
+            <Range>0.20 5.00</Range>
+            <User>Standard</User>
+            <Default>1.00</Default>
+            <Step>0.01</Step>
+            <Index>2</Index>
+            <Type>MAV_PARAM_TYPE_REAL32</Type>
+        </P_COEF>
+        <I_COEF_X>
+            <DisplayName> </DisplayName>
+            <Description><![CDATA[Інтегральний коефіцієнт для Roll/Yaw]]></Description>
+            <Range>0.00 2.00</Range>
+            <User>Standard</User>
+            <Default>0.00</Default>
+            <Step>0.01</Step>
+            <Index>3</Index>
+            <Type>MAV_PARAM_TYPE_REAL32</Type>
+        </I_COEF_X>
+        <I_COEF_Y>
+            <DisplayName> </DisplayName>
+            <Description><![CDATA[Інтегральний коефіцієнт для Pitch]]></Description>
+            <Range>0 2.00</Range>
+            <User>Standard</User>
+            <Default>0.00</Default>
+            <Step>0.01</Step>
+            <Index>4</Index>
+            <Type>MAV_PARAM_TYPE_REAL32</Type>
+        </I_COEF_Y>
+        <ANTENNA_ANGLE>
+            <DisplayName> </DisplayName>
+            <Description><![CDATA[Кут встановлення антенного модуля (-20º – нормаль антени відхилена вниз від осі літака)]]></Description>
+            <Range>-90 45</Range>
+            <User>Standard</User>
+            <Default>0</Default>
+            <Step>1</Step>
+            <Index>5</Index>
+            <Type>MAV_PARAM_TYPE_INT16</Type>
+        </ANTENNA_ANGLE>
+        <SERVO_CLOSE>
+            <DisplayName> </DisplayName>
+            <Description><![CDATA[Сигнал на закриття скиду. Режим БОМБЕР]]></Description>
+            <Range>500 2500</Range>
+            <User>Standard</User>
+            <Default>1900</Default>
+            <Step>1</Step>
+            <Index>6</Index>
+            <Type>MAV_PARAM_TYPE_INT16</Type>
+        </SERVO_CLOSE>
+        <SERVO_OPEN>
+            <DisplayName> </DisplayName>
+            <Description><![CDATA[Сигнал на відкриття скиду. Режим БОМБЕР]]></Description>
+            <Range>500 2500</Range>
+            <User>Standard</User>
+            <Default>1220</Default>
+            <Step>1</Step>
+            <Index>7</Index>
+            <Type>MAV_PARAM_TYPE_INT16</Type>
+        </SERVO_OPEN>
+        <SERVO_CHANNEL>
+            <DisplayName> </DisplayName>
+            <Description><![CDATA[Номер каналу для підключення механізму скидання. Режим БОМБЕР]]></Description>
+            <Range>1 15</Range>
+            <User>Standard</User>
+            <Default>8</Default>
+            <Step>1</Step>
+            <Index>8</Index>
+            <Type>MAV_PARAM_TYPE_UINT8</Type>
+        </SERVO_CHANNEL>
+        <SCAN_ALT>
+            <DisplayName> </DisplayName>
+            <Description><![CDATA[Висота пошуку цілі]]></Description>
+            <Range>10 500</Range>
+            <User>Standard</User>
+            <Default>200</Default>
+            <Step>1</Step>
+            <Index>9</Index>
+            <Type>MAV_PARAM_TYPE_UINT16</Type>
+        </SCAN_ALT>
+        <SCAN_SPEED>
+            <DisplayName> </DisplayName>
+            <Description><![CDATA[Швидкість м/с при пошуку цілі. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу]]></Description>
+            <Range>0.20 100.00</Range>
+            <User>Standard</User>
+            <Default>20.00</Default>
+            <Step>0.01</Step>
+            <Index>10</Index>
+            <Type>MAV_PARAM_TYPE_REAL32</Type>
+        </SCAN_SPEED>
+        <SCAN_SECTOR>
+            <DisplayName> </DisplayName>
+            <Description><![CDATA[Після ввімкнення режиму Guided пошук цілі буде відбуватися у проміжку від (Heading –  SCAN_SECTOR / 2) до (Heading +  SCAN_SECTOR / 2)]]></Description>
+            <Range>1 360</Range>
+            <User>Standard</User>
+            <Default>180</Default>
+            <Step>1</Step>
+            <Index>11</Index>
+            <Type>MAV_PARAM_TYPE_UINT16</Type>
+        </SCAN_SECTOR>
+        <DROP_ALT>
+            <DisplayName> </DisplayName>
+            <Description><![CDATA[Висота заходу на ціль. Режим БОМБЕР]]></Description>
+            <Range>10 400</Range>
+            <User>Standard</User>
+            <Default>100</Default>
+            <Step>1</Step>
+            <Index>12</Index>
+            <Type>MAV_PARAM_TYPE_UINT16</Type>
+        </DROP_ALT>
+        <DROP_LVL>
+            <DisplayName> </DisplayName>
+            <Description><![CDATA[Рівень сигналу при якому відбувається зниження до DROP_ALT. Режим БОМБЕР]]></Description>
+            <Range>-80 -50</Range>
+            <User>Standard</User>
+            <Default>-60</Default>
+            <Step>1</Step>
+            <Index>13</Index>
+            <Type>MAV_PARAM_TYPE_INT16</Type>
+        </DROP_LVL>
+        <DROP_SPEED>
+            <DisplayName> </DisplayName>
+            <Description><![CDATA[Швидкість м/с при заході на ціль. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу. Режим БОМБЕР]]></Description>
+            <Range>0.20 100.00</Range>
+            <User>Standard</User>
+            <Default>25.00</Default>
+            <Step>0.01</Step>
+            <Index>14</Index>
+            <Type>MAV_PARAM_TYPE_REAL32</Type>
+        </DROP_SPEED>
+        <DROP_ANGLE>
+            <DisplayName> </DisplayName>
+            <Description><![CDATA[Кут на ціль відносно літака, при якому скидається вантаж. Режим БОМБЕР]]></Description>
+            <Range>-90 0</Range>
+            <User>Standard</User>
+            <Default>-45</Default>
+            <Step>1</Step>
+            <Index>15</Index>
+            <Type>MAV_PARAM_TYPE_INT16</Type>
+        </DROP_ANGLE>
+        <UAV_PURPOSE>
+            <DisplayName> </DisplayName>
+            <Description><![CDATA[Тип застосування: 0 - БОМБЕР, 1 - БОМБЕР з поверненням додому, 2 - КАМІКАДЗЕ, 3 - ГЛАЙДЕР]]></Description>
+            <Range>0 3</Range>
+            <User>Standard</User>
+            <Default>2</Default>
+            <Step>1</Step>
+            <Index>16</Index>
+            <Type>MAV_PARAM_TYPE_INT16</Type>
+        </UAV_PURPOSE>
+        <DIVING_ANGLE>
+            <DisplayName> </DisplayName>
+            <Description><![CDATA[Кут пікірування. DIVING_ANGLE - ANTENNA_ANGLE >= -30.  Режим КАМІКАДЗЕ]]></Description>
+            <Range>-60 0</Range>
+            <User>Standard</User>
+            <Default>-25</Default>
+            <Step>1</Step>
+            <Index>17</Index>
+            <Type>MAV_PARAM_TYPE_INT16</Type>
+        </DIVING_ANGLE>
+        <DIVING_SPEED>
+            <DisplayName> </DisplayName>
+            <Description><![CDATA[Швидкість м/с при заході на ціль. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу.Режим КАМІКАДЗЕ]]></Description>
+            <Range>0.20 100.00</Range>
+            <User>Standard</User>
+            <Default>20.00</Default>
+            <Step>0.01</Step>
+            <Index>18</Index>
+            <Type>MAV_PARAM_TYPE_REAL32</Type>
+        </DIVING_SPEED>
+        <MISSION_HEADING>
+            <DisplayName> </DisplayName>
+            <Description><![CDATA[[град] При включенні Guided буде виконано вихід на точку пошуку по азимуту MISSION_HEADING]]></Description>
+            <Range>0.0 360.0</Range>
+            <User>Standard</User>
+            <Default>0.0</Default>
+            <Step>0.1</Step>
+            <Index>19</Index>
+            <Type>MAV_PARAM_TYPE_REAL32</Type>
+        </MISSION_HEADING>
+        <MISSION_DELAY>
+            <DisplayName> </DisplayName>
+            <Description><![CDATA[[c] При включенні Guided буде виконано вихід на точку пошуку зі швидкістю SCAN_SPEED протягом MISSION_DELAY]]></Description>
+            <Range>0 100000</Range>
+            <User>Standard</User>
+            <Default>0</Default>
+            <Step>1</Step>
+            <Index>20</Index>
+            <Type>MAV_PARAM_TYPE_INT16</Type>
+        </MISSION_DELAY>
+        <OPTIONS>
+            <DisplayName> </DisplayName>
+            <Description> </Description>
+            <Range>0 255</Range>
+            <User>Standard</User>
+            <Default>0</Default>
+            <Step>1</Step>
+            <Index>21</Index>
+            <Type>MAV_PARAM_TYPE_UINT8</Type>
+            <Bitmask>0: DEBUG_MESSAGES, 1: ROLL_OFF</Bitmask>
+        </OPTIONS>
+    </ArduPlane>
+</Params>

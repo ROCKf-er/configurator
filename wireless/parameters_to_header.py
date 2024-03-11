@@ -1,8 +1,8 @@
 from xml.dom import minidom
 import os
 
-XML_FILE_NAME = "./parameters.xml"
-HEADER_FILE_NAME = "./wireless/include/constraints.h"
+XML_FILE_NAME = "../parameters.xml"
+HEADER_FILE_NAME = "include/constraints.h"
 
 #if __name__ == "__main__":
 
