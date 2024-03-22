@@ -35,7 +35,7 @@
             <Description><![CDATA[Інтегральний коефіцієнт для Roll/Yaw]]></Description>
             <Range>0.00 2.00</Range>
             <User>Standard</User>
-            <Default>0.00</Default>
+            <Default>0.20</Default>
             <Step>0.01</Step>
             <Index>3</Index>
             <Type>MAV_PARAM_TYPE_REAL32</Type>
@@ -45,7 +45,7 @@
             <Description><![CDATA[Інтегральний коефіцієнт для Pitch]]></Description>
             <Range>0.00 2.00</Range>
             <User>Standard</User>
-            <Default>0.00</Default>
+            <Default>0.40</Default>
             <Step>0.01</Step>
             <Index>4</Index>
             <Type>MAV_PARAM_TYPE_REAL32</Type>
@@ -75,7 +75,7 @@
             <Description><![CDATA[Сигнал на відкриття скиду. Режим БОМБЕР]]></Description>
             <Range>500 2500</Range>
             <User>Standard</User>
-            <Default>1220</Default>
+            <Default>1200</Default>
             <Step>1</Step>
             <Index>7</Index>
             <Type>MAV_PARAM_TYPE_INT16</Type>
@@ -105,7 +105,7 @@
             <Description><![CDATA[Швидкість м/с при пошуку цілі. При відсутності трубки Піто встановити значення 0..1, що відповідатиме % газу]]></Description>
             <Range>0.20 100.00</Range>
             <User>Standard</User>
-            <Default>20.00</Default>
+            <Default>25.00</Default>
             <Step>0.01</Step>
             <Index>10</Index>
             <Type>MAV_PARAM_TYPE_REAL32</Type>
@@ -175,7 +175,7 @@
             <Description><![CDATA[Кут пікірування. DIVING_ANGLE - ANTENNA_ANGLE >= -30.  Режим КАМІКАДЗЕ]]></Description>
             <Range>-60 0</Range>
             <User>Standard</User>
-            <Default>-25</Default>
+            <Default>-30</Default>
             <Step>1</Step>
             <Index>17</Index>
             <Type>MAV_PARAM_TYPE_INT16</Type>
@@ -219,7 +219,7 @@
             <Step>1</Step>
             <Index>21</Index>
             <Type>MAV_PARAM_TYPE_UINT8</Type>
-            <Bitmask>0: DEBUG_MESSAGES, 1: ROLL_OFF</Bitmask>
+            <Bitmask>0: DEBUG_MESSAGES, 1: ROLL_DIVING_OFF, 2: ROLL_SCAN_OFF</Bitmask>
         </OPTIONS>
     </ArduPlane>
 </Params>
