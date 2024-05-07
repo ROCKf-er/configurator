@@ -160,6 +160,16 @@
             <Index>15</Index>
             <Type>MAV_PARAM_TYPE_INT16</Type>
         </DROP_ANGLE>
+        <DROP_DELAY>
+            <DisplayName> </DisplayName>
+            <Description><![CDATA[Затримка перед скиданням [мс]. Режим БОМБЕР]]></Description>
+            <Range>0 5000</Range>
+            <User>Standard</User>
+            <Default>0</Default>
+            <Step>1</Step>
+            <Index>16</Index>
+            <Type>MAV_PARAM_TYPE_INT16</Type>
+        </DROP_DELAY>
         <UAV_PURPOSE>
             <DisplayName> </DisplayName>
             <Description><![CDATA[Тип застосування: 0 - БОМБЕР, 1 - БОМБЕР з поверненням додому, 2 - КАМІКАДЗЕ, 3 - ГЛАЙДЕР]]></Description>
@@ -167,7 +177,7 @@
             <User>Standard</User>
             <Default>2</Default>
             <Step>1</Step>
-            <Index>16</Index>
+            <Index>17</Index>
             <Type>MAV_PARAM_TYPE_INT16</Type>
         </UAV_PURPOSE>
         <DIVING_ANGLE>
@@ -177,7 +187,7 @@
             <User>Standard</User>
             <Default>-30</Default>
             <Step>1</Step>
-            <Index>17</Index>
+            <Index>18</Index>
             <Type>MAV_PARAM_TYPE_INT16</Type>
         </DIVING_ANGLE>
         <DIVING_SPEED>
@@ -187,7 +197,7 @@
             <User>Standard</User>
             <Default>20.00</Default>
             <Step>0.01</Step>
-            <Index>18</Index>
+            <Index>19</Index>
             <Type>MAV_PARAM_TYPE_REAL32</Type>
         </DIVING_SPEED>
         <MISSION_HEADING>
@@ -197,29 +207,29 @@
             <User>Standard</User>
             <Default>0.0</Default>
             <Step>0.1</Step>
-            <Index>19</Index>
+            <Index>20</Index>
             <Type>MAV_PARAM_TYPE_REAL32</Type>
         </MISSION_HEADING>
         <MISSION_DELAY>
             <DisplayName> </DisplayName>
-            <Description><![CDATA[[c] При включенні Guided буде виконано вихід на точку пошуку зі швидкістю SCAN_SPEED протягом MISSION_DELAY]]></Description>
+            <Description><![CDATA[[c] При включенні Guided буде виконано вихід на точку пошуку зі швидкістю SCAN_SPEED протягом MISSION_DELAY. Неактивно, якщо AUTO_GUIDED_ON]]></Description>
             <Range>0 100000</Range>
             <User>Standard</User>
             <Default>0</Default>
             <Step>1</Step>
-            <Index>20</Index>
+            <Index>21</Index>
             <Type>MAV_PARAM_TYPE_INT16</Type>
         </MISSION_DELAY>
         <OPTIONS>
             <DisplayName> </DisplayName>
-            <Description> </Description>
+            <Description> <![CDATA[ DEBUG_MESSAGES - відображення кутів на ціль та ін., ROLL_DIVING(DROP)_OFF - відключення рудера при пікіруванні/скиданні, ROLL_SCAN_OFF - відключення рудера при підльоті, AUTO_GUIDED_ON - автоматичне включення режиму автонаведення при детекті цілі]]> </Description>
             <Range>0 255</Range>
             <User>Standard</User>
             <Default>0</Default>
             <Step>1</Step>
-            <Index>21</Index>
+            <Index>22</Index>
             <Type>MAV_PARAM_TYPE_UINT8</Type>
-            <Bitmask>0: DEBUG_MESSAGES, 1: ROLL_DIVING_OFF, 2: ROLL_SCAN_OFF</Bitmask>
+            <Bitmask>0: DEBUG_MESSAGES, 1: ROLL_DIVING(DROP)_OFF, 2: ROLL_SCAN_OFF, 3: AUTO_GUIDED_ON, 4:, 5:, 6:, 7:</Bitmask>
         </OPTIONS>
     </ArduPlane>
 </Params>
