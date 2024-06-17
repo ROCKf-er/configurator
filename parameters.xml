@@ -33,20 +33,20 @@
         <I_COEF_X>
             <DisplayName> </DisplayName>
             <Description><![CDATA[Інтегральний коефіцієнт для Roll/Yaw]]></Description>
-            <Range>0.00 2.00</Range>
+            <Range>0.000 2.000</Range>
             <User>Standard</User>
-            <Default>0.20</Default>
-            <Step>0.01</Step>
+            <Default>0.200</Default>
+            <Step>0.001</Step>
             <Index>3</Index>
             <Type>MAV_PARAM_TYPE_REAL32</Type>
         </I_COEF_X>
         <I_COEF_Y>
             <DisplayName> </DisplayName>
             <Description><![CDATA[Інтегральний коефіцієнт для Pitch]]></Description>
-            <Range>0.00 2.00</Range>
+            <Range>0.000 2.000</Range>
             <User>Standard</User>
-            <Default>0.40</Default>
-            <Step>0.01</Step>
+            <Default>0.400</Default>
+            <Step>0.001</Step>
             <Index>4</Index>
             <Type>MAV_PARAM_TYPE_REAL32</Type>
         </I_COEF_Y>
@@ -218,7 +218,7 @@
             <Default>0</Default>
             <Step>1</Step>
             <Index>21</Index>
-            <Type>MAV_PARAM_TYPE_INT16</Type>
+            <Type>MAV_PARAM_TYPE_UINT16</Type>
         </MISSION_DELAY>
         <OPTIONS>
             <DisplayName> </DisplayName>
@@ -229,7 +229,57 @@
             <Step>1</Step>
             <Index>22</Index>
             <Type>MAV_PARAM_TYPE_UINT8</Type>
-            <Bitmask>0: DEBUG_MESSAGES, 1: ROLL_DIVING(DROP)_OFF, 2: ROLL_SCAN_OFF, 3: AUTO_GUIDED_ON, 4:, 5:, 6:, 7:</Bitmask>
+            <Bitmask>0: DEBUG_MESSAGES, 1: ROLL_DIVING(DROP)_OFF, 2: ROLL_SCAN_OFF, 3: AUTO_GUIDED_ON, 4: SAFE_DEBUG, 5:, 6:, 7:</Bitmask>
         </OPTIONS>
+        <GUIDED_RC_CHAN>
+            <DisplayName> <![CDATA[Канал для активації режиму самонаведення, >1800 мкс - активовано, <1500 мкс - деактивовано]]></DisplayName>
+            <Description>  </Description>
+            <Range>0 18</Range>
+            <User>Standard</User>
+            <Default>7</Default>
+            <Step>1</Step>
+            <Index>23</Index>
+            <Type>MAV_PARAM_TYPE_INT16</Type>
+        </GUIDED_RC_CHAN>
+        <THROTTLE_P>
+            <DisplayName> </DisplayName>
+            <Description><![CDATA[Пропорційний коефіцієнт для throttle]]></Description>
+            <Range>0.000 1.000</Range>
+            <User>Standard</User>
+            <Default>0.020</Default>
+            <Step>0.001</Step>
+            <Index>24</Index>
+            <Type>MAV_PARAM_TYPE_REAL32</Type>
+        </THROTTLE_P>
+        <THROTTLE_I>
+            <DisplayName> </DisplayName>
+            <Description><![CDATA[Інтегральний коефіцієнт для throttle]]></Description>
+            <Range>0.000 1.000</Range>
+            <User>Standard</User>
+            <Default>0.005</Default>
+            <Step>0.001</Step>
+            <Index>25</Index>
+            <Type>MAV_PARAM_TYPE_REAL32</Type>
+        </THROTTLE_I>
+        <THROTTLE_D>
+            <DisplayName> </DisplayName>
+            <Description><![CDATA[Диференційний коефіцієнт для throttle]]></Description>
+            <Range>0.000 1.000</Range>
+            <User>Standard</User>
+            <Default>0.000</Default>
+            <Step>0.001</Step>
+            <Index>26</Index>
+            <Type>MAV_PARAM_TYPE_REAL32</Type>
+        </THROTTLE_D>
+        <THROTTLE_MIN>
+            <DisplayName> </DisplayName>
+            <Description><![CDATA[Мінімальний рівень для throttle]]></Description>
+            <Range>0.00 0.50</Range>
+            <User>Standard</User>
+            <Default>0.00</Default>
+            <Step>0.01</Step>
+            <Index>27</Index>
+            <Type>MAV_PARAM_TYPE_REAL32</Type>
+        </THROTTLE_MIN>
     </ArduPlane>
 </Params>
