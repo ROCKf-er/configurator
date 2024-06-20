@@ -172,7 +172,7 @@
         </DROP_DELAY>
         <UAV_PURPOSE>
             <DisplayName> </DisplayName>
-            <Description><![CDATA[Тип застосування: 0 - БОМБЕР, 1 - БОМБЕР з поверненням додому, 2 - КАМІКАДЗЕ, 3 - ГЛАЙДЕР]]></Description>
+            <Description><![CDATA[Тип застосування: 0 - БОМБЕР, 1 - БОМБЕР з поверненням додому, 2 - КАМІКАДЗЕ, 3 - ГЛАЙДЕР, 4 - Коптер бомбер, 5 - Коптер бомбер з поверненням, 6 - Коптер камікадзе]]></Description>
             <Range>0 3</Range>
             <User>Standard</User>
             <Default>2</Default>
@@ -222,7 +222,7 @@
         </MISSION_DELAY>
         <OPTIONS>
             <DisplayName> </DisplayName>
-            <Description> <![CDATA[ DEBUG_MESSAGES - відображення кутів на ціль та ін., ROLL_DIVING(DROP)_OFF - відключення рудера при пікіруванні/скиданні, ROLL_SCAN_OFF - відключення рудера при підльоті, AUTO_GUIDED_ON - автоматичне включення режиму автонаведення при детекті цілі]]> </Description>
+            <Description> <![CDATA[DEBUG_MESSAGES - відображення кутів на ціль та ін., ROLL_DIVING(DROP)_OFF - відключення рудера при пікіруванні/скиданні, ROLL_SCAN_OFF - відключення рудера при підльоті, AUTO_GUIDED_ON - автоматичне включення режиму автонаведення при детекті цілі]]> </Description>
             <Range>0 255</Range>
             <User>Standard</User>
             <Default>0</Default>
@@ -232,14 +232,14 @@
             <Bitmask>0: DEBUG_MESSAGES, 1: ROLL_DIVING(DROP)_OFF, 2: ROLL_SCAN_OFF, 3: AUTO_GUIDED_ON, 4: SAFE_DEBUG, 5:, 6:, 7:</Bitmask>
         </OPTIONS>
         <GUIDED_RC_CHAN>
-            <DisplayName> <![CDATA[Канал для активації режиму самонаведення, >1800 мкс - активовано, <1500 мкс - деактивовано]]></DisplayName>
-            <Description>  </Description>
+            <DisplayName> </DisplayName>
+            <Description><![CDATA[Канал для активації режиму самонаведення, >1800 мкс - активовано, <1500 мкс - деактивовано]]> </Description>
             <Range>0 18</Range>
             <User>Standard</User>
             <Default>7</Default>
             <Step>1</Step>
             <Index>23</Index>
-            <Type>MAV_PARAM_TYPE_INT16</Type>
+            <Type>MAV_PARAM_TYPE_UINT16</Type>
         </GUIDED_RC_CHAN>
         <THROTTLE_P>
             <DisplayName> </DisplayName>
